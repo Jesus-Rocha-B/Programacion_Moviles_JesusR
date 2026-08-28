@@ -4,6 +4,26 @@ data class Producto(
     val precio: Double,
     var cantidad: Int
 )
+// Función para calcular el subtotal de los productos en el carrito
+fun calcularSubtotal(productos: List<Producto>): Double {
+    // La variable comienza desde 0 (es var por que va a cambiar su valor)
+    var subtotal = 0.0
+    for (p in productos) {
+        subtotal += p.precio * p.cantidad
+    }
+    return subtotal
+}
+// Función para calcular el igv
+fun calcularIGV(subtotal: Double): Double {
+    var igv = subtotal * 0.18
+    return igv
+}
+// Función para calcular el total del carrito
+fun calcularTotal(subtotal: Double, igv: Double): Double {
+    var total = subtotal + igv
+    return total
+}
+
 fun main() {
     println("=========================================")
     println("   CARRITO DE COMPRAS - TIENDA TECSUP    ")
@@ -22,4 +42,10 @@ fun main() {
     for (producto in carrito) {
         println("Producto agregado: ${producto.nombre}")
     }
+    val subtotal = calcularSubtotal(carrito)
+    val igv = calcularIGV(subtotal)
+    val total = calcularTotal(subtotal, igv)
+    println("Subtotal: S/$subtotal")
+    println("IGV 18%: S/$igv")
+    println("Total: S/$total")
 }
