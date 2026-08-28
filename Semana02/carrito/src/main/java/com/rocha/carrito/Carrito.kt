@@ -137,8 +137,10 @@ fun main() {
     // Añadir productos de diferentes categorías
     miCarrito.agregarProducto(ProductoElectronico("Laptop HP", 2500.0, 1, 5))
     miCarrito.agregarProducto(ProductoElectronico("Mouse Logitech", 45.5, 2, 10))
+    miCarrito.agregarProducto(ProductoElectronico("Audífonos Sony", 120.0, 1, 15)) // Nuevo electrónico
     miCarrito.agregarProducto(ProductoAlimento("Arroz Extra 5kg", 25.0, 2, 50))
     miCarrito.agregarProducto(ProductoAlimento("Leche Pack x6", 28.5, 1, 30))
+    miCarrito.agregarProducto(ProductoAlimento("Aceite Vegetal 1L", 12.5, 3, 40)) // Nuevo alimento
     
     println("")
     
