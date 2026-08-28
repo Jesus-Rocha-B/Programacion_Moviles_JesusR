@@ -38,6 +38,14 @@ fun mostrarDetallesCarrito(productos: List<Producto>) {
     }
     println("-----------------------------------------")
 }
+// Calcular descuento dependiendo el total de la compra
+fun calcularDescuentoCarrito(total: Double): Double {
+    return when {
+        total > 5000 -> total * 0.10
+        total > 3000 -> total * 0.05
+        else -> 0.0
+    }
+}
 fun main() {
     println("=========================================")
     println("   CARRITO DE COMPRAS - TIENDA TECSUP    ")
@@ -52,7 +60,6 @@ fun main() {
     carrito.add(Producto("Mouse Logitech", 45.5, 2))
     carrito.add(Producto("Mouse Rayzer", 99.9, 3))
     carrito.add(Producto("Teclado Redragon", 199.5, 10))
-    // Un bucle for para mencionar los productos agregados al carrito
     for (producto in carrito) {
         println("Producto agregado: ${producto.nombre}")
     }
@@ -60,11 +67,21 @@ fun main() {
     val subtotal = calcularSubtotal(carrito)
     val igv = calcularIGV(subtotal)
     val total = calcularTotal(subtotal, igv)
-    // Mostramos el detalle del carrito
     mostrarDetallesCarrito(carrito)
     println("Cantidad de productos: ${carrito.size}")
     println("")
     println(String.format("Subtotal: S/ %8.2f", subtotal))
     println(String.format("IGV 18%%: S/ %8.2f", igv))
     println(String.format("TOTAL A PAGAR: S/ %8.2f", total))
+    // Buscamos el producto más caro del carrito
+    val masCaro = carrito.maxByOrNull { it.precio }
+    if (masCaro != null) {
+        println("Producto mas caro: ${masCaro.nombre} " +
+                String.format("(S/ %.2f)", masCaro.precio))
+    }
+    // Calculamos el descuento según el total y mostramos el total con descuento
+    val descuento = calcularDescuentoCarrito(total)
+    val totalConDescuento = total - descuento
+    println(String.format("Descuento aplicado: S/ %8.2f", descuento))
+    println(String.format("Total con descuento: S/ %8.2f", totalConDescuento))
 }
