@@ -2,11 +2,42 @@ package com.rocha.carrito
 data class Producto(
     val nombre: String,
     val precio: Double,
-    var cantidad: Int, // Unidades que el cliente lleva en el carrito
-    private var stock: Int // Inventario disponible en la tienda
+    private var cantidad: Int, // Encapsulado: Unidades en el carrito
+    private var stock: Int // Encapsulado: Inventario en tienda
 ) {
-    // Método de solo consulta (Getter)
+    // Getters para consulta segura
+    fun obtenerCantidad(): Int = cantidad
     fun obtenerStock(): Int = stock
+
+    // Propiedad calculada para el importe (Encapsulamiento de lógica de cálculo)
+    fun calcularImporte(): Double = precio * cantidad
+
+    // Método para modificar la cantidad validando contra el stock real
+    fun actualizarCantidad(nuevaCantidad: Int): Boolean {
+        if (nuevaCantidad <= 0) {
+            println("Error: La cantidad debe ser mayor a 0.")
+            return false
+        }
+        
+        val diferencia = nuevaCantidad - cantidad
+        
+        return if (diferencia > 0) {
+            // Si el cliente pide más, intentamos reducir del stock de la tienda
+            if (reducirStock(diferencia)) {
+                cantidad = nuevaCantidad
+                true
+            } else {
+                false
+            }
+        } else if (diferencia < 0) {
+            // Si el cliente pide menos, devolvemos el excedente al stock de la tienda
+            aumentarStock(-diferencia)
+            cantidad = nuevaCantidad
+            true
+        } else {
+            true // La cantidad es la misma
+        }
+    }
 
     // Método para aumentar el stock (por reposición o devolución)
     fun aumentarStock(cantidadAReponer: Int) {
@@ -16,7 +47,6 @@ data class Producto(
     }
 
     // Método para reducir el stock (por venta)
-    // Valida que no sea negativo y que haya suficiente disponible
     fun reducirStock(cantidadAVender: Int): Boolean {
         return if (cantidadAVender > 0 && stock >= cantidadAVender) {
             stock -= cantidadAVender
@@ -29,10 +59,9 @@ data class Producto(
 }
 // Función para calcular el subtotal de los productos en el carrito
 fun calcularSubtotal(productos: List<Producto>): Double {
-    // La variable comienza desde 0 (es var por que va a cambiar su valor)
     var subtotal = 0.0
     for (p in productos) {
-        subtotal += p.precio * p.cantidad
+        subtotal += p.calcularImporte()
     }
     return subtotal
 }
@@ -52,10 +81,10 @@ fun mostrarDetallesCarrito(productos: List<Producto>) {
     // Variable para numerar cada producto en la lista (lo inicilizamos desde 1)
     var i = 1
     for (p in productos) {
-        // Calculamos el importe total de cada producto
-        val importe = p.precio * p.cantidad
+        // Usamos el método encapsulado para obtener el importe y la cantidad
+        val importe = p.calcularImporte()
         println(String.format("%d. %-20s x%d S/ %8.2f", i,
-            p.nombre, p.cantidad, importe))
+            p.nombre, p.obtenerCantidad(), importe))
         // Aumentar el contador para el siguiente producto
         i++
     }
