@@ -1,5 +1,5 @@
 package com.rocha.carrito
-data class Producto(
+abstract class Producto(
     val nombre: String,
     val precio: Double,
     private var cantidad: Int, // Encapsulado: Unidades en el carrito
@@ -9,8 +9,8 @@ data class Producto(
     fun obtenerCantidad(): Int = cantidad
     fun obtenerStock(): Int = stock
 
-    // Propiedad calculada para el importe (Encapsulamiento de lógica de cálculo)
-    fun calcularImporte(): Double = precio * cantidad
+    // Método abstracto: Cada tipo de producto definirá su propia lógica de costo
+    abstract fun calcularImporte(): Double
 
     // Método para modificar la cantidad validando contra el stock real
     fun actualizarCantidad(nuevaCantidad: Int): Boolean {
@@ -22,7 +22,6 @@ data class Producto(
         val diferencia = nuevaCantidad - cantidad
         
         return if (diferencia > 0) {
-            // Si el cliente pide más, intentamos reducir del stock de la tienda
             if (reducirStock(diferencia)) {
                 cantidad = nuevaCantidad
                 true
@@ -30,23 +29,20 @@ data class Producto(
                 false
             }
         } else if (diferencia < 0) {
-            // Si el cliente pide menos, devolvemos el excedente al stock de la tienda
             aumentarStock(-diferencia)
             cantidad = nuevaCantidad
             true
         } else {
-            true // La cantidad es la misma
+            true 
         }
     }
 
-    // Método para aumentar el stock (por reposición o devolución)
     fun aumentarStock(cantidadAReponer: Int) {
         if (cantidadAReponer > 0) {
             stock += cantidadAReponer
         }
     }
 
-    // Método para reducir el stock (por venta)
     fun reducirStock(cantidadAVender: Int): Boolean {
         return if (cantidadAVender > 0 && stock >= cantidadAVender) {
             stock -= cantidadAVender
@@ -56,6 +52,17 @@ data class Producto(
             false
         }
     }
+}
+
+// Implementación concreta para productos estándar de la tienda
+class ProductoTienda(
+    nombre: String,
+    precio: Double,
+    cantidad: Int,
+    stock: Int
+) : Producto(nombre, precio, cantidad, stock) {
+    // Implementación base: precio por cantidad
+    override fun calcularImporte(): Double = precio * obtenerCantidad()
 }
 
 class Carrito {
@@ -113,11 +120,11 @@ fun main() {
     println("Cliente: $nombreCliente")
     println("")
     
-    // Añadir productos al carrito usando el método de la clase
-    miCarrito.agregarProducto(Producto("Laptop HP", 2500.0, 1, 5))
-    miCarrito.agregarProducto(Producto("Mouse Logitech", 45.5, 2, 10))
-    miCarrito.agregarProducto(Producto("Mouse Rayzer", 99.9, 3, 8))
-    miCarrito.agregarProducto(Producto("Teclado Redragon", 199.5, 10, 20))
+    // Añadir productos al carrito usando la implementación concreta
+    miCarrito.agregarProducto(ProductoTienda("Laptop HP", 2500.0, 1, 5))
+    miCarrito.agregarProducto(ProductoTienda("Mouse Logitech", 45.5, 2, 10))
+    miCarrito.agregarProducto(ProductoTienda("Mouse Rayzer", 99.9, 3, 8))
+    miCarrito.agregarProducto(ProductoTienda("Teclado Redragon", 199.5, 10, 20))
     
     println("")
     
