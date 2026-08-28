@@ -57,83 +57,94 @@ data class Producto(
         }
     }
 }
-// Función para calcular el subtotal de los productos en el carrito
-fun calcularSubtotal(productos: List<Producto>): Double {
-    var subtotal = 0.0
-    for (p in productos) {
-        subtotal += p.calcularImporte()
+
+class Carrito {
+    private val productos = mutableListOf<Producto>()
+
+    // Método para agregar productos al carrito
+    fun agregarProducto(producto: Producto) {
+        productos.add(producto)
+        println("Producto agregado: ${producto.nombre}")
     }
-    return subtotal
-}
-// Función para calcular el igv
-fun calcularIGV(subtotal: Double): Double {
-    var igv = subtotal * 0.18
-    return igv
-}
-// Función para calcular el total del carrito
-fun calcularTotal(subtotal: Double, igv: Double): Double {
-    var total = subtotal + igv
-    return total
-}
-// Función para mostrar el detalle del carrito
-fun mostrarDetallesCarrito(productos: List<Producto>) {
-    println("-----------DETALLE DEL CARRITO-----------")
-    // Variable para numerar cada producto en la lista (lo inicilizamos desde 1)
-    var i = 1
-    for (p in productos) {
-        // Usamos el método encapsulado para obtener el importe y la cantidad
-        val importe = p.calcularImporte()
-        println(String.format("%d. %-20s x%d S/ %8.2f", i,
-            p.nombre, p.obtenerCantidad(), importe))
-        // Aumentar el contador para el siguiente producto
-        i++
+
+    // Métodos de solo consulta que recalculan los valores en el momento
+    fun calcularSubtotal(): Double = productos.sumOf { it.calcularImporte() }
+
+    fun calcularIGV(): Double = calcularSubtotal() * 0.18
+
+    fun calcularTotal(): Double = calcularSubtotal() + calcularIGV()
+
+    fun obtenerCantidadItems(): Int = productos.size
+
+    fun obtenerProductoMasCaro(): Producto? = productos.maxByOrNull { it.precio }
+
+    // El descuento también es una lógica propia del estado del carrito
+    fun calcularDescuento(): Double {
+        val total = calcularTotal()
+        return when {
+            total > 5000 -> total * 0.10
+            total > 3000 -> total * 0.05
+            else -> 0.0
+        }
     }
-    println("-----------------------------------------")
-}
-// Calcular descuento dependiendo el total de la compra
-fun calcularDescuentoCarrito(total: Double): Double {
-    return when {
-        total > 5000 -> total * 0.10
-        total > 3000 -> total * 0.05
-        else -> 0.0
+
+    // Método encapsulado para mostrar el detalle
+    fun mostrarDetalle() {
+        println("-----------DETALLE DEL CARRITO-----------")
+        var i = 1
+        for (p in productos) {
+            val importe = p.calcularImporte()
+            println(String.format("%d. %-20s x%d S/ %8.2f", i,
+                p.nombre, p.obtenerCantidad(), importe))
+            i++
+        }
+        println("-----------------------------------------")
     }
 }
+
 fun main() {
     println("=========================================")
     println("   CARRITO DE COMPRAS - TIENDA TECSUP    ")
     println("=========================================")
     val nombreCliente = "Jesús Rocha"
-    val carrito = mutableListOf<Producto>()
+    val miCarrito = Carrito()
+    
     // Mencionamos al cliente
     println("Cliente: $nombreCliente")
     println("")
-    // Añadir productos al carrito (Nombre, Precio, Cantidad deseada, Stock disponible)
-    carrito.add(Producto("Laptop HP", 2500.0, 1, 5))
-    carrito.add(Producto("Mouse Logitech", 45.5, 2, 10))
-    carrito.add(Producto("Mouse Rayzer", 99.9, 3, 8))
-    carrito.add(Producto("Teclado Redragon", 199.5, 10, 20))
-    for (producto in carrito) {
-        println("Producto agregado: ${producto.nombre}")
-    }
-    // Usamos las funciones creadas para calcular el subtotal, igv y total del carrito
-    val subtotal = calcularSubtotal(carrito)
-    val igv = calcularIGV(subtotal)
-    val total = calcularTotal(subtotal, igv)
-    mostrarDetallesCarrito(carrito)
-    println("Cantidad de productos: ${carrito.size}")
+    
+    // Añadir productos al carrito usando el método de la clase
+    miCarrito.agregarProducto(Producto("Laptop HP", 2500.0, 1, 5))
+    miCarrito.agregarProducto(Producto("Mouse Logitech", 45.5, 2, 10))
+    miCarrito.agregarProducto(Producto("Mouse Rayzer", 99.9, 3, 8))
+    miCarrito.agregarProducto(Producto("Teclado Redragon", 199.5, 10, 20))
+    
+    println("")
+    
+    // Obtenemos los valores calculados al momento
+    val subtotal = miCarrito.calcularSubtotal()
+    val igv = miCarrito.calcularIGV()
+    val total = miCarrito.calcularTotal()
+    
+    miCarrito.mostrarDetalle()
+    
+    println("Cantidad de productos: ${miCarrito.obtenerCantidadItems()}")
     println("")
     println(String.format("Subtotal: S/ %8.2f", subtotal))
     println(String.format("IGV 18%%: S/ %8.2f", igv))
     println(String.format("TOTAL A PAGAR: S/ %8.2f", total))
-    // Buscamos el producto más caro del carrito
-    val masCaro = carrito.maxByOrNull { it.precio }
+    
+    // Buscamos el producto más caro usando la lógica del carrito
+    val masCaro = miCarrito.obtenerProductoMasCaro()
     if (masCaro != null) {
         println("Producto mas caro: ${masCaro.nombre} " +
                 String.format("(S/ %.2f)", masCaro.precio))
     }
-    // Calculamos el descuento según el total y mostramos el total con descuento
-    val descuento = calcularDescuentoCarrito(total)
+    
+    // Calculamos el descuento y el total final
+    val descuento = miCarrito.calcularDescuento()
     val totalConDescuento = total - descuento
+    
     println(String.format("Descuento aplicado: S/ %8.2f", descuento))
     println(String.format("Total con descuento: S/ %8.2f", totalConDescuento))
 }
