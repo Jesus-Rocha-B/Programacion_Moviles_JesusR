@@ -2,8 +2,31 @@ package com.rocha.carrito
 data class Producto(
     val nombre: String,
     val precio: Double,
-    var cantidad: Int
-)
+    var cantidad: Int, // Unidades que el cliente lleva en el carrito
+    private var stock: Int // Inventario disponible en la tienda
+) {
+    // Método de solo consulta (Getter)
+    fun obtenerStock(): Int = stock
+
+    // Método para aumentar el stock (por reposición o devolución)
+    fun aumentarStock(cantidadAReponer: Int) {
+        if (cantidadAReponer > 0) {
+            stock += cantidadAReponer
+        }
+    }
+
+    // Método para reducir el stock (por venta)
+    // Valida que no sea negativo y que haya suficiente disponible
+    fun reducirStock(cantidadAVender: Int): Boolean {
+        return if (cantidadAVender > 0 && stock >= cantidadAVender) {
+            stock -= cantidadAVender
+            true
+        } else {
+            println("Error: No hay suficiente stock de $nombre o cantidad inválida.")
+            false
+        }
+    }
+}
 // Función para calcular el subtotal de los productos en el carrito
 fun calcularSubtotal(productos: List<Producto>): Double {
     // La variable comienza desde 0 (es var por que va a cambiar su valor)
@@ -55,11 +78,11 @@ fun main() {
     // Mencionamos al cliente
     println("Cliente: $nombreCliente")
     println("")
-    // Añadir productos al carrito
-    carrito.add(Producto("Laptop HP", 2500.0,1))
-    carrito.add(Producto("Mouse Logitech", 45.5, 2))
-    carrito.add(Producto("Mouse Rayzer", 99.9, 3))
-    carrito.add(Producto("Teclado Redragon", 199.5, 10))
+    // Añadir productos al carrito (Nombre, Precio, Cantidad deseada, Stock disponible)
+    carrito.add(Producto("Laptop HP", 2500.0, 1, 5))
+    carrito.add(Producto("Mouse Logitech", 45.5, 2, 10))
+    carrito.add(Producto("Mouse Rayzer", 99.9, 3, 8))
+    carrito.add(Producto("Teclado Redragon", 199.5, 10, 20))
     for (producto in carrito) {
         println("Producto agregado: ${producto.nombre}")
     }
