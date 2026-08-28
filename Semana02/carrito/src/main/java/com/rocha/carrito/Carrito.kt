@@ -54,15 +54,29 @@ abstract class Producto(
     }
 }
 
-// Implementación concreta para productos estándar de la tienda
-class ProductoTienda(
+// Subclase para productos electrónicos (Cálculo estándar)
+class ProductoElectronico(
     nombre: String,
     precio: Double,
     cantidad: Int,
     stock: Int
 ) : Producto(nombre, precio, cantidad, stock) {
-    // Implementación base: precio por cantidad
+    // Los electrónicos suelen tener el precio base completo
     override fun calcularImporte(): Double = precio * obtenerCantidad()
+}
+
+// Subclase para productos alimenticios (Con beneficio de descuento)
+class ProductoAlimento(
+    nombre: String,
+    precio: Double,
+    cantidad: Int,
+    stock: Int
+) : Producto(nombre, precio, cantidad, stock) {
+    // Los alimentos tienen un descuento del 5% por ser productos de primera necesidad
+    override fun calcularImporte(): Double {
+        val subtotalItem = precio * obtenerCantidad()
+        return subtotalItem * 0.95
+    }
 }
 
 class Carrito {
@@ -120,11 +134,11 @@ fun main() {
     println("Cliente: $nombreCliente")
     println("")
     
-    // Añadir productos al carrito usando la implementación concreta
-    miCarrito.agregarProducto(ProductoTienda("Laptop HP", 2500.0, 1, 5))
-    miCarrito.agregarProducto(ProductoTienda("Mouse Logitech", 45.5, 2, 10))
-    miCarrito.agregarProducto(ProductoTienda("Mouse Rayzer", 99.9, 3, 8))
-    miCarrito.agregarProducto(ProductoTienda("Teclado Redragon", 199.5, 10, 20))
+    // Añadir productos de diferentes categorías
+    miCarrito.agregarProducto(ProductoElectronico("Laptop HP", 2500.0, 1, 5))
+    miCarrito.agregarProducto(ProductoElectronico("Mouse Logitech", 45.5, 2, 10))
+    miCarrito.agregarProducto(ProductoAlimento("Arroz Extra 5kg", 25.0, 2, 50))
+    miCarrito.agregarProducto(ProductoAlimento("Leche Pack x6", 28.5, 1, 30))
     
     println("")
     
