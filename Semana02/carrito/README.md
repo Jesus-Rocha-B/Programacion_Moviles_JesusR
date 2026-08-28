@@ -18,3 +18,4 @@ Actúa como un desarrollador senior en Kotlin. Desarrolla una aplicación de con
       Me entregas el código estructurado de las clases y de la función main con lo que te solicite, agregas comentarios básicos a cada parte. Después de que escribas el código me debes explicar brevemente cada parte que pusiste y el por que lo pusiste.
 Dato: El archivo que vamos a trabajar se llama “Vehiculo.kt”
 
+Se modifico el usuario que hace el commit
