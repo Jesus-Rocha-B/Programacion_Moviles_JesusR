@@ -103,9 +103,54 @@ fun main() {
         registros.add(registro)
     }
 
-    // Mostrar resumen de registros (Opcional, para verificar)
-    println("\n=== Resumen de Registros ===")
-    registros.forEach { println(it) }
+    // 3. Procesar tickets e imprimir resultados
+    var recaudacionTotal = 0.0
+
+    registros.forEach { registro ->
+        val ticket = calcularTicket(registro, historialVisitas)
+        imprimirTicket(ticket)
+        recaudacionTotal += ticket.total
+    }
+
+    // 4. Resumen general (si hay más de un vehículo o al menos uno)
+    if (registros.isNotEmpty()) {
+        println("\n=== RESUMEN GENERAL DEL TURNO ===")
+        println("Cantidad total de vehículos atendidos: ${registros.size}")
+        println("Recaudación total: S/ %.2f".format(recaudacionTotal))
+        println("==================================")
+    }
+}
+
+/**
+ * Función que imprime el ticket formateado según el esquema solicitado.
+ */
+fun imprimirTicket(ticket: TicketCalculado) {
+    val tarifaBase = ticket.detalles.firstOrNull()?.tarifa ?: 0.0
+    
+    println("\n=======================================================")
+    println("TARIFA BASICA: S/ %.2f".format(tarifaBase))
+    println("Cliente: ${ticket.registro.nombreCliente.uppercase()}")
+    println("-------------------------------------------------------")
+    // Encabezados con alineación
+    println("%-8s%-12s%-11s%-10s".format("Hora", "Tarifa", "Recargo", "Importe"))
+    
+    // Filas de horas
+    ticket.detalles.forEach { d ->
+        println("%-8d S/ %-9.2f %-10s S/ %-10.2f".format(
+            d.hora, d.tarifa, "${d.recargo}%", d.importe
+        ))
+    }
+    
+    println("-------------------------------------------------------")
+    
+    // Mostrar subtotal y descuento solo si aplica
+    if (ticket.esFrecuente) {
+        println("%-30s S/ %10.2f".format("Subtotal:", ticket.subtotal))
+        println("%-30s-S/ %10.2f".format("Descuento Cliente Frecuente:", ticket.descuento))
+    }
+    
+    println("%-30s S/ %10.2f".format("TOTAL A PAGAR:", ticket.total))
+    println("=======================================================")
 }
 
 /**
