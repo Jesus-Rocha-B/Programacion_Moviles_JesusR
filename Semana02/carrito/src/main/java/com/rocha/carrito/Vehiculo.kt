@@ -19,9 +19,33 @@ data class RegistroVehiculo(
     val nombreCliente: String
 )
 
+/**
+ * Representa el desglose de costo de una hora específica.
+ */
+data class DetalleHora(
+    val hora: Int,
+    val tarifa: Double,
+    val recargo: Int,
+    val importe: Double
+)
+
+/**
+ * Contiene el resultado final del cálculo del estacionamiento.
+ */
+data class TicketCalculado(
+    val registro: RegistroVehiculo,
+    val detalles: List<DetalleHora>,
+    val subtotal: Double,
+    val descuento: Double,
+    val total: Double,
+    val esFrecuente: Boolean
+)
+
 fun main() {
     val scanner = Scanner(System.`in`)
     val registros = mutableListOf<RegistroVehiculo>()
+    // Mapa para el historial de visitas (Nombre del cliente -> Cantidad de visitas)
+    val historialVisitas = mutableMapOf<String, Int>()
 
     // 1. Validar la cantidad de vehículos a registrar
     var cantidadVehiculos = 0
@@ -82,4 +106,46 @@ fun main() {
     // Mostrar resumen de registros (Opcional, para verificar)
     println("\n=== Resumen de Registros ===")
     registros.forEach { println(it) }
+}
+
+/**
+ * Función que implementa la lógica de negocio para calcular el ticket.
+ */
+fun calcularTicket(
+    registro: RegistroVehiculo,
+    historial: MutableMap<String, Int>
+): TicketCalculado {
+    // 1. Obtener tarifa base
+    val tarifaBase = when (registro.tipoVehiculo) {
+        TipoVehiculo.MOTO -> 2.0
+        TipoVehiculo.AUTO -> 4.0
+        TipoVehiculo.CAMIONETA -> 10.0
+    }
+
+    val detalles = mutableListOf<DetalleHora>()
+    var subtotal = 0.0
+
+    // 2. Calcular desglose hora por hora
+    for (h in 1..registro.horas) {
+        val porcentajeRecargo = when {
+            h <= 2 -> 0
+            h <= 4 -> 20 // De la hora 3 a la 4 aplicamos 20%
+            else -> 50   // De la hora 5 en adelante aplicamos 50%
+        }
+
+        val importeHora = tarifaBase + (tarifaBase * porcentajeRecargo / 100.0)
+        detalles.add(DetalleHora(h, tarifaBase, porcentajeRecargo, importeHora))
+        subtotal += importeHora
+    }
+
+    // 3. Lógica de cliente frecuente (5ta visita en adelante)
+    val visitasPrevias = historial[registro.nombreCliente] ?: 0
+    val esFrecuente = visitasPrevias >= 4
+    val descuento = if (esFrecuente) subtotal * 0.10 else 0.0
+    val total = subtotal - descuento
+
+    // 4. Actualizar historial de visitas
+    historial[registro.nombreCliente] = visitasPrevias + 1
+
+    return TicketCalculado(registro, detalles, subtotal, descuento, total, esFrecuente)
 }
