@@ -1,7 +1,5 @@
 package com.rocha.carrito
 
-import java.util.Scanner
-
 /**
  * Enum que define los tipos de vehículos permitidos.
  */
@@ -42,7 +40,6 @@ data class TicketCalculado(
 )
 
 fun main() {
-    val scanner = Scanner(System.`in`)
     val registros = mutableListOf<RegistroVehiculo>()
     // Mapa para el historial de visitas (Nombre del cliente -> Cantidad de visitas)
     val historialVisitas = mutableMapOf<String, Int>()
@@ -51,8 +48,8 @@ fun main() {
     var cantidadVehiculos = 0
     while (true) {
         print("¿Cuántos vehículos desea registrar? ")
-        val input = scanner.nextLine()
-        val numero = input.toIntOrNull()
+        val input = readlnOrNull()
+        val numero = input?.toIntOrNull()
         if (numero != null && numero > 0) {
             cantidadVehiculos = numero
             break
@@ -67,17 +64,17 @@ fun main() {
 
         // Pedir nombre del cliente
         print("Nombre del cliente: ")
-        val nombre = scanner.nextLine()
+        val nombre = readlnOrNull() ?: ""
 
         // Pedir placa
         print("Placa del vehículo: ")
-        val placa = scanner.nextLine()
+        val placa = readlnOrNull() ?: ""
 
         // Pedir tipo de vehículo con validación
         var tipo: TipoVehiculo? = null
         while (tipo == null) {
             print("Tipo de vehículo (moto, auto, camioneta): ")
-            val inputTipo = scanner.nextLine().uppercase()
+            val inputTipo = readlnOrNull()?.uppercase() ?: ""
             try {
                 tipo = TipoVehiculo.valueOf(inputTipo)
             } catch (e: IllegalArgumentException) {
@@ -89,7 +86,7 @@ fun main() {
         var horas = 0
         while (true) {
             print("Cantidad de horas: ")
-            val inputHoras = scanner.nextLine().toIntOrNull()
+            val inputHoras = readlnOrNull()?.toIntOrNull()
             if (inputHoras != null && inputHoras >= 1) {
                 horas = inputHoras
                 break

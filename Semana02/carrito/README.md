@@ -58,4 +58,8 @@ Tomando como base el código que generaste. Iimplementa la función de visualiza
 - Reemplaza el resumen de prueba temporal por el procesamiento real de cada registro usando calcularTicket.
 - Llama a imprimirTicket para cada vehículo registrado.
 - Si se registraron múltiples vehículos, muestra opcionalmente al final un resumen general con la cantidad total de vehículos atendidos y la recaudación total en soles.
-
+### Cuuarto prompt
+Modificar la introducción de datos. No hay que usar Java (Scanner), netamente se tiene que usar el lenguaje Kotlin
+### Resultado en consola
+![Resultado final](captura.png)
+![Resultado final 2](captura1.png)
