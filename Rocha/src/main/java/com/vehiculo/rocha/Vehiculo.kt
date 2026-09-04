@@ -4,7 +4,7 @@ package com.rocha.carrito
  * Enum que define los tipos de vehículos permitidos.
  */
 enum class TipoVehiculo {
-    MOTO, AUTO, CAMIONETA, TRAILER
+    MOTO, AUTO, CAMIONETA
 }
 
 /**
@@ -34,7 +34,6 @@ data class TicketCalculado(
     val registro: RegistroVehiculo,
     val detalles: List<DetalleHora>,
     val subtotal: Double,
-    val igv: Double,
     val descuento: Double,
     val total: Double,
     val esFrecuente: Boolean
@@ -74,12 +73,12 @@ fun main() {
         // Pedir tipo de vehículo con validación
         var tipo: TipoVehiculo? = null
         while (tipo == null) {
-            print("Tipo de vehículo (moto, auto, camioneta, trailer): ")
+            print("Tipo de vehículo (moto, auto, camioneta): ")
             val inputTipo = readlnOrNull()?.uppercase() ?: ""
             try {
                 tipo = TipoVehiculo.valueOf(inputTipo)
             } catch (e: IllegalArgumentException) {
-                println("Error: Tipo inválido. Debe ser 'moto', 'auto', 'camioneta' o 'trailer'.")
+                println("Error: Tipo inválido. Debe ser 'moto', 'auto' o 'camioneta'.")
             }
         }
 
@@ -110,7 +109,7 @@ fun main() {
         recaudacionTotal += ticket.total
     }
 
-    // 4. Resumen general
+    // 4. Resumen general (si hay más de un vehículo o al menos uno)
     if (registros.isNotEmpty()) {
         println("\n=== RESUMEN GENERAL DEL TURNO ===")
         println("Cantidad total de vehículos atendidos: ${registros.size}")
@@ -120,41 +119,39 @@ fun main() {
 }
 
 /**
- * Función que imprime el ticket formateado.
+ * Función que imprime el ticket formateado según el esquema solicitado.
  */
 fun imprimirTicket(ticket: TicketCalculado) {
     val tarifaBase = ticket.detalles.firstOrNull()?.tarifa ?: 0.0
-    
+
     println("\n=======================================================")
     println("TARIFA BASICA: S/ %.2f".format(tarifaBase))
     println("Cliente: ${ticket.registro.nombreCliente.uppercase()}")
-    println("Tipo: ${ticket.registro.tipoVehiculo}")
     println("-------------------------------------------------------")
     // Encabezados con alineación
     println("%-8s%-12s%-11s%-10s".format("Hora", "Tarifa", "Recargo", "Importe"))
-    
+
     // Filas de horas
     ticket.detalles.forEach { d ->
         println("%-8d S/ %-9.2f %-10s S/ %-10.2f".format(
             d.hora, d.tarifa, "${d.recargo}%", d.importe
         ))
     }
-    
+
     println("-------------------------------------------------------")
-    
-    println("%-30s S/ %10.2f".format("Subtotal (Recargos):", ticket.subtotal))
-    println("%-30s S/ %10.2f".format("IGV (18%):", ticket.igv))
-    
-    if (ticket.descuento > 0) {
-        println("%-30s-S/ %10.2f".format("Descuento Aplicado:", ticket.descuento))
+
+    // Mostrar subtotal y descuento solo si aplica
+    if (ticket.esFrecuente) {
+        println("%-30s S/ %10.2f".format("Subtotal:", ticket.subtotal))
+        println("%-30s-S/ %10.2f".format("Descuento Cliente Frecuente:", ticket.descuento))
     }
-    
+
     println("%-30s S/ %10.2f".format("TOTAL A PAGAR:", ticket.total))
     println("=======================================================")
 }
 
 /**
- * Función que implementa la lógica de negocio actualizada.
+ * Función que implementa la lógica de negocio para calcular el ticket.
  */
 fun calcularTicket(
     registro: RegistroVehiculo,
@@ -165,62 +162,32 @@ fun calcularTicket(
         TipoVehiculo.MOTO -> 2.0
         TipoVehiculo.AUTO -> 4.0
         TipoVehiculo.CAMIONETA -> 10.0
-        TipoVehiculo.TRAILER -> 20.0
     }
 
     val detalles = mutableListOf<DetalleHora>()
-    var subtotalRecargos = 0.0
+    var subtotal = 0.0
 
     // 2. Calcular desglose hora por hora
     for (h in 1..registro.horas) {
-        val porcentajeRecargo = if (registro.tipoVehiculo == TipoVehiculo.TRAILER) {
-            // Reglas para Trailer
-            when {
-                h <= 2 -> 0      // 1-2 horas: Sin recargo
-                h <= 5 -> 20     // A partir de la 3ra (3-5): 20%
-                h <= 10 -> 40    // De 6 a 10: 40%
-                else -> 50       // 11 horas o más: 50%
-            }
-        } else {
-            // Reglas para otros vehículos
-            when {
-                h <= 2 -> 0
-                h <= 4 -> 20
-                else -> 50
-            }
+        val porcentajeRecargo = when {
+            h <= 2 -> 0
+            h <= 4 -> 20 // De la hora 3 a la 4 aplicamos 20%
+            else -> 50   // De la hora 5 en adelante aplicamos 50%
         }
 
         val importeHora = tarifaBase + (tarifaBase * porcentajeRecargo / 100.0)
         detalles.add(DetalleHora(h, tarifaBase, porcentajeRecargo, importeHora))
-        subtotalRecargos += importeHora
+        subtotal += importeHora
     }
 
-    // 3. Cálculo de IGV (18%)
-    val igv = subtotalRecargos * 0.18
-    val subtotalConIgv = subtotalRecargos + igv
-
-    // 4. Lógica de descuentos
-    // Descuento Cliente Frecuente (10% sobre subtotal con recargos)
+    // 3. Lógica de cliente frecuente (5ta visita en adelante)
     val visitasPrevias = historial[registro.nombreCliente] ?: 0
     val esFrecuente = visitasPrevias >= 4
-    val descuentoFrecuente = if (esFrecuente) subtotalRecargos * 0.10 else 0.0
+    val descuento = if (esFrecuente) subtotal * 0.10 else 0.0
+    val total = subtotal - descuento
 
-    // Descuento por monto grande (20% si el monto con IGV y tras frecuente pasa de 500)
-    val montoTrasFrecuente = subtotalConIgv - descuentoFrecuente
-    val descuentoMontoGrande = if (montoTrasFrecuente > 500.0) {
-        montoTrasFrecuente * 0.20
-    } else {
-        0.0
-    }
-
-    val descuentoTotal = descuentoFrecuente + descuentoMontoGrande
-    val total = subtotalConIgv - descuentoTotal
-
-    // Actualizar historial de visitas
+    // 4. Actualizar historial de visitas
     historial[registro.nombreCliente] = visitasPrevias + 1
 
-    return TicketCalculado(
-        registro, detalles, subtotalRecargos, igv, 
-        descuentoTotal, total, esFrecuente
-    )
+    return TicketCalculado(registro, detalles, subtotal, descuento, total, esFrecuente)
 }
