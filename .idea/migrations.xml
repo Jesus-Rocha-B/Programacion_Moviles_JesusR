@@ -4,6 +4,7 @@
     <option name="MigrateToGradleLocalJavaHome">
       <set>
         <option value="$PROJECT_DIR$/estacionamiento" />
+        <option value="$PROJECT_DIR$" />
       </set>
     </option>
   </component>
