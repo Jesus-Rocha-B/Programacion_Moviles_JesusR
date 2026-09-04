@@ -34,7 +34,6 @@ data class TicketCalculado(
     val registro: RegistroVehiculo,
     val detalles: List<DetalleHora>,
     val subtotal: Double,
-    val igv: Double,
     val descuento: Double,
     val total: Double,
     val esFrecuente: Boolean
@@ -42,10 +41,8 @@ data class TicketCalculado(
 
 fun main() {
     val registros = mutableListOf<RegistroVehiculo>()
-    // Mapa para el historial de visitas (Nombre del cliente -> Cantidad de visitas)
     val historialVisitas = mutableMapOf<String, Int>()
 
-    // 1. Validar la cantidad de vehículos a registrar
     var cantidadVehiculos = 0
     while (true) {
         print("¿Cuántos vehículos desea registrar? ")
@@ -59,19 +56,13 @@ fun main() {
         }
     }
 
-    // 2. Procesar cada vehículo uno por uno
     for (i in 1..cantidadVehiculos) {
         println("\n--- Registro del Vehículo $i ---")
-
-        // Pedir nombre del cliente
         print("Nombre del cliente: ")
         val nombre = readlnOrNull() ?: ""
-
-        // Pedir placa
         print("Placa del vehículo: ")
         val placa = readlnOrNull() ?: ""
 
-        // Pedir tipo de vehículo con validación
         var tipo: TipoVehiculo? = null
         while (tipo == null) {
             print("Tipo de vehículo (moto, auto, camioneta, trailer): ")
@@ -79,11 +70,10 @@ fun main() {
             try {
                 tipo = TipoVehiculo.valueOf(inputTipo)
             } catch (e: IllegalArgumentException) {
-                println("Error: Tipo inválido. Debe ser 'moto', 'auto', 'camioneta' o 'trailer'.")
+                println("Error: Tipo inválido.")
             }
         }
 
-        // Pedir horas con validación (mínimo 1)
         var horas = 0
         while (true) {
             print("Cantidad de horas: ")
@@ -92,75 +82,43 @@ fun main() {
                 horas = inputHoras
                 break
             } else {
-                println("Error: Las horas deben ser un número entero mayor o igual a 1.")
+                println("Error: Ingrese un número válido.")
             }
         }
 
-        // Almacenar el registro en la lista
         val registro = RegistroVehiculo(placa, tipo, horas, nombre)
         registros.add(registro)
     }
 
-    // 3. Procesar tickets e imprimir resultados
     var recaudacionTotal = 0.0
-
     registros.forEach { registro ->
         val ticket = calcularTicket(registro, historialVisitas)
         imprimirTicket(ticket)
         recaudacionTotal += ticket.total
     }
-
-    // 4. Resumen general
-    if (registros.isNotEmpty()) {
-        println("\n=== RESUMEN GENERAL DEL TURNO ===")
-        println("Cantidad total de vehículos atendidos: ${registros.size}")
-        println("Recaudación total: S/ %.2f".format(recaudacionTotal))
-        println("==================================")
-    }
 }
 
-/**
- * Función que imprime el ticket formateado.
- */
 fun imprimirTicket(ticket: TicketCalculado) {
     val tarifaBase = ticket.detalles.firstOrNull()?.tarifa ?: 0.0
-    
     println("\n=======================================================")
     println("TARIFA BASICA: S/ %.2f".format(tarifaBase))
     println("Cliente: ${ticket.registro.nombreCliente.uppercase()}")
     println("Tipo: ${ticket.registro.tipoVehiculo}")
     println("-------------------------------------------------------")
-    // Encabezados con alineación
     println("%-8s%-12s%-11s%-10s".format("Hora", "Tarifa", "Recargo", "Importe"))
-    
-    // Filas de horas
     ticket.detalles.forEach { d ->
-        println("%-8d S/ %-9.2f %-10s S/ %-10.2f".format(
-            d.hora, d.tarifa, "${d.recargo}%", d.importe
-        ))
+        println("%-8d S/ %-9.2f %-10s S/ %-10.2f".format(d.hora, d.tarifa, "${d.recargo}%", d.importe))
     }
-    
     println("-------------------------------------------------------")
-    
-    println("%-30s S/ %10.2f".format("Subtotal (Recargos):", ticket.subtotal))
-    println("%-30s S/ %10.2f".format("IGV (18%):", ticket.igv))
-    
-    if (ticket.descuento > 0) {
-        println("%-30s-S/ %10.2f".format("Descuento Aplicado:", ticket.descuento))
-    }
-    
     println("%-30s S/ %10.2f".format("TOTAL A PAGAR:", ticket.total))
     println("=======================================================")
 }
 
-/**
- * Función que implementa la lógica de negocio actualizada.
- */
 fun calcularTicket(
     registro: RegistroVehiculo,
     historial: MutableMap<String, Int>
 ): TicketCalculado {
-    // 1. Obtener tarifa base
+    // Solo se agregó el tipo Trailer y su tarifa base de 20 soles
     val tarifaBase = when (registro.tipoVehiculo) {
         TipoVehiculo.MOTO -> 2.0
         TipoVehiculo.AUTO -> 4.0
@@ -169,58 +127,37 @@ fun calcularTicket(
     }
 
     val detalles = mutableListOf<DetalleHora>()
-    var subtotalRecargos = 0.0
+    var subtotal = 0.0
 
-    // 2. Calcular desglose hora por hora
     for (h in 1..registro.horas) {
+        // Lógica de recargos (comisiones) por hora
         val porcentajeRecargo = if (registro.tipoVehiculo == TipoVehiculo.TRAILER) {
-            // Reglas para Trailer
+            // Reglas específicas para el Trailer
             when {
                 h <= 2 -> 0      // 1-2 horas: Sin recargo
-                h <= 5 -> 20     // A partir de la 3ra (3-5): 20%
-                h <= 10 -> 40    // De 6 a 10: 40%
+                h <= 5 -> 20     // 3-5 horas: 20%
+                h <= 10 -> 40    // 6-10 horas: 40%
                 else -> 50       // 11 horas o más: 50%
             }
         } else {
-            // Reglas para otros vehículos
+            // Reglas para Moto, Auto y Camioneta
             when {
-                h <= 2 -> 0
-                h <= 4 -> 20
-                else -> 50
+                h <= 2 -> 0      // 1-2 horas: Sin recargo
+                h <= 4 -> 20     // 3-4 horas: 20%
+                else -> 50       // 5 horas o más: 50%
             }
         }
-
         val importeHora = tarifaBase + (tarifaBase * porcentajeRecargo / 100.0)
         detalles.add(DetalleHora(h, tarifaBase, porcentajeRecargo, importeHora))
-        subtotalRecargos += importeHora
+        subtotal += importeHora
     }
 
-    // 3. Cálculo de IGV (18%)
-    val igv = subtotalRecargos * 0.18
-    val subtotalConIgv = subtotalRecargos + igv
-
-    // 4. Lógica de descuentos
-    // Descuento Cliente Frecuente (10% sobre subtotal con recargos)
     val visitasPrevias = historial[registro.nombreCliente] ?: 0
     val esFrecuente = visitasPrevias >= 4
-    val descuentoFrecuente = if (esFrecuente) subtotalRecargos * 0.10 else 0.0
+    val descuento = if (esFrecuente) subtotal * 0.10 else 0.0
+    val total = subtotal - descuento
 
-    // Descuento por monto grande (20% si el monto con IGV y tras frecuente pasa de 500)
-    val montoTrasFrecuente = subtotalConIgv - descuentoFrecuente
-    val descuentoMontoGrande = if (montoTrasFrecuente > 500.0) {
-        montoTrasFrecuente * 0.20
-    } else {
-        0.0
-    }
-
-    val descuentoTotal = descuentoFrecuente + descuentoMontoGrande
-    val total = subtotalConIgv - descuentoTotal
-
-    // Actualizar historial de visitas
     historial[registro.nombreCliente] = visitasPrevias + 1
 
-    return TicketCalculado(
-        registro, detalles, subtotalRecargos, igv, 
-        descuentoTotal, total, esFrecuente
-    )
+    return TicketCalculado(registro, detalles, subtotal, descuento, total, esFrecuente)
 }
