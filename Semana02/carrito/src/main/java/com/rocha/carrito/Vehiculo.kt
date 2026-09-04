@@ -34,6 +34,7 @@ data class TicketCalculado(
     val registro: RegistroVehiculo,
     val detalles: List<DetalleHora>,
     val subtotal: Double,
+    val igv: Double,
     val descuento: Double,
     val total: Double,
     val esFrecuente: Boolean
@@ -110,6 +111,11 @@ fun imprimirTicket(ticket: TicketCalculado) {
         println("%-8d S/ %-9.2f %-10s S/ %-10.2f".format(d.hora, d.tarifa, "${d.recargo}%", d.importe))
     }
     println("-------------------------------------------------------")
+    println("%-30s S/ %10.2f".format("Subtotal (con recargos):", ticket.subtotal))
+    println("%-30s S/ %10.2f".format("IGV (18%):", ticket.igv))
+    if (ticket.descuento > 0) {
+        println("%-30s-S/ %10.2f".format("Descuento Aplicado:", ticket.descuento))
+    }
     println("%-30s S/ %10.2f".format("TOTAL A PAGAR:", ticket.total))
     println("=======================================================")
 }
@@ -118,7 +124,6 @@ fun calcularTicket(
     registro: RegistroVehiculo,
     historial: MutableMap<String, Int>
 ): TicketCalculado {
-    // Solo se agregó el tipo Trailer y su tarifa base de 20 soles
     val tarifaBase = when (registro.tipoVehiculo) {
         TipoVehiculo.MOTO -> 2.0
         TipoVehiculo.AUTO -> 4.0
@@ -127,37 +132,50 @@ fun calcularTicket(
     }
 
     val detalles = mutableListOf<DetalleHora>()
-    var subtotal = 0.0
+    var subtotalRecargos = 0.0
 
     for (h in 1..registro.horas) {
-        // Lógica de recargos (comisiones) por hora
         val porcentajeRecargo = if (registro.tipoVehiculo == TipoVehiculo.TRAILER) {
-            // Reglas específicas para el Trailer
             when {
-                h <= 2 -> 0      // 1-2 horas: Sin recargo
-                h <= 5 -> 20     // 3-5 horas: 20%
-                h <= 10 -> 40    // 6-10 horas: 40%
-                else -> 50       // 11 horas o más: 50%
+                h <= 2 -> 0
+                h <= 5 -> 20
+                h <= 10 -> 40
+                else -> 50
             }
         } else {
-            // Reglas para Moto, Auto y Camioneta
             when {
-                h <= 2 -> 0      // 1-2 horas: Sin recargo
-                h <= 4 -> 20     // 3-4 horas: 20%
-                else -> 50       // 5 horas o más: 50%
+                h <= 2 -> 0
+                h <= 4 -> 20
+                else -> 50
             }
         }
         val importeHora = tarifaBase + (tarifaBase * porcentajeRecargo / 100.0)
         detalles.add(DetalleHora(h, tarifaBase, porcentajeRecargo, importeHora))
-        subtotal += importeHora
+        subtotalRecargos += importeHora
     }
 
+    // Calculamos el IGV sobre el subtotal con recargos
+    val igv = subtotalRecargos * 0.18
+    val montoConIgv = subtotalRecargos + igv
+
+    // Lógica de cliente frecuente (10% sobre subtotal con recargos)
     val visitasPrevias = historial[registro.nombreCliente] ?: 0
     val esFrecuente = visitasPrevias >= 4
-    val descuento = if (esFrecuente) subtotal * 0.10 else 0.0
-    val total = subtotal - descuento
+    val descuentoFrecuente = if (esFrecuente) subtotalRecargos * 0.10 else 0.0
+
+    // Monto temporal para evaluar el descuento de 500 soles
+    val montoTemp = montoConIgv - descuentoFrecuente
+
+    // Si el monto total pasa de 500 soles se le da un descuento del 20%
+    val descuentoMontoGrande = if (montoTemp > 500.0) montoTemp * 0.20 else 0.0
+
+    val descuentoTotal = descuentoFrecuente + descuentoMontoGrande
+    val totalFinal = montoConIgv - descuentoTotal
 
     historial[registro.nombreCliente] = visitasPrevias + 1
 
-    return TicketCalculado(registro, detalles, subtotal, descuento, total, esFrecuente)
+    return TicketCalculado(
+        registro, detalles, subtotalRecargos, igv, 
+        descuentoTotal, totalFinal, esFrecuente
+    )
 }
