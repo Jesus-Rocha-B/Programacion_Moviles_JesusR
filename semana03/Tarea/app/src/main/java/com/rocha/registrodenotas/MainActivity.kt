@@ -257,7 +257,7 @@ fun RegistroNotasScreen() {
 
                 // Footer con nombre
                 Text(
-                    text = "Registro de Notas v1.0 • Desarrollado por Rocha",
+                    text = "Desarrollado por: Jesús Enrique Rocha Bobadilla",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
