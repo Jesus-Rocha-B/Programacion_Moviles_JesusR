@@ -14,10 +14,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rocha.registrodenotas.ui.theme.RegistrodeNotasTheme
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +31,36 @@ class MainActivity : ComponentActivity() {
                 RegistroNotasScreen()
             }
         }
+    }
+}
+
+// Estructura de datos para la observación
+data class ObservacionInfo(
+    val texto: String,
+    val colorContenedor: Color,
+    val colorTexto: Color = Color.White
+)
+
+// Función para obtener la observación según las reglas de negocio
+fun obtenerObservacion(promedio: Float): ObservacionInfo {
+    return when {
+        promedio >= 17.0f -> ObservacionInfo(
+            texto = "EXCELENTE",
+            colorContenedor = Color(0xFF1B5E20) // Verde Oscuro
+        )
+        promedio >= 13.0f -> ObservacionInfo(
+            texto = "APROBADO",
+            colorContenedor = Color(0xFF4CAF50) // Verde Normal
+        )
+        promedio >= 10.0f -> ObservacionInfo(
+            texto = "EN RECUPERACIÓN",
+            colorContenedor = Color(0xFFFFC107), // Ámbar
+            colorTexto = Color.Black
+        )
+        else -> ObservacionInfo(
+            texto = "DESAPROBADO",
+            colorContenedor = Color(0xFFD32F2F) // Rojo
+        )
     }
 }
 
@@ -44,6 +77,10 @@ fun RegistroNotasScreen() {
     var redondear by remember { mutableStateOf(false) }
     var confirmado by remember { mutableStateOf(false) }
     var mostrarResultado by remember { mutableStateOf(false) }
+
+    // 3. Valores CALCULADOS (derivados de los estados)
+    val promedioPonderado = (notaFundamentos * 0.20f) + (notaPOO * 0.25f) + (notaMoviles * 0.30f) + (notaBD * 0.25f)
+    val promedioFinal = if (redondear) kotlin.math.round(promedioPonderado) else promedioPonderado
 
     // Fondo con degradado suave
     val gradientBrush = Brush.verticalGradient(
@@ -87,33 +124,45 @@ fun RegistroNotasScreen() {
                     nombreCurso = "Fundamentos",
                     peso = 20,
                     notaValue = notaFundamentos,
-                    onNotaChange = { notaFundamentos = it }
+                    onNotaChange = {
+                        notaFundamentos = it
+                        mostrarResultado = false
+                    }
                 )
 
                 CursoSlider(
                     nombreCurso = "POO",
                     peso = 25,
                     notaValue = notaPOO,
-                    onNotaChange = { notaPOO = it }
+                    onNotaChange = {
+                        notaPOO = it
+                        mostrarResultado = false
+                    }
                 )
 
                 CursoSlider(
                     nombreCurso = "Móviles",
                     peso = 30,
                     notaValue = notaMoviles,
-                    onNotaChange = { notaMoviles = it }
+                    onNotaChange = {
+                        notaMoviles = it
+                        mostrarResultado = false
+                    }
                 )
 
                 CursoSlider(
                     nombreCurso = "BD",
                     peso = 25,
                     notaValue = notaBD,
-                    onNotaChange = { notaBD = it }
+                    onNotaChange = {
+                        notaBD = it
+                        mostrarResultado = false
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Controles adicionales (Switch y Checkbox sin conectar cálculos aún)
+                // Controles adicionales (Switch y Checkbox)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -132,7 +181,10 @@ fun RegistroNotasScreen() {
                 ) {
                     Checkbox(
                         checked = confirmado,
-                        onCheckedChange = { confirmado = it }
+                        onCheckedChange = {
+                            confirmado = it
+                            if (!it) mostrarResultado = false
+                        }
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = "Confirmo que las notas son correctas")
@@ -144,6 +196,25 @@ fun RegistroNotasScreen() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = "CALCULAR")
+                }
+
+                // Sección del Resultado (debajo del botón CALCULAR)
+                if (!mostrarResultado) {
+                    Text(
+                        text = "Asigna las notas y confirma para calcular",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
+                } else {
+                    ResultadoCard(
+                        promedioPonderado = promedioPonderado,
+                        promedioFinal = promedioFinal,
+                        redondear = redondear
+                    )
                 }
             }
         }
@@ -181,7 +252,7 @@ fun CursoSlider(
                     fontWeight = FontWeight.Bold
                 )
 
-                // Badge con la nota en vivo
+                // Badge con la nota en vivo (entero sin decimales)
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.primaryContainer,
@@ -205,6 +276,79 @@ fun CursoSlider(
                 steps = 19,
                 modifier = Modifier.fillMaxWidth()
             )
+        }
+    }
+}
+
+@Composable
+fun ResultadoCard(
+    promedioPonderado: Float,
+    promedioFinal: Float,
+    redondear: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val observacion = obtenerObservacion(promedioFinal)
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // a) Promedio ponderado: X.XX siempre con 2 decimales
+            Text(
+                text = "Promedio ponderado: ${String.format(Locale.US, "%.2f", promedioPonderado)}",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            // b) Promedio final: X en negrita (sin decimales si redondear, con 2 decimales si no)
+            val textoPromedioFinal = if (redondear) {
+                promedioFinal.toInt().toString()
+            } else {
+                String.format(Locale.US, "%.2f", promedioFinal)
+            }
+
+            Text(
+                text = "Promedio final: $textoPromedioFinal",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            // c) Debajo del promedio final, el texto "(redondeado)" en gris pequeño, SOLO si redondear está activo
+            if (redondear) {
+                Text(
+                    text = "(redondeado)",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // d) Un chip con el texto y color que devuelve obtenerObservacion(promedioFinal)
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = observacion.colorContenedor,
+                contentColor = observacion.colorTexto
+            ) {
+                Text(
+                    text = observacion.texto,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
