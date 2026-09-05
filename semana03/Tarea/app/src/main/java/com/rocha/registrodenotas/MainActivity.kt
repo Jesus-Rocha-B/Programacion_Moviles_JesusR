@@ -160,7 +160,7 @@ fun RegistroNotasScreen() {
                     }
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 // Controles adicionales (Switch y Checkbox)
                 Row(
@@ -175,30 +175,66 @@ fun RegistroNotasScreen() {
                     )
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = confirmado,
-                        onCheckedChange = {
-                            confirmado = it
-                            if (!it) mostrarResultado = false
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Confirmo que las notas son correctas")
-                }
-
-                Button(
-                    onClick = { mostrarResultado = true },
-                    enabled = confirmado,
+                Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "CALCULAR")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = confirmado,
+                            onCheckedChange = {
+                                confirmado = it
+                                if (!it) mostrarResultado = false
+                            }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "Confirmo que las notas son correctas")
+                    }
+
+                    // Mensaje verde de confirmación
+                    if (confirmado) {
+                        Text(
+                            text = "✓ Notas confirmadas y listas para calcular",
+                            color = Color(0xFF2E7D32),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 12.dp)
+                        )
+                    }
                 }
 
-                // Sección del Resultado (debajo del botón CALCULAR)
+                // Botones CALCULAR y LIMPIAR (Reto 3)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { mostrarResultado = true },
+                        enabled = confirmado,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "CALCULAR")
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            notaFundamentos = 0f
+                            notaPOO = 0f
+                            notaMoviles = 0f
+                            notaBD = 0f
+                            redondear = false
+                            confirmado = false
+                            mostrarResultado = false
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(text = "LIMPIAR")
+                    }
+                }
+
+                // Sección del Resultado (debajo de los botones)
                 if (!mostrarResultado) {
                     Text(
                         text = "Asigna las notas y confirma para calcular",
@@ -216,6 +252,19 @@ fun RegistroNotasScreen() {
                         redondear = redondear
                     )
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Footer con nombre
+                Text(
+                    text = "Registro de Notas v1.0 • Desarrollado por Rocha",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                )
             }
         }
     }
@@ -229,6 +278,17 @@ fun CursoSlider(
     onNotaChange: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Reto 1: Aporte del curso al promedio total (nota * peso%)
+    val aporte = notaValue * (peso / 100f)
+
+    // Reto 2: Semáforo de color según el rango de nota
+    val (badgeBgColor, badgeTextColor) = when {
+        notaValue >= 17f -> Color(0xFF1B5E20) to Color.White // Verde Oscuro
+        notaValue >= 13f -> Color(0xFF4CAF50) to Color.White // Verde Normal
+        notaValue >= 10f -> Color(0xFFFFC107) to Color.Black // Ámbar
+        else -> Color(0xFFD32F2F) to Color.White             // Rojo
+    }
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -252,11 +312,11 @@ fun CursoSlider(
                     fontWeight = FontWeight.Bold
                 )
 
-                // Badge con la nota en vivo (entero sin decimales)
+                // Badge con semáforo de color
                 Surface(
                     shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = badgeBgColor,
+                    contentColor = badgeTextColor
                 ) {
                     Text(
                         text = notaValue.toInt().toString(),
@@ -267,7 +327,7 @@ fun CursoSlider(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Slider(
                 value = notaValue,
@@ -275,6 +335,14 @@ fun CursoSlider(
                 valueRange = 0f..20f,
                 steps = 19,
                 modifier = Modifier.fillMaxWidth()
+            )
+
+            // Aporte individual del curso
+            Text(
+                text = "Aporte al promedio: +${String.format(Locale.US, "%.2f", aporte)} pts",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.End)
             )
         }
     }
