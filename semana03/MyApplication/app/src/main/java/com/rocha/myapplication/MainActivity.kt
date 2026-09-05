@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -56,6 +57,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
     var precio by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
     var mostrarResumen by remember { mutableStateOf(false) }
+    var mostrarError by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -79,6 +81,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             onValueChange = {
                 nombre = it
                 mostrarResumen = false
+                mostrarError = false
             },
             label = { Text("Nombre del producto") },
             modifier = Modifier.fillMaxWidth(),
@@ -97,6 +100,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                 onValueChange = {
                     precio = it
                     mostrarResumen = false
+                    mostrarError = false
                 },
                 label = { Text("Precio (S/)") },
                 modifier = Modifier.weight(1f),
@@ -109,6 +113,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                 onValueChange = {
                     cantidad = it
                     mostrarResumen = false
+                    mostrarError = false
                 },
                 label = { Text("Cantidad") },
                 modifier = Modifier.weight(1f),
@@ -119,15 +124,51 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Botón para agregar producto
-        Button(
-            onClick = { mostrarResumen = true },
-            modifier = Modifier.fillMaxWidth()
+        // Fila de Botones: AGREGAR PRODUCTO y LIMPIAR
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("AGREGAR PRODUCTO")
+            Button(
+                onClick = {
+                    if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank()) {
+                        mostrarError = true
+                        mostrarResumen = false
+                    } else {
+                        mostrarError = false
+                        mostrarResumen = true
+                    }
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("AGREGAR PRODUCTO")
+            }
+
+            OutlinedButton(
+                onClick = {
+                    nombre = ""
+                    precio = ""
+                    cantidad = ""
+                    mostrarResumen = false
+                    mostrarError = false
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("LIMPIAR")
+            }
         }
 
-        // Card de resumen cuando mostrarResumen es true
+        // Mensaje de error cuando algún campo está vacío
+        if (mostrarError) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Por favor completa todos los campos",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        // Card de resumen cuando mostrarResumen es true y todos los campos están completos
         if (mostrarResumen) {
             val precioNum = precio.toDoubleOrNull() ?: 0.0
             val cantidadNum = cantidad.toIntOrNull() ?: 0
