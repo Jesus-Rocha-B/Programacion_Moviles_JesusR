@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/carrito" />
+            <option value="$PROJECT_DIR$/estacionamiento" />
           </set>
         </option>
       </GradleProjectSettings>

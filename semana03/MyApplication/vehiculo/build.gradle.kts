@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.rojas.vehiculo"
+    namespace = "com.rocha.vehiculo"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.rojas.vehiculo"
+        applicationId = "com.rocha.vehiculo"
         minSdk = 24
         targetSdk = 37
         versionCode = 1

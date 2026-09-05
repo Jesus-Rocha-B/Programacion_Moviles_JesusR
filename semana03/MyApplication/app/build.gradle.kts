@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.rojas.myapplication"
+    namespace = "com.rocha.myapplication"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.rojas.myapplication"
+        applicationId = "com.rocha.myapplication"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
