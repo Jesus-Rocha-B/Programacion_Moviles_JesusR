@@ -160,26 +160,34 @@ fun RegistroNotasScreen() {
                     }
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Controles adicionales (Switch y Checkbox)
+                // Regla 3 & 4: Fila para Switch con área táctil >= 48dp y alto contraste (Regla 1)
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 48.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Redondear promedio final")
+                    Text(
+                        text = "Redondear promedio final",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
                     Switch(
                         checked = redondear,
                         onCheckedChange = { redondear = it }
                     )
                 }
 
+                // Regla 3 & 4: Fila para Checkbox con área táctil >= 48dp y alto contraste (Regla 1)
                 Column(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 48.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
@@ -190,14 +198,18 @@ fun RegistroNotasScreen() {
                             }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Confirmo que las notas son correctas")
+                        Text(
+                            text = "Confirmo que las notas son correctas",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
                     }
 
-                    // Mensaje verde de confirmación
+                    // Mensaje verde de confirmación con alto contraste sobre el fondo
                     if (confirmado) {
                         Text(
                             text = "✓ Notas confirmadas y listas para calcular",
-                            color = Color(0xFF2E7D32),
+                            color = Color(0xFF1B5E20), // Verde oscuro (contraste >= 4.5:1)
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(start = 12.dp)
@@ -205,17 +217,22 @@ fun RegistroNotasScreen() {
                     }
                 }
 
-                // Botones CALCULAR y LIMPIAR (Reto 3)
+                // Regla 4: Botones CALCULAR y LIMPIAR con altura accesible >= 48dp
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
                         onClick = { mostrarResultado = true },
                         enabled = confirmado,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 48.dp)
                     ) {
-                        Text(text = "CALCULAR")
+                        Text(
+                            text = "CALCULAR",
+                            fontWeight = FontWeight.Bold
+                        )
                     }
 
                     OutlinedButton(
@@ -228,9 +245,14 @@ fun RegistroNotasScreen() {
                             confirmado = false
                             mostrarResultado = false
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 48.dp)
                     ) {
-                        Text(text = "LIMPIAR")
+                        Text(
+                            text = "LIMPIAR",
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
 
@@ -239,7 +261,7 @@ fun RegistroNotasScreen() {
                     Text(
                         text = "Asigna las notas y confirma para calcular",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f),
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -253,13 +275,13 @@ fun RegistroNotasScreen() {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Footer con nombre
+                // Regla 1 & 2: Footer con el texto más pequeño (labelSmall) y contraste garantizado
                 Text(
                     text = "Desarrollado por: Jesús Enrique Rocha Bobadilla",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f),
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -278,10 +300,10 @@ fun CursoSlider(
     onNotaChange: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Reto 1: Aporte del curso al promedio total (nota * peso%)
+    // Aporte del curso al promedio total (nota * peso%)
     val aporte = notaValue * (peso / 100f)
 
-    // Reto 2: Semáforo de color según el rango de nota
+    // Semáforo de color según el rango de nota
     val (badgeBgColor, badgeTextColor) = when {
         notaValue >= 17f -> Color(0xFF1B5E20) to Color.White // Verde Oscuro
         notaValue >= 13f -> Color(0xFF4CAF50) to Color.White // Verde Normal
@@ -309,7 +331,8 @@ fun CursoSlider(
                 Text(
                     text = "$nombreCurso ($peso%)",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 // Badge con semáforo de color
@@ -320,14 +343,14 @@ fun CursoSlider(
                 ) {
                     Text(
                         text = notaValue.toInt().toString(),
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Slider(
                 value = notaValue,
@@ -363,7 +386,7 @@ fun ResultadoCard(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(16.dp)
     ) {
         Column(
             modifier = Modifier
@@ -372,14 +395,14 @@ fun ResultadoCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // a) Promedio ponderado: X.XX siempre con 2 decimales
+            // Promedio ponderado (secundario)
             Text(
                 text = "Promedio ponderado: ${String.format(Locale.US, "%.2f", promedioPonderado)}",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            // b) Promedio final: X en negrita (sin decimales si redondear, con 2 decimales si no)
+            // Promedio final (Regla 2: Elemento Principal destacado en tamaño y peso)
             val textoPromedioFinal = if (redondear) {
                 promedioFinal.toInt().toString()
             } else {
@@ -388,12 +411,12 @@ fun ResultadoCard(
 
             Text(
                 text = "Promedio final: $textoPromedioFinal",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            // c) Debajo del promedio final, el texto "(redondeado)" en gris pequeño, SOLO si redondear está activo
+            // Texto condicional "(redondeado)"
             if (redondear) {
                 Text(
                     text = "(redondeado)",
@@ -402,9 +425,9 @@ fun ResultadoCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // d) Un chip con el texto y color que devuelve obtenerObservacion(promedioFinal)
+            // Chip de Observación destacado
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 color = observacion.colorContenedor,
@@ -412,8 +435,8 @@ fun ResultadoCard(
             ) {
                 Text(
                     text = observacion.texto,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
             }
