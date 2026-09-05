@@ -57,7 +57,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
     var precio by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
     var mostrarResumen by remember { mutableStateOf(false) }
-    var mostrarError by remember { mutableStateOf(false) }
+    var mensajeError by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier
@@ -81,7 +81,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             onValueChange = {
                 nombre = it
                 mostrarResumen = false
-                mostrarError = false
+                mensajeError = ""
             },
             label = { Text("Nombre del producto") },
             modifier = Modifier.fillMaxWidth(),
@@ -100,7 +100,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                 onValueChange = {
                     precio = it
                     mostrarResumen = false
-                    mostrarError = false
+                    mensajeError = ""
                 },
                 label = { Text("Precio (S/)") },
                 modifier = Modifier.weight(1f),
@@ -113,7 +113,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                 onValueChange = {
                     cantidad = it
                     mostrarResumen = false
-                    mostrarError = false
+                    mensajeError = ""
                 },
                 label = { Text("Cantidad") },
                 modifier = Modifier.weight(1f),
@@ -124,19 +124,33 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Fila de Botones: AGREGAR PRODUCTO y LIMPIAR
+        // Botones: AGREGAR PRODUCTO y LIMPIAR
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Button(
                 onClick = {
-                    if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank()) {
-                        mostrarError = true
-                        mostrarResumen = false
-                    } else {
-                        mostrarError = false
-                        mostrarResumen = true
+                    val precioNum = precio.toDoubleOrNull()
+                    val cantidadNum = cantidad.toIntOrNull()
+
+                    when {
+                        nombre.isBlank() || precio.isBlank() || cantidad.isBlank() -> {
+                            mensajeError = "Por favor completa todos los campos"
+                            mostrarResumen = false
+                        }
+                        precioNum == null || precioNum <= 0.0 -> {
+                            mensajeError = "Ingresa un precio válido mayor a 0"
+                            mostrarResumen = false
+                        }
+                        cantidadNum == null || cantidadNum <= 0 -> {
+                            mensajeError = "Ingresa una cantidad válida mayor a 0"
+                            mostrarResumen = false
+                        }
+                        else -> {
+                            mensajeError = ""
+                            mostrarResumen = true
+                        }
                     }
                 },
                 modifier = Modifier.weight(1f)
@@ -150,7 +164,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
                     precio = ""
                     cantidad = ""
                     mostrarResumen = false
-                    mostrarError = false
+                    mensajeError = ""
                 },
                 modifier = Modifier.weight(1f)
             ) {
@@ -158,17 +172,17 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
             }
         }
 
-        // Mensaje de error cuando algún campo está vacío
-        if (mostrarError) {
+        // Mensaje de error dinámico cuando la validación falla
+        if (mensajeError.isNotEmpty()) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Por favor completa todos los campos",
+                text = mensajeError,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
 
-        // Card de resumen cuando mostrarResumen es true y todos los campos están completos
+        // Card de resumen cuando mostrarResumen es true y los campos son completamente válidos
         if (mostrarResumen) {
             val precioNum = precio.toDoubleOrNull() ?: 0.0
             val cantidadNum = cantidad.toIntOrNull() ?: 0
