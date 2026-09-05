@@ -14,12 +14,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rocha.registrodenotas.ui.theme.RegistrodeNotasTheme
-import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,12 +59,12 @@ fun RegistroNotasScreen() {
                 title = {
                     Text(
                         text = "Registro de Notas",
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Bold
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             )
         }
@@ -190,7 +188,7 @@ fun CursoSlider(
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
                     Text(
-                        text = String.format(Locale.US, "%.1f", notaValue),
+                        text = notaValue.toInt().toString(),
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold
