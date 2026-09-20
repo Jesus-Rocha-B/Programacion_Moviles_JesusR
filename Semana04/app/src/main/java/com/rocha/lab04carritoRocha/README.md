@@ -11,12 +11,12 @@ Aplicación móvil desarrollada en Jetpack Compose que permite registrar product
 
 **1. Con Productos y Panel de Totales**  
 <br>
-![Cap 2 - Con Productos y Totales](https://raw.githubusercontent.com/Jesus-Rocha-B/Programacion_Moviles_JesusR/main/Semana04/app/src/main/java/com/rocha/lab04carritoRocha/cap2.png)  
+![Cap 1 - Carrito Vacío](https://raw.githubusercontent.com/Jesus-Rocha-B/Programacion_Moviles_JesusR/main/Semana04/app/src/main/java/com/rocha/lab04carritoRocha/cap1.png)
 <br>
 
 **2. Estado Vacío**  
 <br>
-![Cap 1 - Carrito Vacío](https://raw.githubusercontent.com/Jesus-Rocha-B/Programacion_Moviles_JesusR/main/Semana04/app/src/main/java/com/rocha/lab04carritoRocha/cap1.png)  
+![Cap 2 - Con Productos y Totales](https://raw.githubusercontent.com/Jesus-Rocha-B/Programacion_Moviles_JesusR/main/Semana04/app/src/main/java/com/rocha/lab04carritoRocha/cap2.png)
 <br>
 
 **Preguntas Conceptuales**
