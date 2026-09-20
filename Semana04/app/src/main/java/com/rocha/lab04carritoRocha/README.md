@@ -1,0 +1,3 @@
+### ¿Por qué la lista se declara con val y aún así podemos agregarle elementos?
+
+La lista se declara con val porque, una vez creada la referencia, esta no se puede cambiar para apuntar a otro objeto. Pero eso no significa que no podamos modificar su contenido. En este caso, mutableStateListOf crea una lista mutable que nos permite agregar o eliminar productos, y además hace que Compose detecte esos cambios y actualice la interfaz automáticamente.
