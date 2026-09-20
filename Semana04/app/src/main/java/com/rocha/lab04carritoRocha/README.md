@@ -1,18 +1,16 @@
-# Lab 04 - Carrito de Compras
+# Lab 04 -  LazyColumn - LazyRow
 **Alumno:** Jesús Rocha
 
 ### Descripción
 Aplicación móvil desarrollada en Jetpack Compose que permite registrar productos, calcular subtotal, IGV, descuentos y el total a pagar, con opción de eliminar elementos de la lista en tiempo real.
 
----
-
 ### Capturas de Pantalla
 
 **1. Estado Vacío:**
-*(Insertar captura cuando el carrito está vacío)*
+![Cap 1 - Carrito Vacío](cap1.png)
 
 **2. Con Productos y Panel de Totales:**
-*(Insertar captura cuando hay productos agregados en el carrito)*
+![Cap 2 - Con Productos y Totales](cap2.png)
 
 ---
 
