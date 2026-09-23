@@ -22,13 +22,11 @@ data class AppointmentItem(
 )
 
 object AppointmentsRepository {
-    // Lista inicial con fechas cercanas y consistentes
-    val appointments = mutableStateListOf(
+    val appointments = mutableStateListOf<AppointmentItem>(
         AppointmentItem("Dra. Ana Torres", "Viernes 27, 10:30 am", "Confirmada"),
         AppointmentItem("Dr. Luis Vega", "Sábado 28, 3:00 pm", "Pendiente")
     )
 
-    // Agrega automáticamente la nueva cita agendada en estado PENDIENTE por defecto
     fun addAppointment(doctorName: String, dateTime: String) {
         appointments.add(0, AppointmentItem(doctorName, dateTime, "Pendiente"))
     }
@@ -36,7 +34,7 @@ object AppointmentsRepository {
 
 @Composable
 fun MyAppointmentsScreen() {
-    val appointments = AppointmentsRepository.appointments
+    val appointmentsList = AppointmentsRepository.appointments
     val darkPurple = Color(0xFF4A148C)
     val cardBg = Color(0xFFF3F3F5)
 
@@ -66,7 +64,7 @@ fun MyAppointmentsScreen() {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(appointments) { item ->
+                items(appointmentsList) { item ->
                     Surface(
                         shape = RoundedCornerShape(16.dp),
                         color = cardBg,

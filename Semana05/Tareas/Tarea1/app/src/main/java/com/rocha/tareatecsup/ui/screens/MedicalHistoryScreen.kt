@@ -23,7 +23,7 @@ data class MedicalRecord(
 
 @Composable
 fun MedicalHistoryScreen() {
-    val historyRecords = listOf(
+    val historyRecords = listOf<MedicalRecord>(
         MedicalRecord(
             date = "Miércoles 15 de Septiembre, 2026",
             title = "Consulta de Pediatría",
