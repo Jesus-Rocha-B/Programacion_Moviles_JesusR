@@ -1,5 +1,4 @@
 package com.rocha.navlab.navigation
-
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,7 +22,8 @@ fun AppNavigation() {
         // Ruta con parametro
         composable(
             route = Screen.Detail.route,
-            arguments = listOf(navArgument("itemId") { type = NavType.IntType })
+            arguments = listOf(navArgument("itemId") { type = NavType.IntType
+            defaultValue = 0})
         ) { backStackEntry ->
             val itemId = backStackEntry.arguments?.getInt("itemId") ?: 0
             DetailScreen(itemId = itemId, navController = navController)
