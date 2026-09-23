@@ -19,13 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rocha.tareatecsup.navigation.Screen
 
-data class Doctor(
-    val id: Int,
-    val name: String,
-    val specialty: String,
-    val rating: Double
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -35,13 +28,7 @@ fun HomeScreen(
     val specialties = listOf("Todas", "Cardiología", "Pediatría", "Dermatología")
     var selectedSpecialty by remember { mutableStateOf("Todas") }
 
-    val doctors = remember {
-        listOf(
-            Doctor(1, "Dra. Ana Torres", "Cardiología", 4.9),
-            Doctor(2, "Dr. Luis Vega", "Pediatría", 4.7),
-            Doctor(3, "Dra. Rosa Díaz", "Dermatología", 4.8)
-        )
-    }
+    val doctors: List<DoctorDetail> = doctorsList
 
     val filteredDoctors = remember(selectedSpecialty) {
         if (selectedSpecialty == "Todas") {

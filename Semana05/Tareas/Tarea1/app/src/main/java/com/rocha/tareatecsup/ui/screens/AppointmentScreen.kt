@@ -26,7 +26,7 @@ fun AppointmentScreen(
 ) {
     val doctor = getDoctorById(doctorId)
 
-    val dates = listOf(
+    val dates = listOf<DateItem>(
         DateItem("Jue", "Jueves", "26"),
         DateItem("Vie", "Viernes", "27"),
         DateItem("Sáb", "Sábado", "28")
