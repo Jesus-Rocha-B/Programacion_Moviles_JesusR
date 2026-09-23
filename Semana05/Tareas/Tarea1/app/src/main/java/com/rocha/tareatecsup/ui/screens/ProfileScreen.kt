@@ -148,30 +148,6 @@ fun ProfileScreen() {
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Botón Cerrar sesión
-            Button(
-                onClick = { /* Acción de cerrar sesión */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFEBEE),
-                    contentColor = Color(0xFFD32F2F)
-                )
-            ) {
-                Text(
-                    text = "Cerrar sesión",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }
