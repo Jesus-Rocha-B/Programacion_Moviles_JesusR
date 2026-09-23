@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,13 +21,22 @@ data class AppointmentItem(
     val status: String
 )
 
-@Composable
-fun MyAppointmentsScreen() {
-    val appointments = listOf(
+object AppointmentsRepository {
+    // Lista inicial con fechas cercanas y consistentes
+    val appointments = mutableStateListOf(
         AppointmentItem("Dra. Ana Torres", "Viernes 27, 10:30 am", "Confirmada"),
-        AppointmentItem("Dr. Luis Vega", "Miércoles 15, 3:00 pm", "Completada")
+        AppointmentItem("Dr. Luis Vega", "Sábado 28, 3:00 pm", "Pendiente")
     )
 
+    // Agrega automáticamente la nueva cita agendada en estado PENDIENTE por defecto
+    fun addAppointment(doctorName: String, dateTime: String) {
+        appointments.add(0, AppointmentItem(doctorName, dateTime, "Pendiente"))
+    }
+}
+
+@Composable
+fun MyAppointmentsScreen() {
+    val appointments = AppointmentsRepository.appointments
     val darkPurple = Color(0xFF4A148C)
     val cardBg = Color(0xFFF3F3F5)
 
@@ -52,7 +62,7 @@ fun MyAppointmentsScreen() {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Lista de tarjetas de citas
+            // Lista de tarjetas de citas activas
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -67,7 +77,7 @@ fun MyAppointmentsScreen() {
                                 .fillMaxWidth()
                                 .height(IntrinsicSize.Min)
                         ) {
-                            // Barra indicadora vertical morada en el extremo izquierdo
+                            // Línea vertical morada para las citas activas
                             Box(
                                 modifier = Modifier
                                     .width(4.dp)
@@ -107,7 +117,7 @@ fun MyAppointmentsScreen() {
                                 val isConfirmed = item.status == "Confirmada"
                                 Surface(
                                     shape = RoundedCornerShape(50),
-                                    color = if (isConfirmed) Color(0xFFE8F5E9) else Color(0xFFE0E0E0)
+                                    color = if (isConfirmed) Color(0xFFE8F5E9) else Color(0xFFFFF3E0)
                                 ) {
                                     Box(
                                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
@@ -117,7 +127,7 @@ fun MyAppointmentsScreen() {
                                             text = item.status,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (isConfirmed) Color(0xFF00897B) else Color(0xFF616161)
+                                            color = if (isConfirmed) Color(0xFF00897B) else Color(0xFFE65100)
                                         )
                                     }
                                 }
