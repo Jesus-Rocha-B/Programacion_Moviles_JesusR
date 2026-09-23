@@ -1,3 +1,12 @@
+## Requisitos Funcionales — Opción A
+
+- **Inicio**: LazyRow con chips de especialidad (mínimo 2) y LazyColumn con lista de médicos (mínimo 3), cada tarjeta con nombre, especialidad y calificación.
+- **Perfil del médico**: Recibe los datos del médico elegido por parámetro de navegación; botón "Agendar cita".
+- **Agendar cita**: Selección de fecha (mínimo 3 opciones) y hora (mínimo 3 opciones), ambas de selección única.
+- **Confirmación**: Resumen de la cita agendada (médico, fecha, hora); botón para volver al inicio.
+- **Menú lateral (drawer)**: Ícono ☰ en la topBar de Inicio; mínimo 3 destinos (Inicio, Mis citas, Historial médico).
+- **Mis citas**: LazyColumn con las citas agendadas, cada una con su estado (Confirmada / Completada) diferenciado visualmente.
+
 ---
 
 ## Prompts Utilizados y Archivos Modificados
@@ -152,9 +161,9 @@ ESTILO VISUAL QUE QUIERO PARA ConfirmationScreen.kt ("¡Cita agendada!"):
 - Contenido totalmente centrado vertical y horizontalmente en pantalla blanca.
 - Ícono superior: Círculo verde claro (#E8F5E9) de 88.dp con un ícono de check (Icons.Default.Check) verde teal (#00897B) centrado.
 - Título principal "¡Cita agendada!" en negrita y grande (headlineMedium).
-- Debe mostrar dinámicamente el NOMBRE DEL MÉDICO recibido por parámetro (ej. "Dra. Ana Torres" o "Dr. Luis Vega"), NO el ID.
-- Fecha y hora formateada debajo (ej. "Viernes 27, 10:30 am") en gris.
-- Botón "Ver mis citas": centrado, fondo gris claro (#F3F3F5), bordes redondeados (16.dp) y texto en color gris oscuro (#424242). Al presionar, navega a la pantalla de mis citas (Screen.MyAppointments).
+- Debe mostrar dinámicamente el NOMBRE REAL DEL MÉDICO recibido por parámetro (ej. "Dra. Ana Torres" o "Dr. Luis Vega"), NO el ID ni etiquetas genéricas.
+- Fecha y hora formateadas (ej. "Viernes 27, 10:30 am") en gris.
+- Botón "Ver mis citas": centrado, fondo gris claro (#F3F3F5) y bordes redondeados (16.dp) que redirige directamente a la pantalla de Mis Citas (Screen.MyAppointments.route).
 
 ESTILO VISUAL QUE QUIERO PARA ProfileScreen.kt ("Perfil"):
 
@@ -267,7 +276,7 @@ ESTILO VISUAL Y FUNCIONALIDAD DE PANTALLAS:
 3. AppointmentScreen.kt ("Agendar cita"):
    - TopAppBar con título "Agendar cita" y botón de volver.
    - Selección de fecha ("Selecciona fecha") con tarjetas redondeadas (16.dp): muestran el día abreviado arriba ("Jue", "Vie", "Sáb") y el número de día abajo ("26", "27", "28"). La opción seleccionada resalta en morado oscuro (#4A148C) con texto blanco.
-   - Selección de hora ("Selecciona hora") con tarjetas redondeadas para "9:00", "10:30", "3:00". La seleccionada resalta en morado oscuro.
+   - Selección de hora ("Selecciona hora") with tarjetas redondeadas para "9:00", "10:30", "3:00". La seleccionada resalta en morado oscuro.
    - Botón "Confirmar cita" al final de ancho completo, fondo morado oscuro (#4A148C) y texto blanco en negrita.
    - Al confirmar, debe registrar automáticamente la nueva cita en la lista activa de "Mis citas" con el estado por defecto "Pendiente" y el formato unificado de fecha (ej. "Viernes 27, 10:30 am"), y luego navegar a Screen.Confirmation.
 
