@@ -159,6 +159,7 @@ fun LoginScreen(navController: NavController) {
                     Text(
                         text = "INICIAR SESIÓN",
                         fontWeight = FontWeight.Bold,
+                        color = Color.White,
                         fontSize = 16.sp
                     )
                 }
