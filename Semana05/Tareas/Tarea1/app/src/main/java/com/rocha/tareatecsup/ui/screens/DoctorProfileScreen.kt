@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.rocha.tareatecsup.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +65,7 @@ fun DoctorProfileScreen(
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(
-                onClick = { /* navegación a Agendar cita, la conectamos en el siguiente commit */ },
+                onClick = { navController.navigate(Screen.Appointment.createRoute(doctorId)) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Agendar cita")

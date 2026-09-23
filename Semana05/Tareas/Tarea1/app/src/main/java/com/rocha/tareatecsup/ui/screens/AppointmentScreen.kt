@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.rocha.tareatecsup.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,7 +19,6 @@ fun AppointmentScreen(
     doctorId: Int,
     navController: NavController
 ) {
-    // Fechas y horas disponibles (mínimo 3 cada una)
     val dates = listOf("Jue 26", "Vie 27", "Sáb 28")
     val hours = listOf("9:00", "10:30", "3:00")
 
@@ -72,7 +72,11 @@ fun AppointmentScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { "" },
+                onClick = {
+                    navController.navigate(
+                        Screen.Confirmation.createRoute(doctorId, selectedDate, selectedHour)
+                    )
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Confirmar cita")
