@@ -1,5 +1,5 @@
 package com.rocha.tarea2.ui.screens
-
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -137,7 +137,10 @@ fun HomeScreen(navController: NavController) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 6.dp),
+                        .padding(vertical = 6.dp)
+                        .clickable {
+                            navController.navigate(Screen.ClassDetail.createRoute(classItem.id))
+                        },
                 ) {
                     Row(
                         modifier = Modifier.padding(12.dp),
