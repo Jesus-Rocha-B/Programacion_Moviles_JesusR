@@ -1,13 +1,16 @@
 package com.rocha.tarea2.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -18,7 +21,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -49,20 +51,24 @@ fun ClassDetailScreen(classId: Int, navController: NavController) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "Detalle de clase",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    // Flecha de volver pegada inmediatamente a la izquierda del título
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { navController.popBackStack() }
+                    ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver",
-                            tint = Color.Black
+                            tint = Color.Black,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Detalle de clase",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
                         )
                     }
                 },
@@ -117,8 +123,14 @@ fun ClassDetailScreen(classId: Int, navController: NavController) {
                 Spacer(modifier = Modifier.height(4.dp))
 
                 // Horario, sala y duración en gris, separados por "·"
+                val dateDetail = if (classItem.dayLabel == "Hoy") {
+                    "${classItem.time} · ${classItem.room} · ${classItem.duration}"
+                } else {
+                    "${classItem.dayLabel}, ${classItem.time} · ${classItem.room} · ${classItem.duration}"
+                }
+
                 Text(
-                    text = "${classItem.time} · ${classItem.room} · ${classItem.duration}",
+                    text = dateDetail,
                     style = MaterialTheme.typography.bodySmall,
                     color = GrayText
                 )
@@ -147,9 +159,32 @@ fun ClassDetailScreen(classId: Int, navController: NavController) {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Botón para reservar con ancho completo, fondo verde oscuro y texto blanco en negrita
+                // Botón para reservar: vincula la reserva automáticamente a "Mis reservas"
                 Button(
-                    onClick = { navController.navigate(Screen.Confirmation.createRoute(classId)) },
+                    onClick = {
+                        if (classItem != null) {
+                            // Reducir cupos disponibles
+                            if (classItem.availableSpots > 0) {
+                                classItem.availableSpots -= 1
+                            }
+                            // Agregar a la lista de reservas si aún no está registrada
+                            val alreadyReserved = sampleReservations.any {
+                                it.classItem.id == classItem.id && it.status == "Confirmada"
+                            }
+                            if (!alreadyReserved) {
+                                val dateLabel = if (classItem.dayLabel == "Hoy") "Hoy, ${classItem.time}" else "${classItem.dayLabel}, ${classItem.time}"
+                                sampleReservations.add(
+                                    0,
+                                    Reservation(
+                                        classItem = classItem,
+                                        dateLabel = dateLabel,
+                                        status = "Confirmada"
+                                    )
+                                )
+                            }
+                        }
+                        navController.navigate(Screen.Confirmation.createRoute(classId))
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

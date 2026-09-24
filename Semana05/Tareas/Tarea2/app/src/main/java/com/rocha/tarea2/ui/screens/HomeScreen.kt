@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
@@ -28,12 +27,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,8 +57,10 @@ data class ClassItem(
     val room: String,
     val duration: String,
     val description: String,
-    val availableSpots: Int,
-    val totalSpots: Int
+    var availableSpots: Int,
+    val totalSpots: Int,
+    val filterGroup: String = "Hoy", // "Hoy" o "Esta semana"
+    val dayLabel: String = "Hoy"     // "Hoy", "Jueves", "Viernes", etc.
 )
 
 // Modelo de una reserva ya confirmada
@@ -67,8 +70,8 @@ data class Reservation(
     val status: String // "Confirmada" o "Completada"
 )
 
-// Datos de ejemplo: las 3 clases mínimas que piden los requisitos
-val sampleClasses = listOf(
+// Lista de clases reactiva y modificable para actualizar cupos disponibles
+val sampleClasses = mutableStateListOf(
     ClassItem(
         id = 1,
         name = "Yoga funcional",
@@ -77,7 +80,9 @@ val sampleClasses = listOf(
         duration = "50 min",
         description = "Sesión de yoga enfocada en movilidad y equilibrio.",
         availableSpots = 6,
-        totalSpots = 12
+        totalSpots = 12,
+        filterGroup = "Hoy",
+        dayLabel = "Hoy"
     ),
     ClassItem(
         id = 2,
@@ -87,7 +92,9 @@ val sampleClasses = listOf(
         duration = "45 min",
         description = "Entrenamiento funcional de alta intensidad. Cupos limitados.",
         availableSpots = 8,
-        totalSpots = 12
+        totalSpots = 12,
+        filterGroup = "Hoy",
+        dayLabel = "Hoy"
     ),
     ClassItem(
         id = 3,
@@ -97,12 +104,14 @@ val sampleClasses = listOf(
         duration = "40 min",
         description = "Rutina de ciclismo indoor con cambios de ritmo.",
         availableSpots = 4,
-        totalSpots = 12
+        totalSpots = 12,
+        filterGroup = "Esta semana",
+        dayLabel = "Jueves"
     )
 )
 
-// Datos de ejemplo: reservas ya hechas por el usuario
-val sampleReservations = listOf(
+// Lista de reservas reactiva para que se actualice automáticamente al reservar
+val sampleReservations = mutableStateListOf(
     Reservation(
         classItem = sampleClasses[1],
         dateLabel = "Hoy, 6:00 pm",
@@ -120,21 +129,30 @@ fun HomeScreen(navController: NavController) {
     // Controla qué chip está seleccionado: "Hoy" o "Esta semana"
     var selectedFilter by remember { mutableStateOf("Hoy") }
 
+    // Filtrado de clases según el chip seleccionado
+    val displayedClasses = sampleClasses.filter { classItem ->
+        if (selectedFilter == "Hoy") {
+            classItem.filterGroup == "Hoy"
+        } else {
+            true // En "Esta semana" se muestran todas las clases de la semana
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Encabezado superior con fondo verde oscuro y esquinas inferiores redondeadas
+        // Encabezado superior verde oscuro como rectángulo recto (sin bordes redondeados abajo)
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = DarkGreen,
-            shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
+            shape = RectangleShape
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 24.dp)
+                    .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 Text(
                     text = "TECSUP Fit",
@@ -161,7 +179,7 @@ fun HomeScreen(navController: NavController) {
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Chips de filtro, mínimo 2: "Hoy" y "Esta semana"
+            // Chips de filtro: "Hoy" y "Esta semana"
             LazyRow {
                 items(listOf("Hoy", "Esta semana")) { filter ->
                     val isSelected = selectedFilter == filter
@@ -191,20 +209,28 @@ fun HomeScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Título "Clases disponibles"
+            // Título "Clases disponibles" en color negro intenso
             Text(
                 text = "Clases disponibles",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    color = Color.Black
                 )
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Lista de clases disponibles
+            // Lista de clases filtradas
             LazyColumn {
-                items(sampleClasses) { classItem ->
+                items(displayedClasses) { classItem ->
+                    // Formato de hora y día según el filtro activo
+                    val dateSubtitle = if (selectedFilter == "Hoy") {
+                        "${classItem.time} · ${classItem.room}"
+                    } else {
+                        "${classItem.dayLabel}, ${classItem.time} · ${classItem.room}"
+                    }
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -224,11 +250,14 @@ fun HomeScreen(navController: NavController) {
                                 .padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Ícono a la izquierda dentro de un círculo con fondo verde claro
+                            // Ícono a la izquierda dentro de un rectángulo con esquinas redondeadas
                             Box(
                                 modifier = Modifier
-                                    .size(48.dp)
-                                    .background(color = LightGreen, shape = CircleShape),
+                                    .size(width = 56.dp, height = 44.dp)
+                                    .background(
+                                        color = LightGreen,
+                                        shape = RoundedCornerShape(12.dp)
+                                    ),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -241,17 +270,18 @@ fun HomeScreen(navController: NavController) {
 
                             Spacer(modifier = Modifier.size(16.dp))
 
-                            // Nombre de la clase, horario y sala
+                            // Nombre de la clase e información de día/hora/sala
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = classItem.name,
                                     style = MaterialTheme.typography.bodyLarge.copy(
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Black
                                     )
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = "${classItem.time} · ${classItem.room}",
+                                    text = dateSubtitle,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = GrayText
                                 )

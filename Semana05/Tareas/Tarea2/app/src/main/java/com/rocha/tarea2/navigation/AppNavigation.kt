@@ -1,21 +1,27 @@
 package com.rocha.tarea2.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.FitnessCenter
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -37,6 +43,9 @@ private val bottomBarRoutes = listOf(
     Screen.Profile.route
 )
 
+private val DarkGreen = Color(0xFF00695C)
+private val GrayColor = Color(0xFF757575)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation() {
@@ -50,30 +59,44 @@ fun AppNavigation() {
         bottomBar = {
             // Solo se dibuja el bottomBar si la ruta actual está en la lista
             if (currentRoute in bottomBarRoutes) {
-                NavigationBar {
+                NavigationBar(
+                    containerColor = Color.White
+                ) {
+                    val itemColors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = DarkGreen,
+                        selectedTextColor = DarkGreen,
+                        unselectedIconColor = GrayColor,
+                        unselectedTextColor = GrayColor,
+                        indicatorColor = Color.Transparent
+                    )
+
                     NavigationBarItem(
                         selected = currentRoute == Screen.Home.route,
                         onClick = { navController.navigate(Screen.Home.route) },
-                        icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
-                        label = { Text("Inicio") }
+                        icon = { Icon(Icons.Outlined.Home, contentDescription = "Inicio") },
+                        label = { Text("Inicio") },
+                        colors = itemColors
                     )
                     NavigationBarItem(
                         selected = currentRoute == Screen.Reservations.route,
                         onClick = { navController.navigate(Screen.Reservations.route) },
-                        icon = { Icon(Icons.Filled.CalendarMonth, contentDescription = "Reservas") },
-                        label = { Text("Reservas") }
+                        icon = { Icon(Icons.Outlined.CalendarMonth, contentDescription = "Reservas") },
+                        label = { Text("Reservas") },
+                        colors = itemColors
                     )
                     NavigationBarItem(
                         selected = currentRoute == Screen.Routines.route,
                         onClick = { navController.navigate(Screen.Routines.route) },
-                        icon = { Icon(Icons.Filled.FitnessCenter, contentDescription = "Rutinas") },
-                        label = { Text("Rutinas") }
+                        icon = { Icon(Icons.Outlined.FitnessCenter, contentDescription = "Rutinas") },
+                        label = { Text("Rutinas") },
+                        colors = itemColors
                     )
                     NavigationBarItem(
                         selected = currentRoute == Screen.Profile.route,
                         onClick = { navController.navigate(Screen.Profile.route) },
-                        icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
-                        label = { Text("Perfil") }
+                        icon = { Icon(Icons.Outlined.Person, contentDescription = "Perfil") },
+                        label = { Text("Perfil") },
+                        colors = itemColors
                     )
                 }
             }
@@ -82,7 +105,19 @@ fun AppNavigation() {
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
-            modifier = androidx.compose.ui.Modifier.padding(padding)
+            modifier = Modifier.padding(padding),
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { 300 }, animationSpec = tween(280)) + fadeIn(animationSpec = tween(280))
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { -300 }, animationSpec = tween(280)) + fadeOut(animationSpec = tween(280))
+            },
+            popEnterTransition = {
+                slideInHorizontally(initialOffsetX = { -300 }, animationSpec = tween(280)) + fadeIn(animationSpec = tween(280))
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { 300 }, animationSpec = tween(280)) + fadeOut(animationSpec = tween(280))
+            }
         ) {
             composable(Screen.Home.route) { HomeScreen(navController) }
             composable(Screen.Reservations.route) { ReservationsScreen(navController) }
