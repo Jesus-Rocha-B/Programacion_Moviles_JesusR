@@ -1,4 +1,10 @@
-## Requisitos Funcionales
+# Proyecto Tarea2 - TECSUP Fit (Android Jetpack Compose & Material 3)
+
+Este proyecto es una aplicación Android desarrollada con Jetpack Compose, Material 3 y Navigation Compose para la gestión de un gimnasio (**TECSUP Fit**). Permite explorar clases disponibles, consultar el detalle de cada clase, reservar cupos, revisar las reservas confirmadas/completadas, visualizar rutinas y consultar el perfil del usuario.
+
+---
+
+## Requisitos Funcionales — Opción B
 
 * **Inicio:** `LazyRow` con chips de filtro (mínimo 2: "Hoy" / "Esta semana") y `LazyColumn` con lista de clases (mínimo 3), cada tarjeta con nombre y horario.
 * **Detalle de clase:** recibe los datos de la clase elegida por parámetro de navegación; botón "Reservar cupo".
@@ -6,6 +12,36 @@
 * **bottomBar:** visible en Inicio, Reservas y Perfil, con 4 pestañas (Inicio, Reservas, Rutinas, Perfil); el ícono activo se resalta según la pantalla actual.
 * **Reservas:** `LazyColumn` con las clases reservadas, cada una con su estado (Confirmada / Completada) diferenciado visualmente.
 * **Perfil:** datos del usuario y estadísticas simples (ej. clases tomadas, racha de asistencia).
+
+---
+
+## Capturas de Pantalla de la Aplicación
+
+A continuación se muestra el flujo continuo de pantallas capturado directamente de la aplicación:
+
+### 1. Pantalla de Inicio (HomeScreen - Filtro "Hoy")
+![HomeScreen - Filtro Hoy](screenshots/01_HomeScreen_Hoy.png)
+
+### 2. Pantalla de Inicio (HomeScreen - Filtro "Esta semana")
+![HomeScreen - Filtro Esta Semana](screenshots/02_HomeScreen_Semana.png)
+
+### 3. Detalle de Clase (ClassDetailScreen)
+![ClassDetailScreen](screenshots/03_ClassDetailScreen.png)
+
+### 4. Confirmación de Reserva (ConfirmationScreen)
+![ConfirmationScreen](screenshots/04_ConfirmationScreen.png)
+
+### 5. Mis Reservas (ReservationsScreen - Vista Inicial)
+![ReservationsScreen - Inicial](screenshots/05_ReservationsScreen_Inicial.png)
+
+### 6. Mis Reservas (ReservationsScreen - Reserva Vinculada)
+![ReservationsScreen - Actualizada](screenshots/06_ReservationsScreen_Actualizada.png)
+
+### 7. Mis Rutinas (RoutinesScreen)
+![RoutinesScreen](screenshots/07_RoutinesScreen.png)
+
+### 8. Mi Perfil (ProfileScreen)
+![ProfileScreen](screenshots/08_ProfileScreen.png)
 
 ---
 
