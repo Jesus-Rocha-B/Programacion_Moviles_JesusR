@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.util.Locale
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 
 data class Producto(
     val nombre: String,
@@ -69,10 +71,24 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
                 ) {
                     DropdownMenuItem(
                         text = {Text("Ver detalle")},
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null
+                            )
+                        },
                         onClick = { expanded = false}
                     )
+                    HorizontalDivider()
                     DropdownMenuItem(
-                        text = {Text("Eliminar")},
+                        text = { Text("Eliminar", color = MaterialTheme.colorScheme.error) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        },
                         onClick = {
                             expanded = false
                             onEliminar()
