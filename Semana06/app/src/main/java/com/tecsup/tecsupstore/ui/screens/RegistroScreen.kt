@@ -63,6 +63,22 @@ fun TarjetaProducto(producto: Producto, onEliminar: () -> Unit) {
                         contentDescription = "Opciones de producto"
                     )
                 }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest =  { expanded = false}
+                ) {
+                    DropdownMenuItem(
+                        text = {Text("Ver detalle")},
+                        onClick = { expanded = false}
+                    )
+                    DropdownMenuItem(
+                        text = {Text("Eliminar")},
+                        onClick = {
+                            expanded = false
+                            onEliminar()
+                        }
+                    )
+                }
             }
         }
     }
