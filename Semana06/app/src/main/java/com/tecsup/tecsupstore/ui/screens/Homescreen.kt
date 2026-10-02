@@ -1,9 +1,11 @@
 package com.tecsup.tecsupstore.ui.screens
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.ShoppingBag
@@ -79,10 +81,27 @@ fun ItemProductoCard(
                 ) {
                     DropdownMenuItem(
                         text = { Text("Ver detalle") },
-                        leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null
+                            )
+                        },
                         onClick = {
                             expanded = false
                             navController.navigate(Screen.Detail.createRoute(producto.id))
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Favoritos") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.FavoriteBorder,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            expanded = false
                         }
                     )
                     HorizontalDivider()
@@ -109,14 +128,15 @@ fun ItemProductoCard(
 fun HomeScreen(navController: NavController) {
     val productos = remember {
         listOf(
-            ItemProducto(1, "Audifonos", 89.00),
-            ItemProducto(2, "Smartwatch", 199.00),
-            ItemProducto(3, "Funda celular", 25.00)
+            ItemProducto(1, "Audífonos Bluetooth", 89.00),
+            ItemProducto(2, "Smartwatch Deportivo", 199.00),
+            ItemProducto(3, "Funda de Celular", 25.00),
+            ItemProducto(4, "Cargador Rápido Type-C", 45.00)
         )
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Encabezado básico usando Surface del tema
+        // Cabecera sencilla con el título de la tienda
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.fillMaxWidth()
@@ -128,14 +148,14 @@ fun HomeScreen(navController: NavController) {
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Mas vendidos",
+                    text = "Más vendidos",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                 )
             }
         }
 
-        // Lista de elementos
+        // Lista perezosa (LazyColumn) de productos
         LazyColumn(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)

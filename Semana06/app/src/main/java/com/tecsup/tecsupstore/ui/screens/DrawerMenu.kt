@@ -1,4 +1,5 @@
 package com.tecsup.tecsupstore.ui.screens
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -59,6 +60,7 @@ fun DrawerMenu(
 
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
         Spacer(modifier = Modifier.height(16.dp))
+
         NavigationDrawerItem(
             label = { Text("Inicio") },
             selected = currentRoute == Screen.Home.route,
