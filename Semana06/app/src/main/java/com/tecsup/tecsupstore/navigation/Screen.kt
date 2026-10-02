@@ -2,10 +2,10 @@ package com.tecsup.tecsupstore.navigation
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
-    object List : Screen("list")
     object Registro : Screen("registro")
+    object List : Screen("list")
     object Profile : Screen("profile")
-    object Detail : Screen("detail/{itemId}") {
-        fun createRoute(itemId: Int) = "detail/$itemId"
+    object Detail : Screen("detail/{productoId}") {
+        fun createRoute(productoId: Int) = "detail/$productoId"
     }
 }
