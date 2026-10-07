@@ -1,4 +1,6 @@
 package com.rocha.saludplus.repository
+import androidx.compose.runtime.mutableStateListOf
+import com.rocha.saludplus.model.Cita
 import com.rocha.saludplus.model.Especialidad
 import com.rocha.saludplus.model.Medico
 import com.rocha.saludplus.model.Usuario
@@ -81,5 +83,46 @@ object Repositorio {
     fun buscarMedicos(especialidadId: Int, texto: String): List<Medico> {
         return medicosPorEspecialidad(especialidadId)
             .filter { it.nombre.contains(texto, ignoreCase = true) }
+    }
+
+    // Lista de citas, mutableStateListOf hace que Compose se entere de los cambios
+    // y las pantallas se actualicen solas
+    val citas = mutableStateListOf<Cita>()
+    // Horarios que atiende cualquier médico
+    val horariosBase = listOf(
+        "08:00", "09:00", "10:00", "11:00",
+        "14:00", "15:00", "16:00", "17:00"
+    )
+    // Horarios base menos los que ya tienen cita ese día con ese médico
+    fun horariosDisponibles(medicoId: Int, fecha: String): List<String> {
+        val ocupados = citas
+            .filter { it.medicoId == medicoId && it.fecha == fecha }
+            .map { it.hora }
+        return horariosBase.filter { it !in ocupados }
+    }
+    // Devuelve la cita creada, o null si no hay sesión o el horario ya está ocupado
+    fun agendarCita(medicoId: Int, fecha: String, hora: String): Cita? {
+        val usuario = usuarioActual ?: return null
+        val ocupado = citas.any { it.medicoId == medicoId && it.fecha == fecha && it.hora == hora }
+        if (ocupado) return null
+        val nuevoId = (citas.maxOfOrNull { it.id } ?: 0) + 1
+        val cita = Cita(nuevoId, usuario.correo, medicoId, fecha, hora)
+        citas.add(cita)
+        return cita
+    }
+    // Citas del usuario con sesión iniciada, ordenadas por fecha y luego por hora
+    fun citasDelUsuario(): List<Cita> {
+        val correo = usuarioActual?.correo ?: return emptyList()
+        return citas
+            .filter { it.correoUsuario == correo }
+            .sortedWith(compareBy({ it.fecha }, { it.hora }))
+    }
+    // Busca una cita por su id
+    fun obtenerCita(id: Int): Cita? {
+        return citas.find { it.id == id }
+    }
+    // Elimina la cita de la lista, se usa en el reto de Detalle de cita
+    fun cancelarCita(id: Int) {
+        citas.removeAll { it.id == id }
     }
 }
