@@ -1,1 +1,23 @@
 package com.rocha.saludplus.navigation
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.rocha.saludplus.ui.auth.*
+// IMPORTS NUEVOS
+
+@Composable
+fun AppNavigation() {
+    // Variable que controla el historial de pantallas
+    val navController = rememberNavController()
+    // Mapa de rutas
+    NavHost(navController = navController, startDestination = Rutas.SPLASH) {
+        composable(Rutas.SPLASH) { SplashScreen(navController) }
+        composable(Rutas.REGISTRO) { RegistroScreen(navController) }
+        composable(Rutas.LOGIN) { LoginScreen(navController) }
+        composable(Rutas.TERMINOS) { TerminosScreen(navController) }
+        // RUTAS NUEVAS
+    }
+}
