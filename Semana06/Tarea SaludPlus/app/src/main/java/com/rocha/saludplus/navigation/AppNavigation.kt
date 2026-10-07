@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.rocha.saludplus.ui.auth.*
+import com.rocha.saludplus.ui.home.*
 // IMPORTS NUEVOS
 
 @Composable
@@ -18,6 +19,7 @@ fun AppNavigation() {
         composable(Rutas.REGISTRO) { RegistroScreen(navController) }
         composable(Rutas.LOGIN) { LoginScreen(navController) }
         composable(Rutas.TERMINOS) { TerminosScreen(navController) }
+        composable(Rutas.HOME) { HomeScreen(navController) }
         // RUTAS NUEVAS
     }
 }

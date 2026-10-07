@@ -3,11 +3,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +30,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
-// Botón para la acción principal, ocupa todo el ancho
+
+// Botón para la acción principal
 @Composable
 fun BotonPrincipal(
     texto: String,
@@ -43,6 +48,7 @@ fun BotonPrincipal(
     }
 }
 
+
 // Botón para la acción secundaria
 @Composable
 fun BotonSecundario(
@@ -58,8 +64,8 @@ fun BotonSecundario(
     }
 }
 
-// Campo de texto con mensaje de error y modo contraseña
-// El texto lo guarda la pantalla con remember, aquí solo se dibuja
+
+// Campo de texto
 @Composable
 fun CampoTexto(
     valor: String,
@@ -73,29 +79,50 @@ fun CampoTexto(
     OutlinedTextField(
         value = valor,
         onValueChange = onValorCambia,
-        label = { Text(etiqueta) },
+        label = {
+            Text(etiqueta)
+        },
         isError = error != null,
         supportingText = if (error != null) {
-            { Text(error) }
-        } else null,
+            {
+                Text(error)
+            }
+        } else {
+            null
+        },
         singleLine = true,
-        visualTransformation = if (esContrasena) PasswordVisualTransformation() else VisualTransformation.None,
+        visualTransformation = if (esContrasena) {
+            PasswordVisualTransformation()
+        } else {
+            VisualTransformation.None
+        },
         keyboardOptions = KeyboardOptions(
-            keyboardType = if (esContrasena) KeyboardType.Password else tipoTeclado
+            keyboardType = if (esContrasena) {
+                KeyboardType.Password
+            } else {
+                tipoTeclado
+            }
         ),
         modifier = modifier.fillMaxWidth()
     )
 }
 
-// TopAppBar es experimental, su comportamiento con scroll puede cambiar
+
+// Barra superior
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BarraSuperior(titulo: String, onVolver: () -> Unit) {
+fun BarraSuperior(
+    titulo: String,
+    onVolver: () -> Unit
+) {
     TopAppBar(
-        title = { Text(titulo) },
-        // Flecha para volver
+        title = {
+            Text(titulo)
+        },
         navigationIcon = {
-            IconButton(onClick = onVolver) {
+            IconButton(
+                onClick = onVolver
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Volver"
@@ -105,17 +132,25 @@ fun BarraSuperior(titulo: String, onVolver: () -> Unit) {
     )
 }
 
-// Fila con una etiqueta a la izquierda y su valor a la derecha
+
+// Fila con etiqueta y valor
 @Composable
-fun FilaDato(etiqueta: String, valor: String) {
+fun FilaDato(
+    etiqueta: String,
+    valor: String
+) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+
         Text(
             text = etiqueta,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
         Text(
             text = valor,
             fontWeight = FontWeight.Bold
@@ -123,17 +158,91 @@ fun FilaDato(etiqueta: String, valor: String) {
     }
 }
 
-// Mensaje centrado para cuando una lista está vacía
+
+// Mensaje cuando una lista está vacía
 @Composable
-fun MensajeVacio(texto: String) {
+fun MensajeVacio(
+    texto: String
+) {
     Box(
-        modifier = Modifier.fillMaxWidth().padding(32.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp),
         contentAlignment = Alignment.Center
     ) {
+
         Text(
             text = texto,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+
+// Tarjeta para accesos rápidos del Home
+@Composable
+fun TarjetaAccion(
+    titulo: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.height(110.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+
+// Tarjeta para especialidades destacadas
+@Composable
+fun TarjetaDestacada(
+    texto: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier
+            .width(180.dp)
+            .height(100.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+
+            Text(
+                text = texto,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
