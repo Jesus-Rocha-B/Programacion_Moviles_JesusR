@@ -8,6 +8,8 @@ import androidx.navigation.navArgument
 import com.rocha.saludplus.ui.auth.*
 import com.rocha.saludplus.ui.home.*
 import com.rocha.saludplus.ui.agendamiento.*
+import com.rocha.saludplus.ui.citas.*
+import com.rocha.saludplus.ui.perfil.*
 // IMPORTS NUEVOS
 
 @Composable
@@ -56,6 +58,8 @@ fun AppNavigation() {
             val citaId = backStackEntry.arguments?.getInt("citaId") ?: 0
             CitaExitosaScreen(citaId, navController)
         }
+        composable(Rutas.MIS_CITAS) { MisCitasScreen(navController) }
+        composable(Rutas.PERFIL) { PerfilScreen(navController) }
         // RUTAS NUEVAS
     }
 }
