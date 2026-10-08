@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.rocha.saludplus.ui.auth.*
 import com.rocha.saludplus.ui.home.*
+import com.rocha.saludplus.ui.agendamiento.*
 // IMPORTS NUEVOS
 
 @Composable
@@ -20,6 +21,14 @@ fun AppNavigation() {
         composable(Rutas.LOGIN) { LoginScreen(navController) }
         composable(Rutas.TERMINOS) { TerminosScreen(navController) }
         composable(Rutas.HOME) { HomeScreen(navController) }
+        composable(Rutas.ESPECIALIDADES) { EspecialidadesScreen(navController) }
+        composable(
+            route = Rutas.MEDICOS,
+            arguments = listOf(navArgument("especialidadId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val especialidadId = backStackEntry.arguments?.getInt("especialidadId") ?: 0
+            MedicosScreen(especialidadId, navController)
+        }
         // RUTAS NUEVAS
     }
 }
