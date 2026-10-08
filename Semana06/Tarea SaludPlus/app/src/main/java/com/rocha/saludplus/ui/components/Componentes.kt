@@ -395,3 +395,8 @@ fun ChipHorario(
         }
     }
 }
+
+// Cambia "2026-10-12" a "12/10/2026"
+fun formatearFecha(fecha: String): String {
+    return fecha.split("-").reversed().joinToString("/")
+}

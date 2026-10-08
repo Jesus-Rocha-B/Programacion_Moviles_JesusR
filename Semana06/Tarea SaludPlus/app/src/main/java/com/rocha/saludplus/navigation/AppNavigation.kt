@@ -36,6 +36,26 @@ fun AppNavigation() {
             val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
             FechaHoraScreen(medicoId, navController)
         }
+        composable(
+            route = Rutas.CONFIRMAR,
+            arguments = listOf(
+                navArgument("medicoId") { type = NavType.IntType },
+                navArgument("fecha") { type = NavType.StringType },
+                navArgument("hora") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
+            val fecha = backStackEntry.arguments?.getString("fecha") ?: ""
+            val hora = backStackEntry.arguments?.getString("hora") ?: ""
+            ConfirmarCitaScreen(medicoId, fecha, hora, navController)
+        }
+        composable(
+            route = Rutas.CITA_EXITOSA,
+            arguments = listOf(navArgument("citaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val citaId = backStackEntry.arguments?.getInt("citaId") ?: 0
+            CitaExitosaScreen(citaId, navController)
+        }
         // RUTAS NUEVAS
     }
 }
