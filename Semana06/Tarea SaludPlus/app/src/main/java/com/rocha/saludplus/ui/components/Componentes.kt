@@ -1,10 +1,12 @@
 package com.rocha.saludplus.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,8 +17,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Accessibility
+import androidx.compose.material.icons.filled.ChildCare
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Female
+import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -250,21 +260,35 @@ fun MensajeVacio(
 fun TarjetaAccion(
     titulo: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    icono: ImageVector? = null,
+    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    iconColor: Color = MaterialTheme.colorScheme.primary
 ) {
     Card(
         onClick = onClick,
         modifier = modifier.height(110.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = backgroundColor
         )
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(16.dp),
-            contentAlignment = Alignment.Center
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            if (icono != null) {
+                Icon(
+                    imageVector = icono,
+                    contentDescription = null,
+                    tint = iconColor,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
             Text(
                 text = titulo,
                 style = MaterialTheme.typography.titleMedium,
@@ -281,28 +305,48 @@ fun TarjetaAccion(
 fun TarjetaDestacada(
     texto: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    icono: ImageVector = Icons.Default.MedicalServices
 ) {
     Card(
         onClick = onClick,
         modifier = modifier
-            .width(180.dp)
-            .height(100.dp),
+            .width(140.dp)
+            .height(110.dp),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, Color(0xFFEFEFEF)),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
+            containerColor = Color.White
         )
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = Color(0xFFE3F2FD)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icono,
+                        contentDescription = null,
+                        tint = Color(0xFF1976D2),
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = texto,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                maxLines = 1
             )
         }
     }
@@ -316,32 +360,71 @@ fun TarjetaEspecialidad(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Tinte e ícono según la especialidad
+    val (icono, iconColor, bgColor) = when (especialidad.id) {
+        1 -> Triple(Icons.Default.MedicalServices, Color(0xFF1976D2), Color(0xFFE3F2FD))
+        2 -> Triple(Icons.Default.ChildCare, Color(0xFF388E3C), Color(0xFFE8F5E9))
+        3 -> Triple(Icons.Default.Female, Color(0xFFD81B60), Color(0xFFFCE4EC))
+        4 -> Triple(Icons.Default.Favorite, Color(0xFFE53935), Color(0xFFFFEBEE))
+        5 -> Triple(Icons.Default.Face, Color(0xFFF57C00), Color(0xFFFFF3E0))
+        6 -> Triple(Icons.Default.Accessibility, Color(0xFF7B1FA2), Color(0xFFF3E5F5))
+        7 -> Triple(Icons.Default.Visibility, Color(0xFF00897B), Color(0xFFE0F2F1))
+        else -> Triple(Icons.Default.MedicalServices, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
+    }
+
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, Color(0xFFEFEFEF)),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = Color.White
         )
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = especialidad.nombre,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            // Contenedor redondeado para el ícono con tinte diferenciado
+            Surface(
+                modifier = Modifier.size(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = bgColor
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icono,
+                        contentDescription = null,
+                        tint = iconColor,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
 
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
+            Spacer(modifier = Modifier.width(16.dp))
 
-            Text(
-                text = "Ver médicos disponibles",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            // Nombre y descripción
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = especialidad.nombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = especialidad.descripcion,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // Flecha a la derecha
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Ver médicos",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
