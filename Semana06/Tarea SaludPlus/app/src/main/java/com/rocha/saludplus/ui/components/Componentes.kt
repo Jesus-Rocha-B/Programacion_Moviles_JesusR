@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -93,13 +94,19 @@ fun CampoTexto(
     modifier: Modifier = Modifier,
     error: String? = null,
     esContrasena: Boolean = false,
-    tipoTeclado: KeyboardType = KeyboardType.Text
+    tipoTeclado: KeyboardType = KeyboardType.Text,
+    placeholder: String? = null
 ) {
     OutlinedTextField(
         value = valor,
         onValueChange = onValorCambia,
         label = {
             Text(etiqueta)
+        },
+        placeholder = if (placeholder != null) {
+            { Text(placeholder) }
+        } else {
+            null
         },
         isError = error != null,
         supportingText = if (error != null) {
@@ -110,6 +117,7 @@ fun CampoTexto(
             null
         },
         singleLine = true,
+        shape = RoundedCornerShape(12.dp),
         visualTransformation = if (esContrasena) {
             PasswordVisualTransformation()
         } else {
@@ -156,23 +164,63 @@ fun BarraSuperior(
 @Composable
 fun FilaDato(
     etiqueta: String,
-    valor: String
+    valor: String,
+    icono: ImageVector? = null
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = etiqueta,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+    if (icono != null) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = icono,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
 
-        Text(
-            text = valor,
-            fontWeight = FontWeight.Bold
-        )
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = etiqueta,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = valor,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    } else {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = etiqueta,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Text(
+                text = valor,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
