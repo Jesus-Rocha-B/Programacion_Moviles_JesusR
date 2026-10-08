@@ -1,5 +1,7 @@
 package com.rocha.saludplus.ui.agendamiento
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,6 +13,7 @@ import com.rocha.saludplus.repository.Repositorio
 import com.rocha.saludplus.ui.components.*
 
 // Recibe 3 parámetros desde la ruta: medicoId, fecha y hora
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ConfirmarCitaScreen(medicoId: Int, fecha: String, hora: String, navController: NavController) {
     val medico = Repositorio.obtenerMedico(medicoId)
@@ -27,7 +30,7 @@ fun ConfirmarCitaScreen(medicoId: Int, fecha: String, hora: String, navControlle
                 Column(modifier = Modifier.padding(16.dp)) {
                     FilaDato("Médico", medico?.nombre ?: "")
                     FilaDato("Especialidad", especialidad?.nombre ?: "")
-                    FilaDato("Fecha", formatearFecha(fecha))
+                    FilaDato("Fecha", formatearFechaLarga(fecha))
                     FilaDato("Hora", hora)
                 }
             }
