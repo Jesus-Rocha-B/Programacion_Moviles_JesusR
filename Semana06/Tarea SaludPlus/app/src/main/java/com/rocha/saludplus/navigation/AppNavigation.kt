@@ -10,7 +10,8 @@ import com.rocha.saludplus.ui.home.*
 import com.rocha.saludplus.ui.agendamiento.*
 import com.rocha.saludplus.ui.citas.*
 import com.rocha.saludplus.ui.perfil.*
-// IMPORTS NUEVOS
+import com.rocha.saludplus.ui.resultados.*
+import com.rocha.saludplus.ui.notificaciones.*
 
 @Composable
 fun AppNavigation() {
@@ -60,6 +61,14 @@ fun AppNavigation() {
         }
         composable(Rutas.MIS_CITAS) { MisCitasScreen(navController) }
         composable(Rutas.PERFIL) { PerfilScreen(navController) }
-        // RUTAS NUEVAS
+        composable(Rutas.RESULTADOS) { ResultadosScreen(navController) }
+        composable(Rutas.NOTIFICACIONES) { NotificacionesScreen(navController) }
+        composable(
+            route = Rutas.DETALLE_CITA,
+            arguments = listOf(navArgument("citaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val citaId = backStackEntry.arguments?.getInt("citaId") ?: 0
+            DetalleCitaScreen(citaId, navController)
+        }
     }
 }
