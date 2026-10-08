@@ -2,11 +2,14 @@ package com.rocha.saludplus.ui.agendamiento
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,6 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -60,15 +65,12 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
     val medico = Repositorio.obtenerMedico(medicoId)
     val especialidad = medico?.let { Repositorio.obtenerEspecialidad(it.especialidadId) }
 
-    // Estado de la semana actual (0 para la semana base)
     var semana by remember { mutableIntStateOf(0) }
     val dias = diasHabiles(semana)
 
-    // Estado de la fecha seleccionada en formato "yyyy-MM-dd" (inicializada por defecto en el primer día)
     var fechaSeleccionada by remember { mutableStateOf(dias[0].toString()) }
     var horaSeleccionada by remember { mutableStateOf("") }
 
-    // Se recalcula sola: si alguien reserva, el horario desaparece de la grilla
     val horarios = Repositorio.horariosDisponibles(medicoId, fechaSeleccionada)
 
     Scaffold(
@@ -79,13 +81,14 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            // Datos del médico elegido con diseño de avatar y detalles
+            // Tarjeta superior del médico seleccionada con foto real
             if (medico != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(1.dp, Color(0xFFEFEFEF)),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        containerColor = Color.White
                     )
                 ) {
                     Row(
@@ -94,41 +97,50 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Contenedor circular del avatar
                         Surface(
-                            modifier = Modifier.size(60.dp),
                             shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primaryContainer
+                            modifier = Modifier.size(56.dp),
+                            border = BorderStroke(2.dp, Color.White),
+                            shadowElevation = 2.dp,
+                            color = Color(0xFFE6F2FF)
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(36.dp)
+                            if (medico.fotoResId != 0) {
+                                Image(
+                                    painter = painterResource(id = medico.fotoResId),
+                                    contentDescription = medico.nombre,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
                                 )
+                            } else {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = medico.nombre,
+                                        tint = Color(0xFF1877F2),
+                                        modifier = Modifier.size(36.dp)
+                                    )
+                                }
                             }
                         }
 
                         Spacer(modifier = Modifier.width(16.dp))
 
-                        // Información alineada verticalmente
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = medico.nombre,
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0F1E36)
                             )
 
                             Text(
                                 text = especialidad?.nombre ?: "",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = Color(0xFF758A99)
                             )
 
                             Spacer(modifier = Modifier.height(4.dp))
 
-                            // Fila de calificación y reseñas
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = Icons.Default.Star,
@@ -140,38 +152,39 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
                                 Text(
                                     text = medico.calificacion.toString(),
                                     style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF0F1E36)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = "(124)",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = Color(0xFF758A99)
                                 )
                             }
 
                             Spacer(modifier = Modifier.height(6.dp))
 
-                            // Insignia de estado
                             Surface(
                                 shape = RoundedCornerShape(16.dp),
-                                color = Color(0xFFE8F5E9)
+                                color = Color(0xFFE8F8F0)
                             ) {
                                 Text(
                                     text = "Disponible hoy",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = Color(0xFF2E7D32),
-                                    fontWeight = FontWeight.Medium
+                                    color = Color(0xFF27AE60),
+                                    fontWeight = FontWeight.Bold
                                 )
                             }
                         }
                     }
                 }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Cabecera del calendario: Navegación de semana y nombre del mes
+            // Navegación de mes
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -190,13 +203,16 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = "Semana anterior"
+                        contentDescription = "Semana anterior",
+                        tint = if (semana > 0) Color(0xFF0F1E36) else Color(0xFFB0BEC5)
                     )
                 }
 
                 Text(
                     text = nombreMes(dias[0]),
                     style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0F1E36),
                     textAlign = TextAlign.Center
                 )
 
@@ -210,13 +226,15 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "Semana siguiente"
+                        contentDescription = "Semana siguiente",
+                        tint = Color(0xFF0F1E36)
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Fila de selección de los 5 días hábiles con ChipDia
+            // Fila de 5 días hábiles
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -234,11 +252,19 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "Horarios disponibles", style = MaterialTheme.typography.titleMedium)
+
+            Text(
+                text = "Horarios disponibles",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0F1E36)
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
 
-            // La grilla ocupa el espacio que sobra
+            // Grilla de horarios (3 columnas)
             Box(modifier = Modifier.weight(1f)) {
                 if (horarios.isEmpty()) {
                     MensajeVacio("No hay horarios disponibles")
@@ -258,8 +284,10 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
                     }
                 }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
-            // Solo se habilita con día y hora elegidos
+
+            // Botón inferior Continuar
             BotonPrincipal(
                 texto = "Continuar",
                 habilitado = horaSeleccionada.isNotEmpty(),

@@ -3,7 +3,6 @@ package com.rocha.saludplus.ui.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -14,31 +13,31 @@ import androidx.compose.ui.platform.LocalContext
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryBlue,
     onPrimary = OnPrimaryWhite,
-    background = BackgroundUltraLight,
-    onBackground = OnSurfaceDark,
+    background = BackgroundClean,
+    onBackground = TextNavyDark,
     surface = SurfaceWhite,
-    onSurface = OnSurfaceDark,
+    onSurface = TextNavyDark,
     surfaceVariant = SurfaceVariantSoft,
-    onSurfaceVariant = OnSurfaceVariantGray,
-    primaryContainer = Color(0xFFE7F1FF),
+    onSurfaceVariant = TextSecondaryGray,
+    primaryContainer = Color(0xFFE6F2FF),
     onPrimaryContainer = PrimaryBlue,
     secondaryContainer = SurfaceVariantSoft,
-    onSecondaryContainer = OnSurfaceDark,
+    onSecondaryContainer = TextNavyDark,
 )
 
-private val DarkColorScheme = darkColorScheme(
+private val DarkColorScheme = lightColorScheme(
     primary = PrimaryBlue,
     onPrimary = OnPrimaryWhite,
-    background = BackgroundUltraLight,
-    onBackground = OnSurfaceDark,
+    background = BackgroundClean,
+    onBackground = TextNavyDark,
     surface = SurfaceWhite,
-    onSurface = OnSurfaceDark,
+    onSurface = TextNavyDark,
     surfaceVariant = SurfaceVariantSoft,
-    onSurfaceVariant = OnSurfaceVariantGray,
-    primaryContainer = Color(0xFFE7F1FF),
+    onSurfaceVariant = TextSecondaryGray,
+    primaryContainer = Color(0xFFE6F2FF),
     onPrimaryContainer = PrimaryBlue,
     secondaryContainer = SurfaceVariantSoft,
-    onSecondaryContainer = OnSurfaceDark,
+    onSecondaryContainer = TextNavyDark,
 )
 
 @Composable

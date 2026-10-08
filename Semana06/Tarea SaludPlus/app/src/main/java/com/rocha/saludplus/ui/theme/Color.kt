@@ -2,10 +2,11 @@ package com.rocha.saludplus.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val PrimaryBlue = Color(0xFF0D6EFD)
+val PrimaryBlue = Color(0xFF1877F2)
 val OnPrimaryWhite = Color(0xFFFFFFFF)
-val BackgroundUltraLight = Color(0xFFF8F9FA)
+val BackgroundClean = Color(0xFFFAFAFA)
 val SurfaceWhite = Color(0xFFFFFFFF)
-val SurfaceVariantSoft = Color(0xFFF1F3F5)
-val OnSurfaceVariantGray = Color(0xFF6C757D)
-val OnSurfaceDark = Color(0xFF212529)
+val SurfaceVariantSoft = Color(0xFFF6F8FA)
+val TextNavyDark = Color(0xFF0F1E36)
+val TextSecondaryGray = Color(0xFF758A99)
+val OnSurfaceDark = Color(0xFF0F1E36)

@@ -1,10 +1,12 @@
 package com.rocha.saludplus.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,7 +29,9 @@ import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,14 +40,21 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -65,10 +76,14 @@ fun BotonPrincipal(
     Button(
         onClick = onClick,
         enabled = habilitado,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF1877F2),
+            contentColor = Color.White
+        ),
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(52.dp)
     ) {
         Text(
             text = texto,
@@ -88,9 +103,17 @@ fun BotonSecundario(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth()
+        shape = RoundedCornerShape(14.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(52.dp)
     ) {
-        Text(texto)
+        Text(
+            text = texto,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF1877F2)
+        )
     }
 }
 
@@ -105,8 +128,11 @@ fun CampoTexto(
     error: String? = null,
     esContrasena: Boolean = false,
     tipoTeclado: KeyboardType = KeyboardType.Text,
-    placeholder: String? = null
+    placeholder: String? = null,
+    iconoLeading: ImageVector? = null
 ) {
+    var contrasenaVisible by remember { mutableStateOf(false) }
+
     OutlinedTextField(
         value = valor,
         onValueChange = onValorCambia,
@@ -114,7 +140,31 @@ fun CampoTexto(
             Text(etiqueta)
         },
         placeholder = if (placeholder != null) {
-            { Text(placeholder) }
+            { Text(placeholder, color = Color(0xFF9E9E9E)) }
+        } else {
+            null
+        },
+        leadingIcon = if (iconoLeading != null) {
+            {
+                Icon(
+                    imageVector = iconoLeading,
+                    contentDescription = null,
+                    tint = Color(0xFF1877F2)
+                )
+            }
+        } else {
+            null
+        },
+        trailingIcon = if (esContrasena) {
+            {
+                IconButton(onClick = { contrasenaVisible = !contrasenaVisible }) {
+                    Icon(
+                        imageVector = if (contrasenaVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = "Alternar visibilidad",
+                        tint = Color(0xFF758A99)
+                    )
+                }
+            }
         } else {
             null
         },
@@ -127,8 +177,14 @@ fun CampoTexto(
             null
         },
         singleLine = true,
-        shape = RoundedCornerShape(12.dp),
-        visualTransformation = if (esContrasena) {
+        shape = RoundedCornerShape(14.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            focusedBorderColor = Color(0xFF1877F2),
+            unfocusedBorderColor = Color(0xFFE0E0E0)
+        ),
+        visualTransformation = if (esContrasena && !contrasenaVisible) {
             PasswordVisualTransformation()
         } else {
             VisualTransformation.None
@@ -150,22 +206,28 @@ fun CampoTexto(
 @Composable
 fun BarraSuperior(
     titulo: String,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    acciones: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         title = {
-            Text(titulo)
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0F1E36)
+            )
         },
         navigationIcon = {
-            IconButton(
-                onClick = onVolver
-            ) {
+            IconButton(onClick = onVolver) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver"
+                    contentDescription = "Volver",
+                    tint = Color(0xFF0F1E36)
                 )
             }
-        }
+        },
+        actions = acciones
     )
 }
 
@@ -185,16 +247,16 @@ fun FilaDato(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
+                modifier = Modifier.size(42.dp),
+                shape = RoundedCornerShape(10.dp),
+                color = Color(0xFFEBF3FE)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = icono,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
+                        tint = Color(0xFF1877F2),
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }
@@ -205,12 +267,13 @@ fun FilaDato(
                 Text(
                     text = etiqueta,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color(0xFF758A99)
                 )
                 Text(
                     text = valor,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0F1E36)
                 )
             }
         }
@@ -223,12 +286,13 @@ fun FilaDato(
         ) {
             Text(
                 text = etiqueta,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = Color(0xFF758A99)
             )
 
             Text(
                 text = valor,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0F1E36)
             )
         }
     }
@@ -248,7 +312,7 @@ fun MensajeVacio(
     ) {
         Text(
             text = texto,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color(0xFF758A99),
             textAlign = TextAlign.Center
         )
     }
@@ -262,13 +326,13 @@ fun TarjetaAccion(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icono: ImageVector? = null,
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    iconColor: Color = MaterialTheme.colorScheme.primary
+    backgroundColor: Color = Color(0xFFE6F2FF),
+    iconColor: Color = Color(0xFF1877F2)
 ) {
     Card(
         onClick = onClick,
         modifier = modifier.height(110.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor
         )
@@ -285,7 +349,7 @@ fun TarjetaAccion(
                     imageVector = icono,
                     contentDescription = null,
                     tint = iconColor,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(30.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -293,6 +357,7 @@ fun TarjetaAccion(
                 text = titulo,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
+                color = Color(0xFF0F1E36),
                 textAlign = TextAlign.Center
             )
         }
@@ -311,10 +376,10 @@ fun TarjetaDestacada(
     Card(
         onClick = onClick,
         modifier = modifier
-            .width(140.dp)
-            .height(110.dp),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, Color(0xFFEFEFEF)),
+            .width(130.dp)
+            .height(115.dp),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, Color(0xFFEAEAEA)),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         )
@@ -327,24 +392,25 @@ fun TarjetaDestacada(
             verticalArrangement = Arrangement.Center
         ) {
             Surface(
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(44.dp),
                 shape = CircleShape,
-                color = Color(0xFFE3F2FD)
+                color = Color(0xFFE6F2FF)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = icono,
                         contentDescription = null,
-                        tint = Color(0xFF1976D2),
-                        modifier = Modifier.size(22.dp)
+                        tint = Color(0xFF1877F2),
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = texto,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
+                color = Color(0xFF0F1E36),
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
@@ -360,22 +426,21 @@ fun TarjetaEspecialidad(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Tinte e ícono según la especialidad
     val (icono, iconColor, bgColor) = when (especialidad.id) {
-        1 -> Triple(Icons.Default.MedicalServices, Color(0xFF1976D2), Color(0xFFE3F2FD))
-        2 -> Triple(Icons.Default.ChildCare, Color(0xFF388E3C), Color(0xFFE8F5E9))
-        3 -> Triple(Icons.Default.Female, Color(0xFFD81B60), Color(0xFFFCE4EC))
-        4 -> Triple(Icons.Default.Favorite, Color(0xFFE53935), Color(0xFFFFEBEE))
-        5 -> Triple(Icons.Default.Face, Color(0xFFF57C00), Color(0xFFFFF3E0))
-        6 -> Triple(Icons.Default.Accessibility, Color(0xFF7B1FA2), Color(0xFFF3E5F5))
-        7 -> Triple(Icons.Default.Visibility, Color(0xFF00897B), Color(0xFFE0F2F1))
-        else -> Triple(Icons.Default.MedicalServices, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
+        1 -> Triple(Icons.Default.MedicalServices, Color(0xFF1877F2), Color(0xFFE6F2FF))
+        2 -> Triple(Icons.Default.ChildCare, Color(0xFFF39C12), Color(0xFFFEF5E7))
+        3 -> Triple(Icons.Default.Female, Color(0xFFE91E63), Color(0xFFFCE4EC))
+        4 -> Triple(Icons.Default.Favorite, Color(0xFFE74C3C), Color(0xFFFDEDEC))
+        5 -> Triple(Icons.Default.Face, Color(0xFFE67E22), Color(0xFFFBEEE6))
+        6 -> Triple(Icons.Default.Accessibility, Color(0xFF2980B9), Color(0xFFEBF5FB))
+        7 -> Triple(Icons.Default.Visibility, Color(0xFF16A085), Color(0xFFE8F8F5))
+        else -> Triple(Icons.Default.MedicalServices, Color(0xFF1877F2), Color(0xFFE6F2FF))
     }
 
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         border = BorderStroke(1.dp, Color(0xFFEFEFEF)),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -387,10 +452,9 @@ fun TarjetaEspecialidad(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Contenedor redondeado para el ícono con tinte diferenciado
             Surface(
                 modifier = Modifier.size(48.dp),
-                shape = RoundedCornerShape(12.dp),
+                shape = CircleShape,
                 color = bgColor
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -405,26 +469,25 @@ fun TarjetaEspecialidad(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Nombre y descripción
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = especialidad.nombre,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0F1E36)
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = especialidad.descripcion,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color(0xFF758A99)
                 )
             }
 
-            // Flecha a la derecha
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "Ver médicos",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = Color(0xFF758A99)
             )
         }
     }
@@ -442,9 +505,10 @@ fun TarjetaMedico(
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, Color(0xFFEFEFEF)),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = Color.White
         )
     ) {
         Row(
@@ -453,41 +517,50 @@ fun TarjetaMedico(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Contenedor circular del avatar
             Surface(
-                modifier = Modifier.size(60.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
+                modifier = Modifier.size(56.dp),
+                border = BorderStroke(2.dp, Color.White),
+                shadowElevation = 2.dp,
+                color = Color(0xFFE6F2FF)
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(36.dp)
+                if (medico.fotoResId != 0) {
+                    Image(
+                        painter = painterResource(id = medico.fotoResId),
+                        contentDescription = medico.nombre,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
                     )
+                } else {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = medico.nombre,
+                            tint = Color(0xFF1877F2),
+                            modifier = Modifier.size(36.dp)
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Información alineada verticalmente
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = medico.nombre,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0F1E36)
                 )
 
                 Text(
                     text = especialidad,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color(0xFF758A99)
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Fila de calificación y reseñas
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Star,
@@ -499,29 +572,29 @@ fun TarjetaMedico(
                     Text(
                         text = medico.calificacion.toString(),
                         style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF0F1E36)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "(124)",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color(0xFF758A99)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // Insignia de estado
                 Surface(
                     shape = RoundedCornerShape(16.dp),
-                    color = Color(0xFFE8F5E9)
+                    color = Color(0xFFE8F8F0)
                 ) {
                     Text(
                         text = "Disponible hoy",
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF2E7D32),
-                        fontWeight = FontWeight.Medium
+                        color = Color(0xFF27AE60),
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -540,21 +613,31 @@ fun TarjetaCita(
 ) {
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, Color(0xFFEFEFEF)),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = medicoNombre,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0F1E36)
             )
             Text(
                 text = especialidad,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = Color(0xFF758A99)
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "$fecha · $hora",
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1877F2)
             )
         }
     }
@@ -571,19 +654,20 @@ fun ChipHorario(
     Card(
         onClick = onClick,
         modifier = modifier,
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (seleccionado) {
-                MaterialTheme.colorScheme.primary
+                Color(0xFF1877F2)
             } else {
-                MaterialTheme.colorScheme.surfaceVariant
+                Color(0xFFF6F8FA)
             },
             contentColor = if (seleccionado) {
-                MaterialTheme.colorScheme.onPrimary
+                Color.White
             } else {
-                MaterialTheme.colorScheme.onSurface
+                Color(0xFF0F1E36)
             }
-        )
+        ),
+        border = if (!seleccionado) BorderStroke(1.dp, Color(0xFFE5E9EC)) else null
     ) {
         Box(
             modifier = Modifier
@@ -593,11 +677,9 @@ fun ChipHorario(
         ) {
             Text(
                 text = hora,
-                color = if (seleccionado) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                }
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (seleccionado) Color.White else Color(0xFF0F1E36)
             )
         }
     }
@@ -615,44 +697,38 @@ fun ChipDia(
     Card(
         onClick = onClick,
         modifier = modifier,
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (seleccionado) {
-                MaterialTheme.colorScheme.primary
+                Color(0xFF1877F2)
             } else {
-                MaterialTheme.colorScheme.surfaceVariant
+                Color.White
             },
             contentColor = if (seleccionado) {
-                MaterialTheme.colorScheme.onPrimary
+                Color.White
             } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
+                Color(0xFF0F1E36)
             }
-        )
+        ),
+        border = if (!seleccionado) BorderStroke(1.dp, Color(0xFFE0E0E0)) else null
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = nombre,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (seleccionado) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
+                color = if (seleccionado) Color.White else Color(0xFF758A99)
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = numero,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = if (seleccionado) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
+                color = if (seleccionado) Color.White else Color(0xFF0F1E36)
             )
         }
     }
