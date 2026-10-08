@@ -29,6 +29,13 @@ fun AppNavigation() {
             val especialidadId = backStackEntry.arguments?.getInt("especialidadId") ?: 0
             MedicosScreen(especialidadId, navController)
         }
+        composable(
+            route = Rutas.FECHA_HORA,
+            arguments = listOf(navArgument("medicoId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
+            FechaHoraScreen(medicoId, navController)
+        }
         // RUTAS NUEVAS
     }
 }
