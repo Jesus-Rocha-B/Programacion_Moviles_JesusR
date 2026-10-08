@@ -1,7 +1,10 @@
 package com.rocha.saludplus.ui.components
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,9 +32,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.rocha.saludplus.model.Especialidad
+import com.rocha.saludplus.model.Medico
 
+// BOTÓN PRINCIPAL
 
-// Botón para la acción principal
 @Composable
 fun BotonPrincipal(
     texto: String,
@@ -48,8 +53,8 @@ fun BotonPrincipal(
     }
 }
 
+// BOTÓN SECUNDARIO
 
-// Botón para la acción secundaria
 @Composable
 fun BotonSecundario(
     texto: String,
@@ -64,8 +69,8 @@ fun BotonSecundario(
     }
 }
 
+// CAMPO DE TEXTO
 
-// Campo de texto
 @Composable
 fun CampoTexto(
     valor: String,
@@ -107,8 +112,8 @@ fun CampoTexto(
     )
 }
 
+// BARRA SUPERIOR
 
-// Barra superior
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BarraSuperior(
@@ -132,8 +137,8 @@ fun BarraSuperior(
     )
 }
 
+// FILA DE DATOS
 
-// Fila con etiqueta y valor
 @Composable
 fun FilaDato(
     etiqueta: String,
@@ -145,7 +150,6 @@ fun FilaDato(
             .padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-
         Text(
             text = etiqueta,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -158,8 +162,8 @@ fun FilaDato(
     }
 }
 
+// MENSAJE VACÍO
 
-// Mensaje cuando una lista está vacía
 @Composable
 fun MensajeVacio(
     texto: String
@@ -170,7 +174,6 @@ fun MensajeVacio(
             .padding(32.dp),
         contentAlignment = Alignment.Center
     ) {
-
         Text(
             text = texto,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -179,8 +182,8 @@ fun MensajeVacio(
     }
 }
 
+// TARJETA DE ACCIÓN DEL HOME
 
-// Tarjeta para accesos rápidos del Home
 @Composable
 fun TarjetaAccion(
     titulo: String,
@@ -194,14 +197,12 @@ fun TarjetaAccion(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
     ) {
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-
             Text(
                 text = titulo,
                 style = MaterialTheme.typography.titleMedium,
@@ -212,8 +213,8 @@ fun TarjetaAccion(
     }
 }
 
+// TARJETA DESTACADA DEL HOME
 
-// Tarjeta para especialidades destacadas
 @Composable
 fun TarjetaDestacada(
     texto: String,
@@ -229,20 +230,168 @@ fun TarjetaDestacada(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
     ) {
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-
             Text(
                 text = texto,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
             )
+        }
+    }
+}
+
+// TARJETA PARA LA LISTA DE ESPECIALIDADES
+
+@Composable
+fun TarjetaEspecialidad(
+    especialidad: Especialidad,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = especialidad.nombre,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
+
+            Text(
+                text = "Ver médicos disponibles",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+// TARJETA PARA LA LISTA DE MÉDICOS
+
+@Composable
+fun TarjetaMedico(
+    medico: Medico,
+    especialidad: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = medico.nombre,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
+
+            Text(
+                text = especialidad,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Text(
+                text = "Ver horarios disponibles",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+// Tarjeta de una cita, se usa en Mis citas
+@Composable
+fun TarjetaCita(
+    medicoNombre: String,
+    especialidad: String,
+    fecha: String,
+    hora: String,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = medicoNombre,
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = especialidad,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "$fecha · $hora",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+// Horario de la grilla, cambia de color cuando está seleccionado
+@Composable
+fun ChipHorario(
+    hora: String,
+    seleccionado: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = if (seleccionado) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = hora)
         }
     }
 }
