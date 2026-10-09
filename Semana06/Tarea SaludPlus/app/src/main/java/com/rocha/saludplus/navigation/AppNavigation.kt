@@ -26,13 +26,32 @@ fun AppNavigation() {
         composable(Rutas.TERMINOS) { TerminosScreen(navController) }
         composable(Rutas.HOME) { HomeScreen(navController) }
         composable(Rutas.MIS_DOCTORES) { MisDoctoresScreen(navController) }
+        composable(Rutas.LOCALES) { LocalesScreen(navController) }
         composable(Rutas.ESPECIALIDADES) { EspecialidadesScreen(navController) }
+        composable(
+            route = Rutas.ESPECIALIDADES_SEDE,
+            arguments = listOf(navArgument("sede") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val sede = backStackEntry.arguments?.getString("sede") ?: ""
+            EspecialidadesScreen(navController, sede)
+        }
         composable(
             route = Rutas.MEDICOS,
             arguments = listOf(navArgument("especialidadId") { type = NavType.IntType })
         ) { backStackEntry ->
             val especialidadId = backStackEntry.arguments?.getInt("especialidadId") ?: 0
-            MedicosScreen(especialidadId, navController)
+            MedicosScreen(navController, "", especialidadId)
+        }
+        composable(
+            route = Rutas.MEDICOS_SEDE,
+            arguments = listOf(
+                navArgument("sede") { type = NavType.StringType },
+                navArgument("especialidadId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val sede = backStackEntry.arguments?.getString("sede") ?: ""
+            val especialidadId = backStackEntry.arguments?.getInt("especialidadId") ?: 0
+            MedicosScreen(navController, sede, especialidadId)
         }
         composable(
             route = Rutas.FECHA_HORA,

@@ -32,12 +32,21 @@ import com.rocha.saludplus.ui.components.MensajeVacio
 import com.rocha.saludplus.ui.components.TarjetaEspecialidad
 
 @Composable
-fun EspecialidadesScreen(navController: NavController) {
+fun EspecialidadesScreen(navController: NavController, sede: String = "") {
     var busqueda by remember { mutableStateOf("") }
-    val lista = Repositorio.buscarEspecialidades(busqueda)
+    val todas = Repositorio.buscarEspecialidades(busqueda)
+    val lista = if (sede.isNotBlank()) {
+        val especialidadesIdsEnSede = Repositorio.medicos
+            .filter { it.sede.equals(sede, ignoreCase = true) }
+            .map { it.especialidadId }
+            .toSet()
+        todas.filter { it.id in especialidadesIdsEnSede }
+    } else {
+        todas
+    }
 
     Scaffold(
-        topBar = { BarraSuperior("Especialidades", onVolver = { navController.popBackStack() }) }
+        topBar = { BarraSuperior(if (sede.isNotBlank()) "Especialidades ($sede)" else "Especialidades", onVolver = { navController.popBackStack() }) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -76,7 +85,13 @@ fun EspecialidadesScreen(navController: NavController) {
                     items(lista) { especialidad ->
                         TarjetaEspecialidad(
                             especialidad = especialidad,
-                            onClick = { navController.navigate(Rutas.medicos(especialidad.id)) }
+                            onClick = {
+                                if (sede.isNotBlank()) {
+                                    navController.navigate(Rutas.medicosSede(sede, especialidad.id))
+                                } else {
+                                    navController.navigate(Rutas.medicos(especialidad.id))
+                                }
+                            }
                         )
                     }
                 }

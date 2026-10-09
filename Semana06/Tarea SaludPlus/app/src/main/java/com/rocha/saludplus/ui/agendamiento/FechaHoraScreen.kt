@@ -71,7 +71,7 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
     var fechaSeleccionada by remember { mutableStateOf(dias[0].toString()) }
     var horaSeleccionada by remember { mutableStateOf("") }
 
-    val horarios = Repositorio.horariosDisponibles(medicoId, fechaSeleccionada)
+    val horarios = medico?.horariosAtencion ?: emptyList()
 
     Scaffold(
         topBar = { BarraSuperior("Seleccionar fecha y hora", onVolver = { navController.popBackStack() }) }
@@ -256,7 +256,7 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Horarios disponibles",
+                text = "Horarios de atención",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F1E36)
@@ -267,7 +267,7 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
             // Grilla de horarios (3 columnas)
             Box(modifier = Modifier.weight(1f)) {
                 if (horarios.isEmpty()) {
-                    MensajeVacio("No hay horarios disponibles")
+                    MensajeVacio("No hay horarios programados")
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
@@ -275,10 +275,12 @@ fun FechaHoraScreen(medicoId: Int, navController: NavController) {
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(horarios) { hora ->
+                            val ocupado = Repositorio.esHorarioOcupado(medicoId, fechaSeleccionada, hora)
                             ChipHorario(
                                 hora = hora,
                                 seleccionado = hora == horaSeleccionada,
-                                onClick = { horaSeleccionada = hora }
+                                ocupado = ocupado,
+                                onClick = { if (!ocupado) horaSeleccionada = hora }
                             )
                         }
                     }

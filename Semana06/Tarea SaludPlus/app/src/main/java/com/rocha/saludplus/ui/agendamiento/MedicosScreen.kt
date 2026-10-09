@@ -33,16 +33,20 @@ import com.rocha.saludplus.ui.components.MensajeVacio
 import com.rocha.saludplus.ui.components.TarjetaMedico
 
 @Composable
-fun MedicosScreen(especialidadId: Int, navController: NavController) {
+fun MedicosScreen(navController: NavController, sede: String = "", especialidadId: Int) {
     val nombreEspecialidad = Repositorio.obtenerEspecialidad(especialidadId)?.nombre ?: "Especialidad"
     var busqueda by remember { mutableStateOf("") }
     var mostrarBuscador by remember { mutableStateOf(false) }
-    val lista = Repositorio.buscarMedicos(especialidadId, busqueda)
+    val lista = if (sede.isNotBlank()) {
+        Repositorio.buscarMedicosPorSede(sede, especialidadId, busqueda)
+    } else {
+        Repositorio.buscarMedicos(especialidadId, busqueda)
+    }
 
     Scaffold(
         topBar = {
             BarraSuperior(
-                titulo = "Médicos de $nombreEspecialidad",
+                titulo = if (sede.isNotBlank()) "Médicos en $sede" else "Médicos de $nombreEspecialidad",
                 onVolver = { navController.popBackStack() },
                 acciones = {
                     IconButton(onClick = { mostrarBuscador = !mostrarBuscador }) {
@@ -87,7 +91,7 @@ fun MedicosScreen(especialidadId: Int, navController: NavController) {
             }
 
             if (lista.isEmpty()) {
-                MensajeVacio("No se encontraron médicos")
+                MensajeVacio("No se encontraron médicos en esta sede")
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(lista) { medico ->

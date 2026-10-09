@@ -22,11 +22,13 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.ChildCare
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Female
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -643,25 +645,49 @@ fun TarjetaCita(
             containerColor = Color.White
         )
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = medicoNombre,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F1E36)
-            )
-            Text(
-                text = especialidad,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF758A99)
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "$fecha · $hora",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF1877F2)
-            )
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                modifier = Modifier.size(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFFE6F2FF)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = null,
+                        tint = Color(0xFF1877F2),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = medicoNombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0F1E36)
+                )
+                Text(
+                    text = especialidad,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF758A99)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$fecha · $hora",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1877F2)
+                )
+            }
         }
     }
 }
@@ -671,26 +697,32 @@ fun TarjetaCita(
 fun ChipHorario(
     hora: String,
     seleccionado: Boolean,
+    ocupado: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        onClick = onClick,
+        onClick = { if (!ocupado) onClick() },
+        enabled = !ocupado,
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (seleccionado) {
-                Color(0xFF1877F2)
-            } else {
-                Color(0xFFF6F8FA)
+            containerColor = when {
+                ocupado -> Color(0xFFFDEDEC) // Soft red
+                seleccionado -> Color(0xFF1877F2)
+                else -> Color(0xFFF6F8FA)
             },
-            contentColor = if (seleccionado) {
-                Color.White
-            } else {
-                Color(0xFF0F1E36)
+            contentColor = when {
+                ocupado -> Color(0xFFE74C3C) // Red text
+                seleccionado -> Color.White
+                else -> Color(0xFF0F1E36)
             }
         ),
-        border = if (!seleccionado) BorderStroke(1.dp, Color(0xFFE5E9EC)) else null
+        border = when {
+            ocupado -> BorderStroke(1.dp, Color(0xFFF5B7B1))
+            !seleccionado -> BorderStroke(1.dp, Color(0xFFE5E9EC))
+            else -> null
+        }
     ) {
         Box(
             modifier = Modifier
@@ -699,10 +731,14 @@ fun ChipHorario(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = hora,
-                style = MaterialTheme.typography.bodyMedium,
+                text = if (ocupado) "$hora (Ocup.)" else hora,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
-                color = if (seleccionado) Color.White else Color(0xFF0F1E36)
+                color = when {
+                    ocupado -> Color(0xFFE74C3C)
+                    seleccionado -> Color.White
+                    else -> Color(0xFF0F1E36)
+                }
             )
         }
     }

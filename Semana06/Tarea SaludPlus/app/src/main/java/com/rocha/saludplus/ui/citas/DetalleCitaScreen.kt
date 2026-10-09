@@ -1,9 +1,17 @@
 package com.rocha.saludplus.ui.citas
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rocha.saludplus.repository.Repositorio
@@ -26,12 +34,17 @@ fun DetalleCitaScreen(citaId: Int, navController: NavController) {
             }
         } else {
             Column(modifier = Modifier.padding(padding).padding(16.dp)) {
-                Card(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(1.dp, Color(0xFFEFEFEF)),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        FilaDato("Médico", medico?.nombre ?: "")
-                        FilaDato("Especialidad", especialidad?.nombre ?: "")
-                        FilaDato("Fecha", formatearFecha(cita.fecha))
-                        FilaDato("Hora", cita.hora)
+                        FilaDato("Médico", medico?.nombre ?: "", Icons.Default.Person)
+                        FilaDato("Especialidad", especialidad?.nombre ?: "", Icons.Default.MedicalServices)
+                        FilaDato("Fecha", formatearFecha(cita.fecha), Icons.Default.DateRange)
+                        FilaDato("Hora", cita.hora, Icons.Default.Schedule)
                     }
                 }
                 Spacer(modifier = Modifier.height(24.dp))

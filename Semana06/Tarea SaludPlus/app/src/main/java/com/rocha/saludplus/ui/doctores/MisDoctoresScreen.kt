@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rocha.saludplus.navigation.Rutas
@@ -181,9 +182,11 @@ fun MisDoctoresScreen(navController: NavController) {
                                     color = Color(0xFF0F1E36)
                                 )
                                 Text(
-                                    text = especialidadNombre,
+                                    text = "$especialidadNombre • Sede: ${medico.sede}",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = Color(0xFF758A99)
+                                    color = Color(0xFF758A99),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
