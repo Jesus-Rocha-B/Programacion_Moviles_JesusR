@@ -130,8 +130,7 @@ fun RegistroScreen(navController: NavController) {
                     if (nombre.isNotBlank() && telefonoValido && correoValido && contrasenaValida) {
                         val usuario = Usuario(nombre.trim(), telefono, correo.trim(), contrasena)
                         if (Repositorio.registrarUsuario(usuario)) {
-                            Repositorio.iniciarSesion(usuario.correo, usuario.contrasena)
-                            navController.navigate(Rutas.HOME) {
+                            navController.navigate(Rutas.SPLASH) {
                                 popUpTo(Rutas.SPLASH) { inclusive = true }
                             }
                         } else {

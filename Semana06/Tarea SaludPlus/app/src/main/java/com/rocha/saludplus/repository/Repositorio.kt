@@ -49,25 +49,29 @@ object Repositorio {
         Especialidad(7, "Oftalmología", "Salud visual")
     )
 
-    // Lista de médicos con fotos reales asociadas mediante R.drawable
+    // Lista de médicos con fotos reales asociadas mediante R.drawable (exactamente 2 por cada especialidad)
     val medicos = listOf(
-        // Ginecología
-        Medico(1, "Dra. Ana Torres", 3, 4.9, 12, R.drawable.doc_female_1),
-        Medico(2, "Dra. Claudia Rojas", 3, 4.8, 8, R.drawable.doc_female_2),
-        Medico(3, "Dr. Luis Ramírez", 3, 4.7, 15, R.drawable.doc_male_1),
-        Medico(4, "Dra. Mariana Soto", 3, 4.6, 6, R.drawable.doc_female_1),
-        // Medicina General
-        Medico(5, "Dr. Carlos Mendoza", 1, 4.6, 10, R.drawable.doc_male_2),
-        // Pediatría
-        Medico(6, "Dra. Sofía Vargas", 2, 4.9, 11, R.drawable.doc_female_2),
-        // Cardiología
+        // Medicina General (2)
+        Medico(1, "Dr. Carlos Mendoza", 1, 4.6, 10, R.drawable.doc_male_2),
+        Medico(2, "Dra. María Pérez", 1, 4.8, 14, R.drawable.doc_female_1),
+        // Pediatría (2)
+        Medico(3, "Dra. Sofía Vargas", 2, 4.9, 11, R.drawable.doc_female_2),
+        Medico(4, "Dr. Roberto Gómez", 2, 4.7, 9, R.drawable.doc_male_1),
+        // Ginecología (2)
+        Medico(5, "Dra. Ana Torres", 3, 4.9, 12, R.drawable.doc_female_1),
+        Medico(6, "Dra. Claudia Rojas", 3, 4.8, 8, R.drawable.doc_female_2),
+        // Cardiología (2)
         Medico(7, "Dr. Jorge Castillo", 4, 4.8, 20, R.drawable.doc_male_2),
-        // Dermatología
-        Medico(8, "Dra. Valeria Núñez", 5, 4.7, 8, R.drawable.doc_female_1),
-        // Traumatología
-        Medico(9, "Dr. Diego Herrera", 6, 4.5, 13, R.drawable.doc_male_1),
-        // Oftalmología
-        Medico(10, "Dra. Lucía Castro", 7, 4.6, 10, R.drawable.doc_female_2)
+        Medico(8, "Dra. Elena Ramos", 4, 4.7, 16, R.drawable.doc_female_2),
+        // Dermatología (2)
+        Medico(9, "Dra. Valeria Núñez", 5, 4.7, 8, R.drawable.doc_female_1),
+        Medico(10, "Dr. Mateo Silva", 5, 4.6, 12, R.drawable.doc_male_1),
+        // Traumatología (2)
+        Medico(11, "Dr. Diego Herrera", 6, 4.5, 13, R.drawable.doc_male_1),
+        Medico(12, "Dra. Lucía Méndez", 6, 4.8, 18, R.drawable.doc_female_2),
+        // Oftalmología (2)
+        Medico(13, "Dra. Lucía Castro", 7, 4.6, 10, R.drawable.doc_female_2),
+        Medico(14, "Dr. Andrés Morales", 7, 4.9, 15, R.drawable.doc_male_2)
     )
 
     // Filtra por nombre sin importar mayúsculas, con texto vacío devuelve todas

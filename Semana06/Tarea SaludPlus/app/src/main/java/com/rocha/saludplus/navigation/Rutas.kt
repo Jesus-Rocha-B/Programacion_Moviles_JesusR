@@ -7,6 +7,7 @@ object Rutas {
     const val LOGIN = "login"
     const val TERMINOS = "terminos"
     const val HOME = "home"
+    const val MIS_DOCTORES = "misdoctores"
     const val ESPECIALIDADES = "especialidades"
     const val MIS_CITAS = "miscitas"
     const val PERFIL = "perfil"

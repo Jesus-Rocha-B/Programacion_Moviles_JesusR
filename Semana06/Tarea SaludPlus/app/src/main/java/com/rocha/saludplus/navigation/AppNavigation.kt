@@ -12,6 +12,7 @@ import com.rocha.saludplus.ui.citas.*
 import com.rocha.saludplus.ui.perfil.*
 import com.rocha.saludplus.ui.resultados.*
 import com.rocha.saludplus.ui.notificaciones.*
+import com.rocha.saludplus.ui.doctores.*
 
 @Composable
 fun AppNavigation() {
@@ -24,6 +25,7 @@ fun AppNavigation() {
         composable(Rutas.LOGIN) { LoginScreen(navController) }
         composable(Rutas.TERMINOS) { TerminosScreen(navController) }
         composable(Rutas.HOME) { HomeScreen(navController) }
+        composable(Rutas.MIS_DOCTORES) { MisDoctoresScreen(navController) }
         composable(Rutas.ESPECIALIDADES) { EspecialidadesScreen(navController) }
         composable(
             route = Rutas.MEDICOS,

@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Card
@@ -177,7 +178,7 @@ fun ConfirmarCitaScreen(medicoId: Int, fecha: String, hora: String, navControlle
                     FilaDato(
                         etiqueta = "Tipo de atención",
                         valor = "Consulta presencial",
-                        icono = Icons.Default.Person
+                        icono = Icons.Default.MedicalServices
                     )
                     FilaDato(
                         etiqueta = "Dirección",

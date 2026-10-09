@@ -133,71 +133,84 @@ fun CampoTexto(
 ) {
     var contrasenaVisible by remember { mutableStateOf(false) }
 
-    OutlinedTextField(
-        value = valor,
-        onValueChange = onValorCambia,
-        label = {
-            Text(etiqueta)
-        },
-        placeholder = if (placeholder != null) {
-            { Text(placeholder, color = Color(0xFF9E9E9E)) }
-        } else {
-            null
-        },
-        leadingIcon = if (iconoLeading != null) {
-            {
-                Icon(
-                    imageVector = iconoLeading,
-                    contentDescription = null,
-                    tint = Color(0xFF1877F2)
-                )
-            }
-        } else {
-            null
-        },
-        trailingIcon = if (esContrasena) {
-            {
-                IconButton(onClick = { contrasenaVisible = !contrasenaVisible }) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        if (iconoLeading != null) {
+            Surface(
+                modifier = Modifier.size(52.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFFE6F2FF),
+                border = BorderStroke(1.dp, Color(0xFFD6E4FF))
+            ) {
+                Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = if (contrasenaVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Alternar visibilidad",
-                        tint = Color(0xFF758A99)
+                        imageVector = iconoLeading,
+                        contentDescription = null,
+                        tint = Color(0xFF1877F2),
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
-        } else {
-            null
-        },
-        isError = error != null,
-        supportingText = if (error != null) {
-            {
-                Text(error)
-            }
-        } else {
-            null
-        },
-        singleLine = true,
-        shape = RoundedCornerShape(14.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            focusedBorderColor = Color(0xFF1877F2),
-            unfocusedBorderColor = Color(0xFFE0E0E0)
-        ),
-        visualTransformation = if (esContrasena && !contrasenaVisible) {
-            PasswordVisualTransformation()
-        } else {
-            VisualTransformation.None
-        },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = if (esContrasena) {
-                KeyboardType.Password
+        }
+
+        OutlinedTextField(
+            value = valor,
+            onValueChange = onValorCambia,
+            label = {
+                Text(etiqueta)
+            },
+            placeholder = if (placeholder != null) {
+                { Text(placeholder, color = Color(0xFF9E9E9E)) }
             } else {
-                tipoTeclado
-            }
-        ),
-        modifier = modifier.fillMaxWidth()
-    )
+                null
+            },
+            trailingIcon = if (esContrasena) {
+                {
+                    IconButton(onClick = { contrasenaVisible = !contrasenaVisible }) {
+                        Icon(
+                            imageVector = if (contrasenaVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = "Alternar visibilidad",
+                            tint = Color(0xFF758A99)
+                        )
+                    }
+                }
+            } else {
+                null
+            },
+            isError = error != null,
+            supportingText = if (error != null) {
+                {
+                    Text(error)
+                }
+            } else {
+                null
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(14.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedBorderColor = Color(0xFF1877F2),
+                unfocusedBorderColor = Color(0xFFE0E0E0)
+            ),
+            visualTransformation = if (esContrasena && !contrasenaVisible) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = if (esContrasena) {
+                    KeyboardType.Password
+                } else {
+                    tipoTeclado
+                }
+            ),
+            modifier = Modifier.weight(1f)
+        )
+    }
 }
 
 // BARRA SUPERIOR
@@ -368,11 +381,21 @@ fun TarjetaAccion(
 
 @Composable
 fun TarjetaDestacada(
-    texto: String,
+    especialidad: Especialidad,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    icono: ImageVector = Icons.Default.MedicalServices
+    modifier: Modifier = Modifier
 ) {
+    val (icono, iconColor, bgColor) = when (especialidad.id) {
+        1 -> Triple(Icons.Default.Person, Color(0xFF1877F2), Color(0xFFE6F2FF))
+        2 -> Triple(Icons.Default.ChildCare, Color(0xFFF39C12), Color(0xFFFEF5E7))
+        3 -> Triple(Icons.Default.Female, Color(0xFFE91E63), Color(0xFFFCE4EC))
+        4 -> Triple(Icons.Default.Favorite, Color(0xFFE74C3C), Color(0xFFFDEDEC))
+        5 -> Triple(Icons.Default.Face, Color(0xFFE67E22), Color(0xFFFBEEE6))
+        6 -> Triple(Icons.Default.Accessibility, Color(0xFF2980B9), Color(0xFFEBF5FB))
+        7 -> Triple(Icons.Default.Visibility, Color(0xFF16A085), Color(0xFFE8F8F5))
+        else -> Triple(Icons.Default.Person, Color(0xFF1877F2), Color(0xFFE6F2FF))
+    }
+
     Card(
         onClick = onClick,
         modifier = modifier
@@ -394,20 +417,20 @@ fun TarjetaDestacada(
             Surface(
                 modifier = Modifier.size(44.dp),
                 shape = CircleShape,
-                color = Color(0xFFE6F2FF)
+                color = bgColor
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = icono,
                         contentDescription = null,
-                        tint = Color(0xFF1877F2),
+                        tint = iconColor,
                         modifier = Modifier.size(24.dp)
                     )
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = texto,
+                text = especialidad.nombre,
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F1E36),
@@ -427,7 +450,7 @@ fun TarjetaEspecialidad(
     modifier: Modifier = Modifier
 ) {
     val (icono, iconColor, bgColor) = when (especialidad.id) {
-        1 -> Triple(Icons.Default.MedicalServices, Color(0xFF1877F2), Color(0xFFE6F2FF))
+        1 -> Triple(Icons.Default.Person, Color(0xFF1877F2), Color(0xFFE6F2FF))
         2 -> Triple(Icons.Default.ChildCare, Color(0xFFF39C12), Color(0xFFFEF5E7))
         3 -> Triple(Icons.Default.Female, Color(0xFFE91E63), Color(0xFFFCE4EC))
         4 -> Triple(Icons.Default.Favorite, Color(0xFFE74C3C), Color(0xFFFDEDEC))

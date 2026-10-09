@@ -7,18 +7,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalHospital
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +36,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +55,65 @@ import com.rocha.saludplus.ui.components.TarjetaDestacada
 fun HomeScreen(navController: NavController) {
     val nombre = Repositorio.usuarioActual?.nombre?.substringBefore(" ") ?: "Paciente"
     val destacadas = Repositorio.especialidadesDestacadas()
+    var mostrarDialogoLocales by remember { mutableStateOf(false) }
+
+    if (mostrarDialogoLocales) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogoLocales = false },
+            title = {
+                Text(
+                    text = "Selecciona tu Local",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0F1E36)
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = "Elige la sede donde deseas atenderte antes de agendar tu cita:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF758A99)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Card(
+                        onClick = {
+                            mostrarDialogoLocales = false
+                            navController.navigate(Rutas.ESPECIALIDADES)
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F8FA)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Text(text = "Sede Independencia", fontWeight = FontWeight.Bold, color = Color(0xFF0F1E36))
+                            Text(text = "Av. Carlos Izaguirre 234", style = MaterialTheme.typography.bodySmall, color = Color(0xFF758A99))
+                        }
+                    }
+                    Card(
+                        onClick = {
+                            mostrarDialogoLocales = false
+                            navController.navigate(Rutas.ESPECIALIDADES)
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F8FA)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Text(text = "Sede La Molina", fontWeight = FontWeight.Bold, color = Color(0xFF0F1E36))
+                            Text(text = "Av. La Molina 456", style = MaterialTheme.typography.bodySmall, color = Color(0xFF758A99))
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { mostrarDialogoLocales = false }) {
+                    Text("Cancelar", color = Color(0xFF1877F2))
+                }
+            }
+        )
+    }
 
     Scaffold(
         bottomBar = {
@@ -60,6 +130,18 @@ fun HomeScreen(navController: NavController) {
                         selectedIconColor = Color(0xFF1877F2),
                         selectedTextColor = Color(0xFF1877F2),
                         indicatorColor = Color(0xFFE6F2FF),
+                        unselectedIconColor = Color(0xFF758A99),
+                        unselectedTextColor = Color(0xFF758A99)
+                    )
+                )
+                NavigationBarItem(
+                    selected = false,
+                    onClick = { navController.navigate(Rutas.MIS_DOCTORES) },
+                    icon = { Icon(Icons.Default.LocalHospital, contentDescription = "Mis doctores") },
+                    label = { Text("Doctores") },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF1877F2),
+                        selectedTextColor = Color(0xFF1877F2),
                         unselectedIconColor = Color(0xFF758A99),
                         unselectedTextColor = Color(0xFF758A99)
                     )
@@ -147,7 +229,7 @@ fun HomeScreen(navController: NavController) {
             ) {
                 TarjetaAccion(
                     titulo = "Agendar cita",
-                    onClick = { navController.navigate(Rutas.ESPECIALIDADES) },
+                    onClick = { mostrarDialogoLocales = true },
                     icono = Icons.Default.DateRange,
                     backgroundColor = Color(0xFFE6F2FF),
                     iconColor = Color(0xFF1877F2),
@@ -215,7 +297,7 @@ fun HomeScreen(navController: NavController) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(destacadas) { especialidad ->
                     TarjetaDestacada(
-                        texto = especialidad.nombre,
+                        especialidad = especialidad,
                         onClick = { navController.navigate(Rutas.medicos(especialidad.id)) }
                     )
                 }
