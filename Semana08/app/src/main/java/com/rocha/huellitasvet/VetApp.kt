@@ -2,6 +2,8 @@ package com.rocha.huellitasvet
 import android.app.Application
 import com.rocha.huellitasvet.data.local.DatosIniciales
 import com.rocha.huellitasvet.data.local.VetDatabase
+import com.rocha.huellitasvet.data.repository.VetRepository
+import com.rocha.huellitasvet.data.repository.VetRepositoryRoom
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -9,12 +11,12 @@ import kotlinx.coroutines.launch
 class VetApp : Application() {
     lateinit var db: VetDatabase
         private set
-
+    lateinit var repository: VetRepository
+        private set
     override fun onCreate() {
         super.onCreate()
         db = VetDatabase.obtener(this)
-
-        // Siembra los datos de prueba en segundo plano (solo la primera vez)
+        repository = VetRepositoryRoom(db)
         CoroutineScope(Dispatchers.IO).launch {
             DatosIniciales.sembrar(db)
         }
