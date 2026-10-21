@@ -1,4 +1,5 @@
 package com.rocha.huellitasvet.ui.navigation
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -23,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,11 +32,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.rocha.huellitasvet.VetApp
 import com.rocha.huellitasvet.model.Rol
+import com.rocha.huellitasvet.ui.dueno.FichaMascotaScreen
+import com.rocha.huellitasvet.ui.dueno.FormularioMascotaScreen
 import com.rocha.huellitasvet.ui.dueno.InicioScreen
 import com.rocha.huellitasvet.ui.dueno.LoginScreen
 import com.rocha.huellitasvet.ui.dueno.MascotasScreen
 import com.rocha.huellitasvet.ui.dueno.SplashScreen
 import com.rocha.huellitasvet.viewmodel.InicioViewModel
+import com.rocha.huellitasvet.viewmodel.MascotaViewModel
 import com.rocha.huellitasvet.viewmodel.SesionViewModel
 import com.rocha.huellitasvet.viewmodel.VetViewModelFactory
 
@@ -87,7 +90,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                 LoginScreen(sesionVm) { rol -> irAlInicio(rol, Rutas.LOGIN) }
             }
 
-            // DUEÑO
+            // ---------- DUEÑO ----------
             composable(Rutas.INICIO) {
                 usuario?.let { u ->
                     val vm: InicioViewModel = viewModel(
@@ -98,7 +101,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                         vm = vm,
                         nombre = u.nombre.substringBefore(" "),
                         onMascota = { nav.navigate(Rutas.ficha(it)) },
-                        onAgregar = { nav.navigate(Rutas.FORMULARIO) },
+                        onAgregar = { nav.navigate(Rutas.formulario()) },
                         onVerTodas = { irAPestana(Rutas.MASCOTAS) },
                         onPedirCita = { nav.navigate(Rutas.PEDIR_CITA) }
                     )
@@ -114,7 +117,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                     MascotasScreen(
                         vm = vm,
                         onMascota = { nav.navigate(Rutas.ficha(it)) },
-                        onAgregar = { nav.navigate(Rutas.FORMULARIO) }
+                        onAgregar = { nav.navigate(Rutas.formulario()) }
                     )
                 }
             }
@@ -133,18 +136,47 @@ fun NavVet(sesionVm: SesionViewModel) {
                     nav.navigate(Rutas.LOGIN) { popUpTo(Rutas.INICIO) { inclusive = true } }
                 }
             }
-
-            // TEMPORAL: se reemplaza en el Paso 8
+            // Ficha de la mascota con historial clínico
             composable(
                 Rutas.FICHA,
                 arguments = listOf(navArgument("mascotaId") { type = NavType.IntType })
-            ) {
-                PantallaTemporal("Ficha de la mascota (Paso 8)", "Volver") { nav.popBackStack() }
+            ) { backStackEntry ->
+                val mascotaId = backStackEntry.arguments?.getInt("mascotaId") ?: 0
+                usuario?.let { u ->
+                    val vm: MascotaViewModel = viewModel(
+                        factory = VetViewModelFactory(app.repository, app.prefs, u.id)
+                    )
+                    FichaMascotaScreen(
+                        vm = vm,
+                        mascotaId = mascotaId,
+                        onVolver = { nav.popBackStack() },
+                        onEditar = { nav.navigate(Rutas.formulario(it)) },
+                        onPedirCita = { nav.navigate(Rutas.PEDIR_CITA) }
+                    )
+                }
             }
 
-            // TEMPORAL: se reemplaza en el Paso 8
-            composable(Rutas.FORMULARIO) {
-                PantallaTemporal("Formulario de mascota (Paso 8)", "Volver") { nav.popBackStack() }
+            // Formulario: crear (mascotaId = -1) o editar
+            composable(
+                Rutas.FORMULARIO,
+                arguments = listOf(
+                    navArgument("mascotaId") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    }
+                )
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getInt("mascotaId") ?: -1
+                usuario?.let { u ->
+                    val vm: MascotaViewModel = viewModel(
+                        factory = VetViewModelFactory(app.repository, app.prefs, u.id)
+                    )
+                    FormularioMascotaScreen(
+                        vm = vm,
+                        mascotaId = if (id == -1) null else id,
+                        onListo = { nav.popBackStack() }
+                    )
+                }
             }
 
             // TEMPORAL: se reemplaza en el Paso 9
@@ -163,6 +195,7 @@ fun NavVet(sesionVm: SesionViewModel) {
         }
     }
 }
+
 @Composable
 private fun BarraDueno(rutaActual: String?, onPestana: (String) -> Unit) {
     val items = listOf(
@@ -182,6 +215,7 @@ private fun BarraDueno(rutaActual: String?, onPestana: (String) -> Unit) {
         }
     }
 }
+
 @Composable
 private fun PantallaTemporal(titulo: String, textoBoton: String, onClick: () -> Unit) {
     Column(

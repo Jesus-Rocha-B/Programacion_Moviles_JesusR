@@ -9,9 +9,11 @@ object Rutas {
     const val PERFIL = "perfil"
     // Dueño (pantallas secundarias)
     const val FICHA = "ficha/{mascotaId}"
-    const val FORMULARIO = "formulario"
+    const val FORMULARIO = "formulario?mascotaId={mascotaId}"
     const val PEDIR_CITA = "pedir_cita"
     fun ficha(id: Int) = "ficha/$id"
+    /** Sin argumento = mascota nueva (-1). Con id = editar. */
+    fun formulario(id: Int = -1) = "formulario?mascotaId=$id"
     // Veterinario
     const val PANEL = "panel"
 }

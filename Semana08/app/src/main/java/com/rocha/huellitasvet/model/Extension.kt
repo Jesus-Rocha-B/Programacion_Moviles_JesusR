@@ -7,14 +7,21 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+private val localeEs = Locale.forLanguageTag("es-PE")
+
 /** Fecha y hora de la cita como LocalDateTime (para comparar con "ahora"). */
 fun CitaConDetalle.fechaHora(): LocalDateTime =
     LocalDateTime.of(LocalDate.parse(cita.fecha), LocalTime.parse(cita.hora))
 
+/** Ejemplo: "Mié 21 oct · 10:30" */
 fun CitaConDetalle.fechaLegible(): String =
     fechaHora()
-        .format(DateTimeFormatter.ofPattern("EEE d MMM · HH:mm", Locale.forLanguageTag("es-PE")))
+        .format(DateTimeFormatter.ofPattern("EEE d MMM · HH:mm", localeEs))
         .replaceFirstChar { it.uppercase() }
+
+/** Ejemplo: "12 oct" */
+fun CitaConDetalle.fechaCorta(): String =
+    LocalDate.parse(cita.fecha).format(DateTimeFormatter.ofPattern("d MMM", localeEs))
 
 /** Edad = año actual − año de nacimiento */
 fun Mascota.edad(): Int = LocalDate.now().year - anioNacimiento
