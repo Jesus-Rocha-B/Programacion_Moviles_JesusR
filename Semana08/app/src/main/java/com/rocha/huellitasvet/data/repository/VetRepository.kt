@@ -9,8 +9,11 @@ import com.rocha.huellitasvet.model.EstadoCita
 import kotlinx.coroutines.flow.Flow
 
 interface VetRepository {
+
     // Usuarios
     suspend fun login(correo: String, clave: String): Usuario?
+    suspend fun obtenerUsuario(id: Int): Usuario?
+
     // Servicios
     fun observarServicios(): Flow<List<Servicio>>
     fun observarServiciosActivos(): Flow<List<Servicio>>

@@ -1,4 +1,5 @@
 package com.rocha.huellitasvet.data.repository
+
 import androidx.room.withTransaction
 import com.rocha.huellitasvet.data.local.VetDatabase
 import com.rocha.huellitasvet.data.local.entity.Cita
@@ -20,6 +21,8 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     override suspend fun login(correo: String, clave: String): Usuario? =
         usuarioDao.login(correo, clave)
 
+    override suspend fun obtenerUsuario(id: Int): Usuario? =
+        usuarioDao.obtener(id)
     // Servicios
     override fun observarServicios(): Flow<List<Servicio>> =
         servicioDao.observarTodos()
@@ -49,11 +52,9 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
         mascotaDao.eliminar(m)
     override suspend fun mascotaTieneCitas(id: Int): Boolean =
         mascotaDao.contarCitas(id) > 0
-
     // Citas
     override fun observarHorasOcupadas(fecha: String): Flow<List<String>> =
         citaDao.observarHorasOcupadas(fecha)
-
     override suspend fun crearCita(
         mascotaId: Int, servicioId: Int, fecha: String, hora: String, nota: String
     ): Long {
