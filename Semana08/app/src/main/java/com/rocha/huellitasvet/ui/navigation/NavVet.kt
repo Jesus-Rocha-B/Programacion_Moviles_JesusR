@@ -37,10 +37,12 @@ import com.rocha.huellitasvet.ui.dueno.FormularioMascotaScreen
 import com.rocha.huellitasvet.ui.dueno.InicioScreen
 import com.rocha.huellitasvet.ui.dueno.LoginScreen
 import com.rocha.huellitasvet.ui.dueno.MascotasScreen
+import com.rocha.huellitasvet.ui.dueno.MisCitasScreen
 import com.rocha.huellitasvet.ui.dueno.PedirCitaScreen
 import com.rocha.huellitasvet.ui.dueno.SplashScreen
 import com.rocha.huellitasvet.viewmodel.InicioViewModel
 import com.rocha.huellitasvet.viewmodel.MascotaViewModel
+import com.rocha.huellitasvet.viewmodel.MisCitasViewModel
 import com.rocha.huellitasvet.viewmodel.PedirCitaViewModel
 import com.rocha.huellitasvet.viewmodel.SesionViewModel
 import com.rocha.huellitasvet.viewmodel.VetViewModelFactory
@@ -124,10 +126,17 @@ fun NavVet(sesionVm: SesionViewModel) {
                 }
             }
 
-            // TEMPORAL: se reemplaza en el Paso 10
+            // Mis citas: Próximas / Historial con cancelación
             composable(Rutas.CITAS) {
-                PantallaTemporal("Mis citas (Paso 10)", "Pedir una cita") {
-                    nav.navigate(Rutas.pedirCita())
+                usuario?.let { u ->
+                    val vm: MisCitasViewModel = viewModel(
+                        key = "citas_${u.id}",
+                        factory = VetViewModelFactory(app.repository, app.prefs, u.id)
+                    )
+                    MisCitasScreen(
+                        vm = vm,
+                        onPedirCita = { nav.navigate(Rutas.pedirCita()) }
+                    )
                 }
             }
 
