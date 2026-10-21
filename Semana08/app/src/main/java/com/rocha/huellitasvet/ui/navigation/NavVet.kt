@@ -37,9 +37,11 @@ import com.rocha.huellitasvet.ui.dueno.FormularioMascotaScreen
 import com.rocha.huellitasvet.ui.dueno.InicioScreen
 import com.rocha.huellitasvet.ui.dueno.LoginScreen
 import com.rocha.huellitasvet.ui.dueno.MascotasScreen
+import com.rocha.huellitasvet.ui.dueno.PedirCitaScreen
 import com.rocha.huellitasvet.ui.dueno.SplashScreen
 import com.rocha.huellitasvet.viewmodel.InicioViewModel
 import com.rocha.huellitasvet.viewmodel.MascotaViewModel
+import com.rocha.huellitasvet.viewmodel.PedirCitaViewModel
 import com.rocha.huellitasvet.viewmodel.SesionViewModel
 import com.rocha.huellitasvet.viewmodel.VetViewModelFactory
 
@@ -103,7 +105,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                         onMascota = { nav.navigate(Rutas.ficha(it)) },
                         onAgregar = { nav.navigate(Rutas.formulario()) },
                         onVerTodas = { irAPestana(Rutas.MASCOTAS) },
-                        onPedirCita = { nav.navigate(Rutas.PEDIR_CITA) }
+                        onPedirCita = { nav.navigate(Rutas.pedirCita()) }
                     )
                 }
             }
@@ -125,7 +127,7 @@ fun NavVet(sesionVm: SesionViewModel) {
             // TEMPORAL: se reemplaza en el Paso 10
             composable(Rutas.CITAS) {
                 PantallaTemporal("Mis citas (Paso 10)", "Pedir una cita") {
-                    nav.navigate(Rutas.PEDIR_CITA)
+                    nav.navigate(Rutas.pedirCita())
                 }
             }
 
@@ -136,6 +138,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                     nav.navigate(Rutas.LOGIN) { popUpTo(Rutas.INICIO) { inclusive = true } }
                 }
             }
+
             // Ficha de la mascota con historial clínico
             composable(
                 Rutas.FICHA,
@@ -151,7 +154,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                         mascotaId = mascotaId,
                         onVolver = { nav.popBackStack() },
                         onEditar = { nav.navigate(Rutas.formulario(it)) },
-                        onPedirCita = { nav.navigate(Rutas.PEDIR_CITA) }
+                        onPedirCita = { nav.navigate(Rutas.pedirCita(mascotaId)) }
                     )
                 }
             }
@@ -179,9 +182,29 @@ fun NavVet(sesionVm: SesionViewModel) {
                 }
             }
 
-            // TEMPORAL: se reemplaza en el Paso 9
-            composable(Rutas.PEDIR_CITA) {
-                PantallaTemporal("Pedir cita (Paso 9)", "Volver") { nav.popBackStack() }
+            // Pedir cita: con mascota preseleccionada (desde la ficha) o sin ella
+            composable(
+                Rutas.PEDIR_CITA,
+                arguments = listOf(
+                    navArgument("mascotaId") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    }
+                )
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getInt("mascotaId") ?: -1
+                usuario?.let { u ->
+                    val vm: PedirCitaViewModel = viewModel(
+                        factory = VetViewModelFactory(app.repository, app.prefs, u.id)
+                    )
+                    PedirCitaScreen(
+                        vm = vm,
+                        mascotaInicial = if (id == -1) null else id,
+                        onVolver = { nav.popBackStack() },
+                        // Al confirmar, vuelve a Mis citas
+                        onCreada = { irAPestana(Rutas.CITAS) }
+                    )
+                }
             }
 
             // ---------- VETERINARIO ----------

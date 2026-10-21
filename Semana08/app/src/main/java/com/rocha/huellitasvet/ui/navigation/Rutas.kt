@@ -10,10 +10,12 @@ object Rutas {
     // Dueño (pantallas secundarias)
     const val FICHA = "ficha/{mascotaId}"
     const val FORMULARIO = "formulario?mascotaId={mascotaId}"
-    const val PEDIR_CITA = "pedir_cita"
+    const val PEDIR_CITA = "pedir_cita?mascotaId={mascotaId}"
     fun ficha(id: Int) = "ficha/$id"
     /** Sin argumento = mascota nueva (-1). Con id = editar. */
     fun formulario(id: Int = -1) = "formulario?mascotaId=$id"
+    /** Sin argumento = sin mascota preseleccionada (-1). */
+    fun pedirCita(mascotaId: Int = -1) = "pedir_cita?mascotaId=$mascotaId"
     // Veterinario
     const val PANEL = "panel"
 }
