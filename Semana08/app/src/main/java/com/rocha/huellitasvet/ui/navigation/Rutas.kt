@@ -16,6 +16,14 @@ object Rutas {
     fun formulario(id: Int = -1) = "formulario?mascotaId=$id"
     /** Sin argumento = sin mascota preseleccionada (-1). */
     fun pedirCita(mascotaId: Int = -1) = "pedir_cita?mascotaId=$mascotaId"
-    // Veterinario
+    // Veterinario (con barra inferior)
     const val PANEL = "panel"
+    const val AGENDA = "agenda"
+    const val PACIENTES = "pacientes"
+    const val SERVICIOS = "servicios"
+    const val AJUSTES = "ajustes"
+
+    // Veterinario (pantallas secundarias)
+    const val ATENDER = "atender/{citaId}"
+    fun atender(id: Int) = "atender/$id"
 }
