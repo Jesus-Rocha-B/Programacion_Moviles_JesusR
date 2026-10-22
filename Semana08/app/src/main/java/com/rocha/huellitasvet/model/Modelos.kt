@@ -22,3 +22,7 @@ object Horarios {
         "%02d:%02d".format(minutos / 60, minutos % 60)
     }
 }
+data class UltimaVisita(
+    val mascotaId: Int,
+    val fecha: String
+)

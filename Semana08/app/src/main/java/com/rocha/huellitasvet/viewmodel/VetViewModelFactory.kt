@@ -7,7 +7,8 @@ import com.rocha.huellitasvet.data.repository.VetRepository
 class VetViewModelFactory(
     private val repo: VetRepository,
     private val prefs: PreferenciasStore,
-    private val duenoId: Int = 0
+    private val duenoId: Int = 0,
+    private val citaId: Int = 0
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -26,6 +27,10 @@ class VetViewModelFactory(
             PanelViewModel(repo) as T
         modelClass.isAssignableFrom(AgendaViewModel::class.java) ->
             AgendaViewModel(repo) as T
+        modelClass.isAssignableFrom(AtenderCitaViewModel::class.java) ->
+            AtenderCitaViewModel(repo, citaId) as T
+        modelClass.isAssignableFrom(PacientesViewModel::class.java) ->
+            PacientesViewModel(repo) as T
         // Aquí se irán agregando los demás ViewModels en los siguientes pasos
         else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
     }

@@ -11,6 +11,7 @@ import com.rocha.huellitasvet.data.local.relation.MascotaConDueno
 import com.rocha.huellitasvet.model.ConteoServicio
 import com.rocha.huellitasvet.model.EstadoCita
 import kotlinx.coroutines.flow.Flow
+import com.rocha.huellitasvet.model.UltimaVisita
 
 class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     private val usuarioDao = db.usuarioDao()
@@ -103,4 +104,6 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
         citaDao.contarPorServicio()
     override fun observarIngresosDesde(fechaInicio: String): Flow<Double> =
         citaDao.ingresosDesde(fechaInicio)
+    override fun observarUltimasVisitas(): Flow<List<UltimaVisita>> =
+        citaDao.ultimasVisitas()
 }

@@ -7,7 +7,7 @@ import com.rocha.huellitasvet.data.local.relation.MascotaConDueno
 import com.rocha.huellitasvet.model.ConteoServicio
 import com.rocha.huellitasvet.model.EstadoCita
 import kotlinx.coroutines.flow.Flow
-
+import com.rocha.huellitasvet.model.UltimaVisita
 interface VetRepository {
 
     // Usuarios
@@ -48,4 +48,5 @@ interface VetRepository {
     fun observarCantidadPorEstado(estado: EstadoCita): Flow<Int>
     fun observarCitasPorServicio(): Flow<List<ConteoServicio>>
     fun observarIngresosDesde(fechaInicio: String): Flow<Double>
+    fun observarUltimasVisitas(): Flow<List<UltimaVisita>>
 }

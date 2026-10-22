@@ -22,8 +22,9 @@ object Rutas {
     const val PACIENTES = "pacientes"
     const val SERVICIOS = "servicios"
     const val AJUSTES = "ajustes"
-
     // Veterinario (pantallas secundarias)
     const val ATENDER = "atender/{citaId}"
+    const val FICHA_VET = "ficha_vet/{mascotaId}"
     fun atender(id: Int) = "atender/$id"
+    fun fichaVet(id: Int) = "ficha_vet/$id"
 }

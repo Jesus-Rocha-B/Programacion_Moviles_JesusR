@@ -1,4 +1,5 @@
 package com.rocha.huellitasvet.ui.dueno
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,7 +53,8 @@ fun FichaMascotaScreen(
     mascotaId: Int,
     onVolver: () -> Unit,
     onEditar: (Int) -> Unit,
-    onPedirCita: () -> Unit
+    onPedirCita: () -> Unit,
+    soloLectura: Boolean = false   // true = vista del veterinario (sin editar, pedir cita ni eliminar)
 ) {
     val mascota by remember(mascotaId) { vm.mascota(mascotaId) }.collectAsState(initial = null)
     val historial by remember(mascotaId) { vm.historial(mascotaId) }.collectAsState()
@@ -125,21 +127,23 @@ fun FichaMascotaScreen(
                     Spacer(Modifier.height(16.dp))
                 }
 
-                // Botones
-                item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Button(
-                            onClick = onPedirCita,
-                            modifier = Modifier.weight(1f).height(48.dp),
-                            shape = RoundedCornerShape(14.dp)
-                        ) { Text("Pedir cita") }
-                        OutlinedButton(
-                            onClick = { onEditar(m.id) },
-                            modifier = Modifier.weight(1f).height(48.dp),
-                            shape = RoundedCornerShape(14.dp)
-                        ) { Text("Editar") }
+                // Botones (solo para el dueño)
+                if (!soloLectura) {
+                    item {
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Button(
+                                onClick = onPedirCita,
+                                modifier = Modifier.weight(1f).height(48.dp),
+                                shape = RoundedCornerShape(14.dp)
+                            ) { Text("Pedir cita") }
+                            OutlinedButton(
+                                onClick = { onEditar(m.id) },
+                                modifier = Modifier.weight(1f).height(48.dp),
+                                shape = RoundedCornerShape(14.dp)
+                            ) { Text("Editar") }
+                        }
+                        Spacer(Modifier.height(16.dp))
                     }
-                    Spacer(Modifier.height(16.dp))
                 }
 
                 // Pestañas Datos / Historial clínico
@@ -169,7 +173,10 @@ fun FichaMascotaScreen(
                             elevation = CardDefaults.cardElevation(2.dp),
                             shape = RoundedCornerShape(16.dp)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
                                 FilaDato("Especie", m.especie.nombreBonito())
                                 FilaDato("Raza", m.raza.ifBlank { "—" })
                                 FilaDato("Año de nacimiento", m.anioNacimiento.toString())
@@ -178,13 +185,17 @@ fun FichaMascotaScreen(
                                 FilaDato("Peso actual", "${"%.1f".format(m.peso)} kg")
                             }
                         }
-                        Spacer(Modifier.height(16.dp))
-                        OutlinedButton(
-                            onClick = { confirmarEliminar = true },
-                            modifier = Modifier.fillMaxWidth().height(48.dp),
-                            shape = RoundedCornerShape(14.dp)
-                        ) {
-                            Text("Eliminar mascota", color = MaterialTheme.colorScheme.error)
+
+                        // Eliminar (solo para el dueño)
+                        if (!soloLectura) {
+                            Spacer(Modifier.height(16.dp))
+                            OutlinedButton(
+                                onClick = { confirmarEliminar = true },
+                                modifier = Modifier.fillMaxWidth().height(48.dp),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                Text("Eliminar mascota", color = MaterialTheme.colorScheme.error)
+                            }
                         }
                     }
                 } else {

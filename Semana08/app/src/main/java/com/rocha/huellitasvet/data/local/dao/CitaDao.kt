@@ -8,6 +8,7 @@ import com.rocha.huellitasvet.data.local.entity.Cita
 import com.rocha.huellitasvet.data.local.relation.CitaConDetalle
 import com.rocha.huellitasvet.model.ConteoServicio
 import kotlinx.coroutines.flow.Flow
+import com.rocha.huellitasvet.model.UltimaVisita
 
 @Dao
 interface CitaDao {
@@ -67,7 +68,11 @@ interface CitaDao {
                 "WHERE estado = 'ATENDIDA' AND fecha >= :fechaInicio"
     )
     fun ingresosDesde(fechaInicio: String): Flow<Double>
-
+    @Query(
+        "SELECT mascotaId AS mascotaId, MAX(fecha) AS fecha FROM citas " +
+                "WHERE estado = 'ATENDIDA' GROUP BY mascotaId"
+    )
+    fun ultimasVisitas(): Flow<List<UltimaVisita>>
     @Query("SELECT COUNT(*) FROM citas WHERE servicioId = :servicioId")
     suspend fun contarDeServicio(servicioId: Int): Int
 }

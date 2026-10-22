@@ -45,11 +45,15 @@ import com.rocha.huellitasvet.ui.dueno.MisCitasScreen
 import com.rocha.huellitasvet.ui.dueno.PedirCitaScreen
 import com.rocha.huellitasvet.ui.dueno.SplashScreen
 import com.rocha.huellitasvet.ui.veterinario.AgendaScreen
+import com.rocha.huellitasvet.ui.veterinario.AtenderCitaScreen
+import com.rocha.huellitasvet.ui.veterinario.PacientesScreen
 import com.rocha.huellitasvet.ui.veterinario.PanelScreen
 import com.rocha.huellitasvet.viewmodel.AgendaViewModel
+import com.rocha.huellitasvet.viewmodel.AtenderCitaViewModel
 import com.rocha.huellitasvet.viewmodel.InicioViewModel
 import com.rocha.huellitasvet.viewmodel.MascotaViewModel
 import com.rocha.huellitasvet.viewmodel.MisCitasViewModel
+import com.rocha.huellitasvet.viewmodel.PacientesViewModel
 import com.rocha.huellitasvet.viewmodel.PanelViewModel
 import com.rocha.huellitasvet.viewmodel.PedirCitaViewModel
 import com.rocha.huellitasvet.viewmodel.SesionViewModel
@@ -255,11 +259,52 @@ fun NavVet(sesionVm: SesionViewModel) {
                 )
             }
 
-            // TEMPORAL: se reemplaza en el Paso 12
+            // Atender cita: registro clínico con transacción
+            composable(
+                Rutas.ATENDER,
+                arguments = listOf(navArgument("citaId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val citaId = backStackEntry.arguments?.getInt("citaId") ?: 0
+                val vm: AtenderCitaViewModel = viewModel(
+                    key = "atender_$citaId",
+                    factory = VetViewModelFactory(app.repository, app.prefs, citaId = citaId)
+                )
+                AtenderCitaScreen(
+                    vm = vm,
+                    onVolver = { nav.popBackStack() }
+                )
+            }
+
+            // Pacientes: buscador + filtro por especie
             composable(Rutas.PACIENTES) {
-                PantallaTemporal("Pacientes (Paso 12)", "Ir al panel") {
-                    irAPestanaVet(Rutas.PANEL)
-                }
+                val vm: PacientesViewModel = viewModel(
+                    key = "pacientes",
+                    factory = VetViewModelFactory(app.repository, app.prefs)
+                )
+                PacientesScreen(
+                    vm = vm,
+                    onPaciente = { nav.navigate(Rutas.fichaVet(it)) }
+                )
+            }
+
+            // Ficha del paciente (solo lectura, con historial clínico)
+            composable(
+                Rutas.FICHA_VET,
+                arguments = listOf(navArgument("mascotaId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val mascotaId = backStackEntry.arguments?.getInt("mascotaId") ?: 0
+                val vm: MascotaViewModel = viewModel(
+                    key = "ficha_vet_$mascotaId",
+                    factory = VetViewModelFactory(app.repository, app.prefs)
+                )
+                FichaMascotaScreen(
+                    vm = vm,
+                    mascotaId = mascotaId,
+                    onVolver = { nav.popBackStack() },
+                    onEditar = {},
+                    onPedirCita = {},
+                    soloLectura = true
+                )
             }
 
             // TEMPORAL: se reemplaza en el Paso 13
@@ -275,14 +320,6 @@ fun NavVet(sesionVm: SesionViewModel) {
                     sesionVm.cerrarSesion()
                     nav.navigate(Rutas.LOGIN) { popUpTo(Rutas.PANEL) { inclusive = true } }
                 }
-            }
-
-            // TEMPORAL: se reemplaza en el Paso 12
-            composable(
-                Rutas.ATENDER,
-                arguments = listOf(navArgument("citaId") { type = NavType.IntType })
-            ) {
-                PantallaTemporal("Atender cita (Paso 12)", "Volver") { nav.popBackStack() }
             }
         }
     }
