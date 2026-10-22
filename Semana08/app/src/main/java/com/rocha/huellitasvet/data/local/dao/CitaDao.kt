@@ -22,9 +22,17 @@ interface CitaDao {
     suspend fun reprogramarCita(id: Int, nuevaFecha: String, nuevaHora: String)
     @Query(
         "UPDATE citas SET estado = 'ATENDIDA', diagnostico = :diagnostico, " +
-                "tratamiento = :tratamiento, pesoRegistrado = :peso WHERE id = :id"
+                "tratamiento = :tratamiento, pesoRegistrado = :peso, proximoControl = :proximoControl WHERE id = :id"
     )
-    suspend fun registrarAtencion(id: Int, diagnostico: String, tratamiento: String, peso: Double)
+    suspend fun registrarAtencion(id: Int, diagnostico: String, tratamiento: String, peso: Double, proximoControl: String?)
+
+    @Transaction
+    @Query(
+        "SELECT c.* FROM citas c INNER JOIN mascotas m ON c.mascotaId = m.id " +
+                "WHERE m.duenoId = :duenoId AND c.proximoControl IS NOT NULL AND c.proximoControl != '' " +
+                "ORDER BY c.proximoControl ASC"
+    )
+    fun observarProximosControles(duenoId: Int): Flow<List<CitaConDetalle>>
 
     @Query("SELECT * FROM citas WHERE id = :id")
     suspend fun obtener(id: Int): Cita?

@@ -66,6 +66,7 @@ fun AtenderCitaScreen(
     var peso by remember { mutableStateOf("") }
     var diagnostico by remember { mutableStateOf("") }
     var tratamiento by remember { mutableStateOf("") }
+    var proximoControl by remember { mutableStateOf("") }
     var confirmarCancelar by remember { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
 
@@ -216,6 +217,12 @@ fun AtenderCitaScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
+            Spacer(Modifier.height(8.dp))
+            VetTextField(
+                value = proximoControl,
+                onValueChange = { proximoControl = it },
+                label = "Próximo control (Opcional, YYYY-MM-DD)"
+            )
 
             // ---------- Aviso ----------
             if (pesoNuevo != null && pesoNuevo > 0.0) {
@@ -256,7 +263,7 @@ fun AtenderCitaScreen(
 
             VetButton(
                 texto = "Registrar atención",
-                onClick = { vm.registrar(diagnostico, tratamiento, peso) },
+                onClick = { vm.registrar(diagnostico, tratamiento, peso, proximoControl) },
                 enabled = atendible
             )
 

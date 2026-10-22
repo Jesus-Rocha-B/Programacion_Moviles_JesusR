@@ -90,15 +90,18 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
     override suspend fun reprogramarCita(citaId: Int, nuevaFecha: String, nuevaHora: String) =
         citaDao.reprogramarCita(citaId, nuevaFecha, nuevaHora)
     override suspend fun registrarAtencion(
-        citaId: Int, diagnostico: String, tratamiento: String, peso: Double
+        citaId: Int, diagnostico: String, tratamiento: String, peso: Double, proximoControl: String?
     ) {
         // Una sola transacción: si algo falla, no queda nada a medias
         db.withTransaction {
             val cita = citaDao.obtener(citaId) ?: return@withTransaction
-            citaDao.registrarAtencion(citaId, diagnostico, tratamiento, peso)
+            citaDao.registrarAtencion(citaId, diagnostico, tratamiento, peso, proximoControl)
             mascotaDao.actualizarPeso(cita.mascotaId, peso)
         }
     }
+
+    override fun observarProximosControles(duenoId: Int): Flow<List<CitaConDetalle>> =
+        citaDao.observarProximosControles(duenoId)
 
     // Panel
     override fun observarCitasDeFecha(fecha: String): Flow<Int> =

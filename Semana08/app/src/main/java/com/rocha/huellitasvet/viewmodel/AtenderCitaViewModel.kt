@@ -47,7 +47,7 @@ class AtenderCitaViewModel(
      * repo.registrarAtencion deja la cita ATENDIDA y actualiza el peso de la
      * mascota en la misma transacción.
      */
-    fun registrar(diagnostico: String, tratamiento: String, peso: String) {
+    fun registrar(diagnostico: String, tratamiento: String, peso: String, proximoControl: String = "") {
         if (!atendible(cita.value)) {
             _mensaje.value = "Solo se puede atender una cita pendiente o confirmada"
             return
@@ -68,7 +68,8 @@ class AtenderCitaViewModel(
                 citaId = citaId,
                 diagnostico = diagnostico.trim(),
                 tratamiento = tratamiento.trim(),
-                peso = pesoNum!!
+                peso = pesoNum!!,
+                proximoControl = proximoControl.trim().ifBlank { null }
             )
             _terminado.value = true
         }

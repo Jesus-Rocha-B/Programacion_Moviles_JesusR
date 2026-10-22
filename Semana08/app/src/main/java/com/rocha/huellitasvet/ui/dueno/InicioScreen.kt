@@ -56,6 +56,7 @@ fun InicioScreen(
 ) {
     val mascotas by vm.mascotas.collectAsState()
     val proxima by vm.proximaCita.collectAsState()
+    val controles by vm.proximosControles.collectAsState()
 
     Column(
         modifier = Modifier
@@ -78,6 +79,11 @@ fun InicioScreen(
 
         // Tarjeta de próxima cita
         TarjetaProximaCita(proxima)
+
+        if (controles.isNotEmpty()) {
+            Spacer(Modifier.height(14.dp))
+            TarjetaProximoControl(controles.first())
+        }
 
         Spacer(Modifier.height(20.dp))
 
@@ -228,6 +234,41 @@ private fun TarjetaProximaCita(cita: CitaConDetalle?) {
                 ) {
                     MascotaAvatar(especie = cita.mascota.mascota.especie, tamano = 52.dp)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TarjetaProximoControl(cita: CitaConDetalle) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "Recordatorio de Próximo Control",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "${cita.mascota.mascota.nombre} · Fecha de control: ${cita.cita.proximoControl}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Text(
+                    "Servicio previo: ${cita.servicio.nombre}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
             }
         }
     }

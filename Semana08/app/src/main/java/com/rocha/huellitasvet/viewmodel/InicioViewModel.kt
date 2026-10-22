@@ -37,4 +37,8 @@ class InicioViewModel(
                 .minByOrNull { it.fechaHora() }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    /** Recordatorios de próximos controles fijados por el veterinario */
+    val proximosControles: StateFlow<List<CitaConDetalle>> = repo.observarProximosControles(duenoId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }

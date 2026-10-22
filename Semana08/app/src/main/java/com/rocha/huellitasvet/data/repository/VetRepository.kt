@@ -43,8 +43,10 @@ interface VetRepository {
     suspend fun reprogramarCita(citaId: Int, nuevaFecha: String, nuevaHora: String)
     suspend fun registrarAtencion(
         citaId: Int, diagnostico: String,
-        tratamiento: String, peso: Double
+        tratamiento: String, peso: Double,
+        proximoControl: String? = null
     )
+    fun observarProximosControles(duenoId: Int): Flow<List<CitaConDetalle>>
     // Panel
     fun observarCitasDeFecha(fecha: String): Flow<Int>
     fun observarCantidadPorEstado(estado: EstadoCita): Flow<Int>
