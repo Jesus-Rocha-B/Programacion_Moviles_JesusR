@@ -48,6 +48,10 @@ class MascotaViewModel(
         repo.observarHistorial(mascotaId)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    fun observarPesos(mascotaId: Int): StateFlow<List<com.rocha.huellitasvet.model.RegistroPeso>> =
+        repo.observarPesosMascota(mascotaId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     /**
      * Valida y guarda. id = 0 crea una mascota nueva; id > 0 edita la existente.
      * Reglas: nombre >= 2 caracteres, especie y sexo elegidos,

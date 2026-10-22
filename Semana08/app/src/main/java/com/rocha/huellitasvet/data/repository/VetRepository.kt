@@ -50,4 +50,5 @@ interface VetRepository {
     fun observarCitasPorServicio(): Flow<List<ConteoServicio>>
     fun observarIngresosDesde(fechaInicio: String): Flow<Double>
     fun observarUltimasVisitas(): Flow<List<UltimaVisita>>
+    fun observarPesosMascota(mascotaId: Int): Flow<List<com.rocha.huellitasvet.model.RegistroPeso>>
 }

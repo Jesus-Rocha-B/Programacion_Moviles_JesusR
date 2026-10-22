@@ -73,6 +73,12 @@ interface CitaDao {
                 "WHERE estado = 'ATENDIDA' GROUP BY mascotaId"
     )
     fun ultimasVisitas(): Flow<List<UltimaVisita>>
+    @Query(
+        "SELECT fecha AS fecha, pesoRegistrado AS peso FROM citas " +
+                "WHERE mascotaId = :mascotaId AND estado = 'ATENDIDA' AND pesoRegistrado IS NOT NULL " +
+                "ORDER BY fecha ASC, id ASC"
+    )
+    fun observarPesosMascota(mascotaId: Int): Flow<List<com.rocha.huellitasvet.model.RegistroPeso>>
     @Query("SELECT COUNT(*) FROM citas WHERE servicioId = :servicioId")
     suspend fun contarDeServicio(servicioId: Int): Int
 }

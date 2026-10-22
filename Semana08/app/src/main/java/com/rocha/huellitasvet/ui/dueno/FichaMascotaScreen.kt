@@ -58,6 +58,7 @@ fun FichaMascotaScreen(
 ) {
     val mascota by remember(mascotaId) { vm.mascota(mascotaId) }.collectAsState(initial = null)
     val historial by remember(mascotaId) { vm.historial(mascotaId) }.collectAsState()
+    val pesos by remember(mascotaId) { vm.observarPesos(mascotaId) }.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
     val eliminada by vm.eliminada.collectAsState()
 
@@ -183,6 +184,20 @@ fun FichaMascotaScreen(
                                 FilaDato("Edad", m.edadTexto())
                                 FilaDato("Sexo", m.sexo.nombreBonito())
                                 FilaDato("Peso actual", "${"%.1f".format(m.peso)} kg")
+                            }
+                        }
+
+                        if (pesos.isNotEmpty()) {
+                            Spacer(Modifier.height(16.dp))
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                elevation = CardDefaults.cardElevation(2.dp),
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    com.rocha.huellitasvet.ui.components.graficos.GraficoLineas(datos = pesos)
+                                }
                             }
                         }
 

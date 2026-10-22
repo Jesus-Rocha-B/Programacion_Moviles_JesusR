@@ -109,4 +109,6 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
         citaDao.ingresosDesde(fechaInicio)
     override fun observarUltimasVisitas(): Flow<List<UltimaVisita>> =
         citaDao.ultimasVisitas()
+    override fun observarPesosMascota(mascotaId: Int): Flow<List<com.rocha.huellitasvet.model.RegistroPeso>> =
+        citaDao.observarPesosMascota(mascotaId)
 }

@@ -26,3 +26,7 @@ data class UltimaVisita(
     val mascotaId: Int,
     val fecha: String
 )
+data class RegistroPeso(
+    val fecha: String,
+    val peso: Double
+)
