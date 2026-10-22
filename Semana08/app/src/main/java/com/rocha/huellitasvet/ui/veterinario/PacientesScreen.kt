@@ -16,11 +16,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -75,8 +77,15 @@ fun PacientesScreen(
             OutlinedTextField(
                 value = busqueda,
                 onValueChange = { vm.buscar(it) },
-                placeholder = { Text("Buscar mascota o dueño...") },
+                placeholder = { Text("Buscar mascota, dueño o raza...") },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (busqueda.isNotEmpty()) {
+                        IconButton(onClick = { vm.buscar("") }) {
+                            Icon(Icons.Filled.Clear, contentDescription = "Limpiar búsqueda")
+                        }
+                    }
+                },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp)
@@ -96,7 +105,15 @@ fun PacientesScreen(
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = "${pacientes.size} pacientes encontrados",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(Modifier.height(8.dp))
 
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),

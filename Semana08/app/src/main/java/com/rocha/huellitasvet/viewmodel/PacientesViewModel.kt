@@ -19,7 +19,7 @@ class PacientesViewModel(repo: VetRepository) : ViewModel() {
     private val _filtro = MutableStateFlow<String?>(null)
     val filtro: StateFlow<String?> = _filtro.asStateFlow()
 
-    /** Mascotas con su dueño, filtradas por texto (mascota o dueño) y por especie */
+    /** Mascotas con su dueño, filtradas por texto (mascota, dueño o raza) y por especie simultáneamente */
     val pacientes: StateFlow<List<MascotaConDueno>> = combine(
         repo.observarTodasLasMascotas(),
         _busqueda,
@@ -27,10 +27,12 @@ class PacientesViewModel(repo: VetRepository) : ViewModel() {
     ) { lista, texto, especie ->
         val q = texto.trim().lowercase()
         lista.filter { p ->
-            (especie == null || p.mascota.especie == especie) &&
-                    (q.isEmpty() ||
-                            p.mascota.nombre.lowercase().contains(q) ||
-                            p.dueno.nombre.lowercase().contains(q))
+            val coincideEspecie = especie == null || p.mascota.especie.equals(especie, ignoreCase = true)
+            val coincideTexto = q.isEmpty() ||
+                    p.mascota.nombre.lowercase().contains(q) ||
+                    p.dueno.nombre.lowercase().contains(q) ||
+                    p.mascota.raza.lowercase().contains(q)
+            coincideEspecie && coincideTexto
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
