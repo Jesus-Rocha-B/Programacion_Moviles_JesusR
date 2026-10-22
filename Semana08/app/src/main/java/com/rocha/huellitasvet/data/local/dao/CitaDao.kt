@@ -18,6 +18,8 @@ interface CitaDao {
     suspend fun insertarTodos(lista: List<Cita>)
     @Query("UPDATE citas SET estado = :estado WHERE id = :id")
     suspend fun actualizarEstado(id: Int, estado: String)
+    @Query("UPDATE citas SET fecha = :nuevaFecha, hora = :nuevaHora WHERE id = :id")
+    suspend fun reprogramarCita(id: Int, nuevaFecha: String, nuevaHora: String)
     @Query(
         "UPDATE citas SET estado = 'ATENDIDA', diagnostico = :diagnostico, " +
                 "tratamiento = :tratamiento, pesoRegistrado = :peso WHERE id = :id"

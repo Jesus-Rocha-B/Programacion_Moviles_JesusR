@@ -87,6 +87,8 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
         citaDao.observarHistorial(mascotaId)
     override suspend fun cambiarEstadoCita(id: Int, estado: EstadoCita) =
         citaDao.actualizarEstado(id, estado.name)
+    override suspend fun reprogramarCita(citaId: Int, nuevaFecha: String, nuevaHora: String) =
+        citaDao.reprogramarCita(citaId, nuevaFecha, nuevaHora)
     override suspend fun registrarAtencion(
         citaId: Int, diagnostico: String, tratamiento: String, peso: Double
     ) {

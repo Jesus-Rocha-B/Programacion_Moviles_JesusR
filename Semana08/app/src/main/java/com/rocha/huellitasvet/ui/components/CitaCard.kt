@@ -28,7 +28,8 @@ import com.rocha.huellitasvet.model.fechaLegible
 fun CitaCard(
     cita: CitaConDetalle,
     modifier: Modifier = Modifier,
-    onCancelar: (() -> Unit)? = null   // null = no muestra el botón
+    onCancelar: (() -> Unit)? = null,   // null = no muestra el botón
+    onReprogramar: (() -> Unit)? = null
 ) {
     val colores = MaterialTheme.colorScheme
 
@@ -80,9 +81,18 @@ fun CitaCard(
                 }
             }
 
-            if (onCancelar != null) {
-                TextButton(onClick = onCancelar) {
-                    Text("Cancelar", color = colores.error)
+            if (onReprogramar != null || onCancelar != null) {
+                Column(horizontalAlignment = Alignment.End) {
+                    if (onReprogramar != null) {
+                        TextButton(onClick = onReprogramar) {
+                            Text("Reprogramar", style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                    if (onCancelar != null) {
+                        TextButton(onClick = onCancelar) {
+                            Text("Cancelar", color = colores.error, style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
                 }
             }
         }

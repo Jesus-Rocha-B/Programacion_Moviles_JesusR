@@ -62,8 +62,35 @@ class MisCitasViewModel(
         return faltan > Duration.ofHours(2)
     }
 
+    fun puedeReprogramar(c: CitaConDetalle): Boolean = puedeCancelar(c)
+
+    fun observarHorasOcupadas(fecha: String) = repo.observarHorasOcupadas(fecha)
+
     fun avisarNoCancelable() {
-        _mensaje.value = "Ya no puedes cancelar esta cita"
+        _mensaje.value = "Ya no puedes cancelar o reprogramar esta cita (menos de 2h de anticipación)"
+    }
+
+    fun reprogramar(c: CitaConDetalle, nuevaFecha: String, nuevaHora: String) {
+        if (!puedeReprogramar(c)) {
+            avisarNoCancelable()
+            return
+        }
+        val ahora = LocalDateTime.now()
+        val nuevaFechaHora = try {
+            LocalDateTime.parse("${nuevaFecha}T${nuevaHora}:00")
+        } catch (e: Exception) {
+            _mensaje.value = "Fecha u hora seleccionada no es válida"
+            return
+        }
+        if (Duration.between(ahora, nuevaFechaHora) <= Duration.ofHours(2)) {
+            _mensaje.value = "La nueva cita debe ser con al menos 2 horas de anticipación"
+            return
+        }
+
+        viewModelScope.launch {
+            repo.reprogramarCita(c.cita.id, nuevaFecha, nuevaHora)
+            _mensaje.value = "Cita reprogramada exitosamente"
+        }
     }
 
     fun cancelar(c: CitaConDetalle) {

@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,9 +46,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rocha.huellitasvet.data.local.relation.CitaConDetalle
+import com.rocha.huellitasvet.model.Horarios
 import com.rocha.huellitasvet.model.fechaLegible
 import com.rocha.huellitasvet.ui.components.CitaCard
+import com.rocha.huellitasvet.ui.components.FechaChip
+import com.rocha.huellitasvet.ui.components.HoraChip
 import com.rocha.huellitasvet.viewmodel.MisCitasViewModel
+import java.time.LocalDate
 
 @Composable
 fun MisCitasScreen(
@@ -57,6 +65,7 @@ fun MisCitasScreen(
 
     var pestana by remember { mutableIntStateOf(0) }        // 0 = Próximas, 1 = Historial
     var porCancelar by remember { mutableStateOf<CitaConDetalle?>(null) }
+    var porReprogramar by remember { mutableStateOf<CitaConDetalle?>(null) }
     val snackbar = remember { SnackbarHostState() }
 
     LaunchedEffect(mensaje) {
@@ -125,14 +134,18 @@ fun MisCitasScreen(
                 }
 
                 items(lista, key = { it.cita.id }) { c ->
-                    // El botón Cancelar solo se ofrece en las citas activas de "Próximas".
-                    // Si ya faltan 2 horas o menos, al tocarlo avisa que no se puede.
-                    val ofreceCancelar = pestana == 0
+                    val ofreceAcciones = pestana == 0
                     CitaCard(
                         cita = c,
-                        onCancelar = if (ofreceCancelar) {
+                        onCancelar = if (ofreceAcciones) {
                             {
                                 if (vm.puedeCancelar(c)) porCancelar = c
+                                else vm.avisarNoCancelable()
+                            }
+                        } else null,
+                        onReprogramar = if (ofreceAcciones) {
+                            {
+                                if (vm.puedeReprogramar(c)) porReprogramar = c
                                 else vm.avisarNoCancelable()
                             }
                         } else null
@@ -168,6 +181,94 @@ fun MisCitasScreen(
             }
         )
     }
+
+    porReprogramar?.let { c ->
+        DialogoReprogramarCita(
+            cita = c,
+            vm = vm,
+            onDismiss = { porReprogramar = null },
+            onConfirmar = { nuevaFecha, nuevaHora ->
+                vm.reprogramar(c, nuevaFecha, nuevaHora)
+                porReprogramar = null
+            }
+        )
+    }
+}
+
+@Composable
+private fun DialogoReprogramarCita(
+    cita: CitaConDetalle,
+    vm: MisCitasViewModel,
+    onDismiss: () -> Unit,
+    onConfirmar: (nuevaFecha: String, nuevaHora: String) -> Unit
+) {
+    val diasDisponibles = remember { (0 until 7).map { LocalDate.now().plusDays(it.toLong()) } }
+    var fechaSeleccionada by remember { mutableStateOf(diasDisponibles.first()) }
+    val fechaString = fechaSeleccionada.toString()
+
+    val horasOcupadas by remember(fechaString) { vm.observarHorasOcupadas(fechaString) }.collectAsState(initial = emptyList())
+    var horaSeleccionada by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Reprogramar cita", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    "Servicio: ${cita.servicio.nombre} (${cita.mascota.mascota.nombre})",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text("Selecciona nueva fecha:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(diasDisponibles) { fecha ->
+                        FechaChip(
+                            fecha = fecha,
+                            seleccionada = fecha == fechaSeleccionada,
+                            onClick = {
+                                fechaSeleccionada = fecha
+                                horaSeleccionada = null
+                            }
+                        )
+                    }
+                }
+
+                Text("Selecciona nuevo horario:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.height(180.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    items(Horarios.todos) { hora ->
+                        val ocupado = horasOcupadas.contains(hora)
+                        HoraChip(
+                            hora = hora,
+                            seleccionada = hora == horaSeleccionada,
+                            ocupado = ocupado,
+                            onClick = { horaSeleccionada = hora }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = horaSeleccionada != null,
+                onClick = {
+                    horaSeleccionada?.let { h ->
+                        onConfirmar(fechaString, h)
+                    }
+                }
+            ) {
+                Text("Guardar cambio")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancelar") }
+        }
+    )
 }
 
 @Composable
