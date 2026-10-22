@@ -80,5 +80,13 @@ object DatosIniciales {
                 cita(1, 1, dia(4), "10:00", EstadoCita.PENDIENTE, 60.0)
             )
         )
+
+        db.vacunaDao().insertarTodas(
+            listOf(
+                com.rocha.huellitasvet.data.local.entity.Vacuna(1, 1, "Rabia", dia(-180), dia(185)),
+                com.rocha.huellitasvet.data.local.entity.Vacuna(2, 1, "Múltiple Canina (Sextuple)", dia(-14), dia(350)),
+                com.rocha.huellitasvet.data.local.entity.Vacuna(3, 2, "Triple Felina / Rabia", dia(-90), dia(275))
+            )
+        )
     }
 }

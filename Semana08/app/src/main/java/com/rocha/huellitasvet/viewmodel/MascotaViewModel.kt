@@ -52,6 +52,25 @@ class MascotaViewModel(
         repo.observarPesosMascota(mascotaId)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    fun observarVacunas(mascotaId: Int): StateFlow<List<com.rocha.huellitasvet.data.local.entity.Vacuna>> =
+        repo.observarVacunasMascota(mascotaId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun registrarVacuna(mascotaId: Int, nombre: String, fecha: String, proximaDosis: String?) {
+        if (nombre.isBlank()) return
+        viewModelScope.launch {
+            repo.registrarVacuna(
+                com.rocha.huellitasvet.data.local.entity.Vacuna(
+                    mascotaId = mascotaId,
+                    nombre = nombre.trim(),
+                    fecha = fecha.ifBlank { LocalDate.now().toString() },
+                    proximaDosis = proximaDosis?.ifBlank { null }
+                )
+            )
+            _mensaje.value = "Vacuna registrada exitosamente"
+        }
+    }
+
     /**
      * Valida y guarda. id = 0 crea una mascota nueva; id > 0 edita la existente.
      * Reglas: nombre >= 2 caracteres, especie y sexo elegidos,

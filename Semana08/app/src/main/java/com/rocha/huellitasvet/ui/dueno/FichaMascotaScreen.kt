@@ -59,11 +59,13 @@ fun FichaMascotaScreen(
     val mascota by remember(mascotaId) { vm.mascota(mascotaId) }.collectAsState(initial = null)
     val historial by remember(mascotaId) { vm.historial(mascotaId) }.collectAsState()
     val pesos by remember(mascotaId) { vm.observarPesos(mascotaId) }.collectAsState()
+    val vacunas by remember(mascotaId) { vm.observarVacunas(mascotaId) }.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
     val eliminada by vm.eliminada.collectAsState()
 
-    var pestana by remember { mutableIntStateOf(0) }       // 0 = Datos, 1 = Historial
+    var pestana by remember { mutableIntStateOf(0) }       // 0 = Datos, 1 = Historial, 2 = Vacunas
     var confirmarEliminar by remember { mutableStateOf(false) }
+    var mostrarDialogoVacuna by remember { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
 
     LaunchedEffect(mensaje) {
@@ -147,7 +149,7 @@ fun FichaMascotaScreen(
                     }
                 }
 
-                // Pestañas Datos / Historial clínico
+                // Pestañas Datos / Historial clínico / Carnet de vacunas
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
@@ -159,7 +161,13 @@ fun FichaMascotaScreen(
                         FilterChip(
                             selected = pestana == 1,
                             onClick = { pestana = 1 },
-                            label = { Text("Historial clínico") },
+                            label = { Text("Historial") },
+                            shape = RoundedCornerShape(50)
+                        )
+                        FilterChip(
+                            selected = pestana == 2,
+                            onClick = { pestana = 2 },
+                            label = { Text("Carnet Vacunas") },
                             shape = RoundedCornerShape(50)
                         )
                     }
@@ -213,12 +221,32 @@ fun FichaMascotaScreen(
                             }
                         }
                     }
-                } else {
+                } else if (pestana == 1) {
                     if (historial.isEmpty()) {
                         item { Text("Aún no tiene atenciones") }
                     } else {
                         itemsIndexed(historial, key = { _, c -> c.cita.id }) { i, c ->
                             HistorialItem(cita = c, esUltimo = i == historial.lastIndex)
+                        }
+                    }
+                } else {
+                    // Carnet de Vacunas
+                    item {
+                        Button(
+                            onClick = { mostrarDialogoVacuna = true },
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            Text("Registrar vacuna")
+                        }
+                        Spacer(Modifier.height(16.dp))
+                    }
+
+                    if (vacunas.isEmpty()) {
+                        item { Text("No hay vacunas registradas") }
+                    } else {
+                        itemsIndexed(vacunas, key = { _, v -> v.id }) { _, v ->
+                            TarjetaVacuna(vacuna = v)
                         }
                     }
                 }
@@ -232,6 +260,16 @@ fun FichaMascotaScreen(
                         vm.eliminar(m)
                     },
                     onCancelar = { confirmarEliminar = false }
+                )
+            }
+
+            if (mostrarDialogoVacuna) {
+                DialogoRegistrarVacuna(
+                    onDismiss = { mostrarDialogoVacuna = false },
+                    onConfirmar = { nombre, fecha, proxima ->
+                        vm.registrarVacuna(m.id, nombre, fecha, proxima)
+                        mostrarDialogoVacuna = false
+                    }
                 )
             }
         }
@@ -254,5 +292,68 @@ private fun ConfirmarEliminar(mascota: Mascota, onConfirmar: () -> Unit, onCance
         text = { Text("¿Seguro que quieres eliminar a ${mascota.nombre}?") },
         confirmButton = { TextButton(onClick = onConfirmar) { Text("Eliminar") } },
         dismissButton = { TextButton(onClick = onCancelar) { Text("Cancelar") } }
+    )
+}
+
+@Composable
+private fun TarjetaVacuna(vacuna: com.rocha.huellitasvet.data.local.entity.Vacuna) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(2.dp),
+        shape = RoundedCornerShape(14.dp)
+    ) {
+        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(vacuna.nombre, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text("Fecha de aplicación: ${vacuna.fecha}", style = MaterialTheme.typography.bodyMedium)
+            vacuna.proximaDosis?.let {
+                Text("Próxima dosis: $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DialogoRegistrarVacuna(
+    onDismiss: () -> Unit,
+    onConfirmar: (nombre: String, fecha: String, proximaDosis: String?) -> Unit
+) {
+    var nombre by remember { mutableStateOf("") }
+    var fecha by remember { mutableStateOf(java.time.LocalDate.now().toString()) }
+    var proximaDosis by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Registrar vacuna", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                com.rocha.huellitasvet.ui.components.VetTextField(
+                    value = nombre,
+                    onValueChange = { nombre = it },
+                    label = "Nombre de la vacuna (ej. Rabia, Triple)"
+                )
+                com.rocha.huellitasvet.ui.components.VetTextField(
+                    value = fecha,
+                    onValueChange = { fecha = it },
+                    label = "Fecha de aplicación (YYYY-MM-DD)"
+                )
+                com.rocha.huellitasvet.ui.components.VetTextField(
+                    value = proximaDosis,
+                    onValueChange = { proximaDosis = it },
+                    label = "Próxima dosis (Opcional, YYYY-MM-DD)"
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                enabled = nombre.isNotBlank(),
+                onClick = { onConfirmar(nombre, fecha, proximaDosis) }
+            ) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancelar") }
+        }
     )
 }
