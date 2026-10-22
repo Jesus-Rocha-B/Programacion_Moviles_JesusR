@@ -1,4 +1,5 @@
 package com.rocha.huellitasvet.viewmodel
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rocha.huellitasvet.data.local.entity.Usuario
@@ -24,9 +25,29 @@ class SesionViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    // ---------- Preferencias (DataStore) ----------
     val modoOscuro: StateFlow<Boolean> = prefs.modoOscuro
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    val notificaciones: StateFlow<Boolean> = prefs.notificaciones
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val aceptarCitas: StateFlow<Boolean> = prefs.aceptarCitas
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    fun cambiarModoOscuro(valor: Boolean) {
+        viewModelScope.launch { prefs.guardarModoOscuro(valor) }
+    }
+
+    fun cambiarNotificaciones(valor: Boolean) {
+        viewModelScope.launch { prefs.guardarNotificaciones(valor) }
+    }
+
+    fun cambiarAceptarCitas(valor: Boolean) {
+        viewModelScope.launch { prefs.guardarAceptarCitas(valor) }
+    }
+
+    // ---------- Sesión ----------
     fun login(correo: String, clave: String, rolSeleccionado: Rol) {
         if (correo.isBlank() || clave.isBlank()) {
             _error.value = "Completa tu correo y tu contraseña"
@@ -59,6 +80,26 @@ class SesionViewModel(
         val usuario = repo.obtenerUsuario(id) ?: return null
         _usuarioActual.value = usuario
         return Rol.valueOf(usuario.rol)
+    }
+
+    /**
+     * Modo práctica: guarda el otro perfil (Dueño <-> Veterinario) y avisa
+     * para que la navegación vaya a su grafo.
+     */
+    fun cambiarPerfil(onListo: (Rol) -> Unit) {
+        val actual = _usuarioActual.value ?: return
+        val destino = if (actual.rol == Rol.ADMIN.name) Rol.CLIENTE else Rol.ADMIN
+
+        viewModelScope.launch {
+            val otro = repo.obtenerUsuarioPorRol(destino.name)
+            if (otro == null) {
+                _error.value = "No hay un usuario con ese perfil"
+                return@launch
+            }
+            prefs.guardarSesion(otro.rol, otro.id)
+            _usuarioActual.value = otro
+            onListo(destino)
+        }
     }
 
     fun limpiarError() {

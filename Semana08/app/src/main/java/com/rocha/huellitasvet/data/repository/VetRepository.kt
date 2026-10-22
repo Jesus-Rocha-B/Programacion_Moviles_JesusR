@@ -13,6 +13,7 @@ interface VetRepository {
     // Usuarios
     suspend fun login(correo: String, clave: String): Usuario?
     suspend fun obtenerUsuario(id: Int): Usuario?
+    suspend fun obtenerUsuarioPorRol(rol: String): Usuario?
 
     // Servicios
     fun observarServicios(): Flow<List<Servicio>>

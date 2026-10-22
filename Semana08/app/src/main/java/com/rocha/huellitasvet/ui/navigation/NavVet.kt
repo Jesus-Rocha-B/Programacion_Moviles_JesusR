@@ -35,6 +35,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.rocha.huellitasvet.VetApp
+import com.rocha.huellitasvet.model.EstadoCita
 import com.rocha.huellitasvet.model.Rol
 import com.rocha.huellitasvet.ui.dueno.FichaMascotaScreen
 import com.rocha.huellitasvet.ui.dueno.FormularioMascotaScreen
@@ -43,11 +44,15 @@ import com.rocha.huellitasvet.ui.dueno.LoginScreen
 import com.rocha.huellitasvet.ui.dueno.MascotasScreen
 import com.rocha.huellitasvet.ui.dueno.MisCitasScreen
 import com.rocha.huellitasvet.ui.dueno.PedirCitaScreen
+import com.rocha.huellitasvet.ui.dueno.PerfilScreen
 import com.rocha.huellitasvet.ui.dueno.SplashScreen
 import com.rocha.huellitasvet.ui.veterinario.AgendaScreen
+import com.rocha.huellitasvet.ui.veterinario.AjustesScreen
 import com.rocha.huellitasvet.ui.veterinario.AtenderCitaScreen
+import com.rocha.huellitasvet.ui.veterinario.FormularioServicioScreen
 import com.rocha.huellitasvet.ui.veterinario.PacientesScreen
 import com.rocha.huellitasvet.ui.veterinario.PanelScreen
+import com.rocha.huellitasvet.ui.veterinario.ServiciosScreen
 import com.rocha.huellitasvet.viewmodel.AgendaViewModel
 import com.rocha.huellitasvet.viewmodel.AtenderCitaViewModel
 import com.rocha.huellitasvet.viewmodel.InicioViewModel
@@ -56,6 +61,7 @@ import com.rocha.huellitasvet.viewmodel.MisCitasViewModel
 import com.rocha.huellitasvet.viewmodel.PacientesViewModel
 import com.rocha.huellitasvet.viewmodel.PanelViewModel
 import com.rocha.huellitasvet.viewmodel.PedirCitaViewModel
+import com.rocha.huellitasvet.viewmodel.ServiciosViewModel
 import com.rocha.huellitasvet.viewmodel.SesionViewModel
 import com.rocha.huellitasvet.viewmodel.VetViewModelFactory
 
@@ -78,6 +84,11 @@ fun NavVet(sesionVm: SesionViewModel) {
             null -> Rutas.LOGIN
         }
         nav.navigate(destino) { popUpTo(desde) { inclusive = true } }
+    }
+
+    /** Navega a un destino y limpia toda la pila (cambio de perfil y cierre de sesión). */
+    fun irLimpiandoPila(destino: String) {
+        nav.navigate(destino) { popUpTo(nav.graph.id) { inclusive = true } }
     }
 
     fun irAPestanaDueno(ruta: String) {
@@ -164,11 +175,42 @@ fun NavVet(sesionVm: SesionViewModel) {
                 }
             }
 
-            // TEMPORAL: se completa en el Paso 13 (aquí queda el cierre de sesión)
+            // Perfil del dueño: datos, contadores, preferencias, cambiar de perfil y cerrar sesión
             composable(Rutas.PERFIL) {
-                PantallaTemporal("Perfil (Paso 13)", "Cerrar sesión") {
-                    sesionVm.cerrarSesion()
-                    nav.navigate(Rutas.LOGIN) { popUpTo(Rutas.INICIO) { inclusive = true } }
+                usuario?.let { u ->
+                    val inicioVm: InicioViewModel = viewModel(
+                        key = "inicio_${u.id}",
+                        factory = VetViewModelFactory(app.repository, app.prefs, u.id)
+                    )
+                    val citasVm: MisCitasViewModel = viewModel(
+                        key = "citas_${u.id}",
+                        factory = VetViewModelFactory(app.repository, app.prefs, u.id)
+                    )
+                    val mascotas by inicioVm.mascotas.collectAsState()
+                    val proximas by citasVm.proximas.collectAsState()
+                    val historial by citasVm.historial.collectAsState()
+                    val oscuro by sesionVm.modoOscuro.collectAsState()
+                    val recordatorios by sesionVm.notificaciones.collectAsState()
+
+                    PerfilScreen(
+                        usuario = u,
+                        mascotas = mascotas.size,
+                        citasProximas = proximas.size,
+                        atenciones = historial.count { it.cita.estado == EstadoCita.ATENDIDA.name },
+                        modoOscuro = oscuro,
+                        recordatorios = recordatorios,
+                        onModoOscuro = { sesionVm.cambiarModoOscuro(it) },
+                        onRecordatorios = { sesionVm.cambiarNotificaciones(it) },
+                        onCambiarPerfil = {
+                            sesionVm.cambiarPerfil { rol ->
+                                irLimpiandoPila(if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.INICIO)
+                            }
+                        },
+                        onCerrarSesion = {
+                            sesionVm.cerrarSesion()
+                            irLimpiandoPila(Rutas.LOGIN)
+                        }
+                    )
                 }
             }
 
@@ -259,7 +301,6 @@ fun NavVet(sesionVm: SesionViewModel) {
                 )
             }
 
-            // Atender cita: registro clínico con transacción
             composable(
                 Rutas.ATENDER,
                 arguments = listOf(navArgument("citaId") { type = NavType.IntType })
@@ -275,7 +316,6 @@ fun NavVet(sesionVm: SesionViewModel) {
                 )
             }
 
-            // Pacientes: buscador + filtro por especie
             composable(Rutas.PACIENTES) {
                 val vm: PacientesViewModel = viewModel(
                     key = "pacientes",
@@ -287,7 +327,6 @@ fun NavVet(sesionVm: SesionViewModel) {
                 )
             }
 
-            // Ficha del paciente (solo lectura, con historial clínico)
             composable(
                 Rutas.FICHA_VET,
                 arguments = listOf(navArgument("mascotaId") { type = NavType.IntType })
@@ -307,18 +346,66 @@ fun NavVet(sesionVm: SesionViewModel) {
                 )
             }
 
-            // TEMPORAL: se reemplaza en el Paso 13
+            // Lista de servicios con switch de activo
             composable(Rutas.SERVICIOS) {
-                PantallaTemporal("Servicios (Paso 13)", "Ir al panel") {
-                    irAPestanaVet(Rutas.PANEL)
-                }
+                val vm: ServiciosViewModel = viewModel(
+                    key = "servicios",
+                    factory = VetViewModelFactory(app.repository, app.prefs)
+                )
+                ServiciosScreen(
+                    vm = vm,
+                    onNuevo = { nav.navigate(Rutas.servicioForm()) },
+                    onEditar = { nav.navigate(Rutas.servicioForm(it)) }
+                )
             }
 
-            // TEMPORAL: se completa en el Paso 13 (aquí queda el cierre de sesión)
+            // Formulario de servicio: crear (-1) o editar
+            composable(
+                Rutas.SERVICIO_FORM,
+                arguments = listOf(
+                    navArgument("servicioId") {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    }
+                )
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getInt("servicioId") ?: -1
+                // Sin key: cada vez que se abre el formulario es un ViewModel nuevo
+                val vm: ServiciosViewModel = viewModel(
+                    factory = VetViewModelFactory(app.repository, app.prefs)
+                )
+                FormularioServicioScreen(
+                    vm = vm,
+                    servicioId = if (id == -1) null else id,
+                    onListo = { nav.popBackStack() }
+                )
+            }
+
+            // Ajustes del veterinario
             composable(Rutas.AJUSTES) {
-                PantallaTemporal("Ajustes (Paso 13)", "Cerrar sesión") {
-                    sesionVm.cerrarSesion()
-                    nav.navigate(Rutas.LOGIN) { popUpTo(Rutas.PANEL) { inclusive = true } }
+                usuario?.let { u ->
+                    val oscuro by sesionVm.modoOscuro.collectAsState()
+                    val notificaciones by sesionVm.notificaciones.collectAsState()
+                    val aceptarCitas by sesionVm.aceptarCitas.collectAsState()
+
+                    AjustesScreen(
+                        usuario = u,
+                        modoOscuro = oscuro,
+                        notificaciones = notificaciones,
+                        aceptarCitas = aceptarCitas,
+                        onModoOscuro = { sesionVm.cambiarModoOscuro(it) },
+                        onNotificaciones = { sesionVm.cambiarNotificaciones(it) },
+                        onAceptarCitas = { sesionVm.cambiarAceptarCitas(it) },
+                        onCambiarPerfil = {
+                            sesionVm.cambiarPerfil { rol ->
+                                irLimpiandoPila(if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.INICIO)
+                            }
+                        },
+                        onCerrarSesion = {
+                            sesionVm.cerrarSesion()
+                            irLimpiandoPila(Rutas.LOGIN)
+                        }
+                    )
                 }
             }
         }
@@ -363,19 +450,5 @@ private fun BarraInferior(
                 label = { Text(etiqueta) }
             )
         }
-    }
-}
-
-@Composable
-private fun PantallaTemporal(titulo: String, textoBoton: String, onClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(titulo)
-        Button(onClick = onClick) { Text(textoBoton) }
     }
 }

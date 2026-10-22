@@ -1,8 +1,10 @@
 package com.rocha.huellitasvet.viewmodel
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rocha.huellitasvet.data.local.entity.Mascota
 import com.rocha.huellitasvet.data.local.entity.Servicio
+import com.rocha.huellitasvet.data.prefs.PreferenciasStore
 import com.rocha.huellitasvet.data.repository.VetRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +21,13 @@ import java.time.LocalTime
 @OptIn(ExperimentalCoroutinesApi::class)
 class PedirCitaViewModel(
     private val repo: VetRepository,
+    prefs: PreferenciasStore,
     duenoId: Int
 ) : ViewModel() {
+
+    /** Si la clínica apagó "Aceptar citas", el dueño no puede pedir una */
+    val aceptaCitas: StateFlow<Boolean> = prefs.aceptarCitas
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     /** Solo las mascotas de este dueño */
     val mascotas: StateFlow<List<Mascota>> = repo.observarMascotasDeDueno(duenoId)
@@ -85,6 +92,11 @@ class PedirCitaViewModel(
     /** Valida todo y crea la cita en estado PENDIENTE. */
     fun confirmar() {
         if (guardando) return
+
+        if (!aceptaCitas.value) {
+            _mensaje.value = "La clínica no está recibiendo citas"
+            return
+        }
 
         val mId = _mascotaId.value
         val sId = _servicioId.value

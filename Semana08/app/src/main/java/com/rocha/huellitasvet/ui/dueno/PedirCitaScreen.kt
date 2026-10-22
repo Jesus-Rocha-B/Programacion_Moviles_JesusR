@@ -51,7 +51,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-
+import androidx.compose.ui.graphics.Color
 @Composable
 fun PedirCitaScreen(
     vm: PedirCitaViewModel,
@@ -68,6 +68,7 @@ fun PedirCitaScreen(
     val ocupadas by vm.horasOcupadas.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
     val creada by vm.creada.collectAsState()
+    val aceptaCitas by vm.aceptaCitas.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
     // Mascota elegida por defecto: la que viene de la ficha, o la primera
@@ -123,6 +124,21 @@ fun PedirCitaScreen(
                         )
                     }
                 }
+            }
+            if (!aceptaCitas) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFEE2E2)),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Text(
+                        "La clínica no está recibiendo citas",
+                        color = Color(0xFF991B1B),
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(14.dp)
+                    )
+                }
+                Spacer(Modifier.height(16.dp))
             }
 
             Spacer(Modifier.height(20.dp))
@@ -217,7 +233,7 @@ fun PedirCitaScreen(
             VetButton(
                 texto = "Confirmar cita",
                 onClick = { vm.confirmar() },
-                enabled = mascotaId != null && servicioId != null && hora != null
+                enabled = aceptaCitas && mascotaId != null && servicioId != null && hora != null
             )
         }
     }

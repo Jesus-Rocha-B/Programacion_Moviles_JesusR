@@ -25,6 +25,9 @@ object Rutas {
     // Veterinario (pantallas secundarias)
     const val ATENDER = "atender/{citaId}"
     const val FICHA_VET = "ficha_vet/{mascotaId}"
+    const val SERVICIO_FORM = "servicio_form?servicioId={servicioId}"
     fun atender(id: Int) = "atender/$id"
     fun fichaVet(id: Int) = "ficha_vet/$id"
+    /** Sin argumento = servicio nuevo (-1). Con id = editar. */
+    fun servicioForm(id: Int = -1) = "servicio_form?servicioId=$id"
 }
