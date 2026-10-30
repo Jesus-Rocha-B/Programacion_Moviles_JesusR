@@ -42,7 +42,7 @@ fun AjustesScreen(
     onModoOscuro: (Boolean) -> Unit,
     onNotificaciones: (Boolean) -> Unit,
     onAceptarCitas: (Boolean) -> Unit,
-    onCambiarPerfil: () -> Unit,
+    onCambiarPerfil: () -> Unit = {},
     onCerrarSesion: () -> Unit
 ) {
     val colores = MaterialTheme.colorScheme
@@ -60,44 +60,6 @@ fun AjustesScreen(
                 .padding(20.dp)
         ) {
             TarjetaUsuario(nombre = usuario.nombre, correo = usuario.correo, etiqueta = "Perfil activo")
-
-            Spacer(Modifier.height(16.dp))
-
-            // Cambiar de perfil
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onCambiarPerfil() },
-                colors = CardDefaults.cardColors(containerColor = colores.primary),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Filled.SwapHoriz, contentDescription = null, tint = colores.onPrimary)
-                    Spacer(Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            "Cambiar de perfil",
-                            color = colores.onPrimary,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            "Modo práctica: ir a la vista Dueño",
-                            color = colores.onPrimary,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = colores.onPrimary
-                    )
-                }
-            }
 
             Spacer(Modifier.height(20.dp))
 
@@ -131,21 +93,7 @@ fun AjustesScreen(
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = colores.primaryContainer),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    "Se guardan en el dispositivo con DataStore",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(12.dp)
-                )
-            }
-
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(32.dp))
 
             OutlinedButton(
                 onClick = onCerrarSesion,

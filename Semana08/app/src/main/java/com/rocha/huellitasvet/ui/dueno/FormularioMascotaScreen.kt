@@ -1,17 +1,22 @@
 package com.rocha.huellitasvet.ui.dueno
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -25,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -46,11 +53,12 @@ fun FormularioMascotaScreen(
     onListo: () -> Unit
 ) {
     var nombre by remember { mutableStateOf("") }
-    var especie by remember { mutableStateOf<String?>(null) }
+    var tipoAnimal by remember { mutableStateOf("PERRO") }
+    var especieTexto by remember { mutableStateOf("Perro") }
     var raza by remember { mutableStateOf("") }
     var anio by remember { mutableStateOf("") }
     var peso by remember { mutableStateOf("") }
-    var sexo by remember { mutableStateOf<String?>(null) }
+    var sexo by remember { mutableStateOf<String?>("MACHO") }
 
     val errores by vm.errores.collectAsState()
     val guardada by vm.guardada.collectAsState()
@@ -65,7 +73,12 @@ fun FormularioMascotaScreen(
         val m = existente
         if (m != null && !cargado) {
             nombre = m.nombre
-            especie = m.especie
+            especieTexto = m.especie.nombreBonito()
+            tipoAnimal = when (m.especie.uppercase()) {
+                "PERRO" -> "PERRO"
+                "GATO" -> "GATO"
+                else -> "OTRO"
+            }
             raza = m.raza
             anio = m.anioNacimiento.toString()
             peso = m.peso.toString()
@@ -97,7 +110,7 @@ fun FormularioMascotaScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // El avatar cambia según la especie elegida
-            MascotaAvatar(especie = especie ?: Especie.OTRO.name, tamano = 96.dp)
+            MascotaAvatar(especie = tipoAnimal, tamano = 96.dp)
 
             Spacer(Modifier.height(16.dp))
 
@@ -110,18 +123,54 @@ fun FormularioMascotaScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // Especie
+            // Tipo de animal (Chips simétricos de igual tamaño)
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text("Especie", fontWeight = FontWeight.Bold)
+                Text("Tipo de animal", fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(6.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Especie.values().forEach { e ->
-                        FilterChip(
-                            selected = especie == e.name,
-                            onClick = { especie = e.name },
-                            label = { Text(e.name.nombreBonito()) },
+                        val seleccionada = tipoAnimal == e.name
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp)
+                                .clip(RoundedCornerShape(50))
+                                .clickable {
+                                    tipoAnimal = e.name
+                                    if (e.name == "PERRO") {
+                                        especieTexto = "Perro"
+                                    } else if (e.name == "GATO") {
+                                        especieTexto = "Gato"
+                                    } else {
+                                        if (especieTexto == "Perro" || especieTexto == "Gato") {
+                                            especieTexto = ""
+                                        }
+                                    }
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (seleccionada) MaterialTheme.colorScheme.primary else Color.White
+                            ),
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = if (seleccionada) MaterialTheme.colorScheme.primary else Color(0xFFCBD5E1)
+                            ),
                             shape = RoundedCornerShape(50)
-                        )
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = e.name.nombreBonito(),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = if (seleccionada) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (seleccionada) Color.White else Color(0xFF334155)
+                                )
+                            }
+                        }
                     }
                 }
                 errores.especie?.let {
@@ -131,14 +180,27 @@ fun FormularioMascotaScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            VetTextField(
-                value = raza,
-                onValueChange = { raza = it },
-                label = "Raza"
-            )
+            // Fila: Especie | Raza (Simétricos 50/50)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                VetTextField(
+                    value = especieTexto,
+                    onValueChange = { especieTexto = it },
+                    label = "Especie",
+                    enabled = tipoAnimal == "OTRO",
+                    error = errores.especie,
+                    modifier = Modifier.weight(1f)
+                )
+                VetTextField(
+                    value = raza,
+                    onValueChange = { raza = it },
+                    label = "Raza",
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(12.dp))
 
+            // Fila: Año de nacimiento | Peso (kg) (Simétricos 50/50)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 VetTextField(
                     value = anio,
@@ -158,20 +220,45 @@ fun FormularioMascotaScreen(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
 
-            // Sexo
+            // Sexo (Chips simétricos 50/50 de igual tamaño)
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text("Sexo", fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(6.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Sexo.values().forEach { s ->
-                        FilterChip(
-                            selected = sexo == s.name,
-                            onClick = { sexo = s.name },
-                            label = { Text(s.name.nombreBonito()) },
+                        val seleccionada = sexo == s.name
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp)
+                                .clip(RoundedCornerShape(50))
+                                .clickable { sexo = s.name },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (seleccionada) MaterialTheme.colorScheme.primary else Color.White
+                            ),
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = if (seleccionada) MaterialTheme.colorScheme.primary else Color(0xFFCBD5E1)
+                            ),
                             shape = RoundedCornerShape(50)
-                        )
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = s.name.nombreBonito(),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = if (seleccionada) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (seleccionada) Color.White else Color(0xFF334155)
+                                )
+                            }
+                        }
                     }
                 }
                 errores.sexo?.let {
@@ -182,12 +269,12 @@ fun FormularioMascotaScreen(
             Spacer(Modifier.height(24.dp))
 
             VetButton(
-                texto = "Guardar mascota",
+                texto = if (mascotaId == null) "Registrar mascota" else "Guardar cambios",
                 onClick = {
                     vm.guardar(
                         id = mascotaId ?: 0,
                         nombre = nombre,
-                        especie = especie,
+                        especie = especieTexto.ifBlank { tipoAnimal },
                         raza = raza,
                         anio = anio,
                         peso = peso,
@@ -205,7 +292,11 @@ fun FormularioMascotaScreen(
                     .height(52.dp),
                 shape = RoundedCornerShape(14.dp)
             ) {
-                Text("Cancelar")
+                Text(
+                    text = "Cancelar",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

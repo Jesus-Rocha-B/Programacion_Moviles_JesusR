@@ -27,6 +27,12 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override suspend fun obtenerUsuarioPorRol(rol: String): Usuario? =
         usuarioDao.obtenerPorRol(rol)
+
+    override suspend fun buscarUsuarioPorCorreo(correo: String): Usuario? =
+        usuarioDao.obtenerPorCorreo(correo)
+
+    override suspend fun registrarUsuario(u: Usuario): Long =
+        usuarioDao.insertar(u)
     // Servicios
     override fun observarServicios(): Flow<List<Servicio>> =
         servicioDao.observarTodos()
@@ -122,4 +128,14 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
         db.vacunaDao().observarPorMascota(mascotaId)
     override suspend fun registrarVacuna(v: com.rocha.huellitasvet.data.local.entity.Vacuna): Long =
         db.vacunaDao().insertar(v)
+
+    // Notificaciones
+    override fun observarNotificaciones(usuarioId: Int): Flow<List<com.rocha.huellitasvet.data.local.entity.Notificacion>> =
+        db.notificacionDao().observarNotificacionesDeUsuario(usuarioId)
+    override suspend fun marcarNotificacionesLeidas(usuarioId: Int) =
+        db.notificacionDao().marcarTodasComoLeidas(usuarioId)
+    override suspend fun borrarNotificaciones(usuarioId: Int) =
+        db.notificacionDao().borrarTodas(usuarioId)
+    override suspend fun crearNotificacion(n: com.rocha.huellitasvet.data.local.entity.Notificacion) =
+        db.notificacionDao().insertar(n)
 }

@@ -1,5 +1,6 @@
 package com.rocha.huellitasvet.ui.components.graficos
 
+import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -26,7 +29,7 @@ import com.rocha.huellitasvet.model.RegistroPeso
 fun GraficoLineas(
     datos: List<RegistroPeso>,
     modifier: Modifier = Modifier,
-    altura: Dp = 140.dp,
+    altura: Dp = 160.dp,
     lineaColor: Color = MaterialTheme.colorScheme.primary,
     puntoColor: Color = MaterialTheme.colorScheme.secondary
 ) {
@@ -63,10 +66,23 @@ fun GraficoLineas(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(altura)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(horizontal = 24.dp, vertical = 20.dp)
         ) {
             val width = size.width
             val height = size.height
+
+            val paintPeso = Paint().apply {
+                color = lineaColor.toArgb()
+                textSize = 12.dp.toPx()
+                isFakeBoldText = true
+                textAlign = Paint.Align.CENTER
+            }
+
+            val paintFecha = Paint().apply {
+                color = android.graphics.Color.parseColor("#64748B")
+                textSize = 10.dp.toPx()
+                textAlign = Paint.Align.CENTER
+            }
 
             // Líneas de guía
             val gridLines = 3
@@ -103,7 +119,7 @@ fun GraficoLineas(
                 )
             }
 
-            puntos.forEach { pt ->
+            puntos.forEachIndexed { index, pt ->
                 drawCircle(
                     color = puntoColor,
                     radius = 5.dp.toPx(),
@@ -113,6 +129,20 @@ fun GraficoLineas(
                     color = Color.White,
                     radius = 2.5.dp.toPx(),
                     center = pt
+                )
+
+                drawContext.canvas.nativeCanvas.drawText(
+                    "${datos[index].peso} kg",
+                    pt.x,
+                    pt.y - 10.dp.toPx(),
+                    paintPeso
+                )
+
+                drawContext.canvas.nativeCanvas.drawText(
+                    datos[index].fecha,
+                    pt.x,
+                    pt.y + 18.dp.toPx(),
+                    paintFecha
                 )
             }
         }

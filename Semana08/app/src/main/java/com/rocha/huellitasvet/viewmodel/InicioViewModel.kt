@@ -1,4 +1,5 @@
 package com.rocha.huellitasvet.viewmodel
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rocha.huellitasvet.data.local.entity.Mascota
@@ -10,11 +11,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class InicioViewModel(
-    repo: VetRepository,
-    duenoId: Int
+    private val repo: VetRepository,
+    private val duenoId: Int
 ) : ViewModel() {
 
     /** Solo las mascotas de este dueño */
@@ -41,4 +43,24 @@ class InicioViewModel(
     /** Recordatorios de próximos controles fijados por el veterinario */
     val proximosControles: StateFlow<List<CitaConDetalle>> = repo.observarProximosControles(duenoId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Notificaciones del usuario */
+    val notificacionesList: StateFlow<List<com.rocha.huellitasvet.data.local.entity.Notificacion>> = repo.observarNotificaciones(duenoId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val sinLeerCount: StateFlow<Int> = notificacionesList
+        .map { lista -> lista.count { !it.leida } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    fun marcarNotificacionesComoLeidas() {
+        viewModelScope.launch {
+            repo.marcarNotificacionesLeidas(duenoId)
+        }
+    }
+
+    fun borrarNotificaciones() {
+        viewModelScope.launch {
+            repo.borrarNotificaciones(duenoId)
+        }
+    }
 }

@@ -1,4 +1,5 @@
 package com.rocha.huellitasvet.ui.veterinario
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.HourglassEmpty
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -30,8 +34,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rocha.huellitasvet.ui.components.graficos.GraficoBarras
 import com.rocha.huellitasvet.ui.components.graficos.GraficoDona
@@ -71,11 +78,11 @@ fun PanelScreen(vm: PanelViewModel, onVerAgenda: () -> Unit) {
 
         Spacer(Modifier.height(16.dp))
 
-        // 3 contadores de color
+        // 3 contadores de color estilizados con íconos y texto de alta legibilidad
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Contador(citasHoy, "Citas hoy", colores.primaryContainer, colores.primary, Modifier.weight(1f))
-            Contador(pendientes, "Pendientes", Color(0xFFFEF3C7), Color(0xFFD97706), Modifier.weight(1f))
-            Contador(atendidas, "Atendidas", Color(0xFFE2E8F0), Color(0xFF475569), Modifier.weight(1f))
+            Contador(citasHoy, "Citas hoy", Icons.Outlined.Event, colores.primaryContainer, colores.primary, Modifier.weight(1f))
+            Contador(pendientes, "Pendientes", Icons.Outlined.HourglassEmpty, Color(0xFFFEF3C7), Color(0xFFD97706), Modifier.weight(1f))
+            Contador(atendidas, "Atendidas", Icons.Outlined.CheckCircle, Color(0xFFF3E8FF), Color(0xFF7E22CE), Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(16.dp))
@@ -116,7 +123,7 @@ fun PanelScreen(vm: PanelViewModel, onVerAgenda: () -> Unit) {
 
         Spacer(Modifier.height(20.dp))
 
-        // Citas por estado (dona)
+        // Citas por estado (dona) con leyenda perfectamente alineada
         Text("Citas por estado", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Card(
@@ -132,18 +139,42 @@ fun PanelScreen(vm: PanelViewModel, onVerAgenda: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 GraficoDona(datos = porEstado)
-                Spacer(Modifier.width(20.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Spacer(Modifier.width(16.dp))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
                     porEstado.forEach { d ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(10.dp)
-                                    .background(d.color, CircleShape)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .background(d.color, CircleShape)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    text = d.etiqueta,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            Text(
+                                text = "${d.valor.toInt()}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
-                            Spacer(Modifier.width(8.dp))
-                            Text(d.etiqueta, modifier = Modifier.width(84.dp))
-                            Text(d.valor.toInt().toString(), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -213,6 +244,7 @@ fun PanelScreen(vm: PanelViewModel, onVerAgenda: () -> Unit) {
 private fun Contador(
     valor: Int,
     etiqueta: String,
+    icono: ImageVector,
     fondo: Color,
     colorTexto: Color,
     modifier: Modifier = Modifier
@@ -222,19 +254,35 @@ private fun Contador(
         colors = CardDefaults.cardColors(containerColor = fondo),
         shape = RoundedCornerShape(16.dp)
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 10.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                valor.toString(),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = colorTexto
+            Icon(
+                imageVector = icono,
+                contentDescription = null,
+                tint = colorTexto,
+                modifier = Modifier.size(20.dp)
             )
-            Text(etiqueta, style = MaterialTheme.typography.labelMedium, color = colorTexto)
+            Spacer(Modifier.width(8.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = valor.toString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = colorTexto
+                )
+                Text(
+                    text = etiqueta,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = colorTexto,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

@@ -23,6 +23,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -247,6 +248,7 @@ fun FichaMascotaScreen(
                     } else {
                         itemsIndexed(vacunas, key = { _, v -> v.id }) { _, v ->
                             TarjetaVacuna(vacuna = v)
+                            Spacer(Modifier.height(12.dp))
                         }
                     }
                 }
@@ -288,9 +290,11 @@ private fun FilaDato(etiqueta: String, valor: String) {
 private fun ConfirmarEliminar(mascota: Mascota, onConfirmar: () -> Unit, onCancelar: () -> Unit) {
     AlertDialog(
         onDismissRequest = onCancelar,
-        title = { Text("Eliminar mascota") },
+        containerColor = Color.White,
+        shape = RoundedCornerShape(20.dp),
+        title = { Text("Eliminar mascota", fontWeight = FontWeight.Bold) },
         text = { Text("¿Seguro que quieres eliminar a ${mascota.nombre}?") },
-        confirmButton = { TextButton(onClick = onConfirmar) { Text("Eliminar") } },
+        confirmButton = { TextButton(onClick = onConfirmar) { Text("Eliminar", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold) } },
         dismissButton = { TextButton(onClick = onCancelar) { Text("Cancelar") } }
     )
 }
@@ -324,6 +328,8 @@ private fun DialogoRegistrarVacuna(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = Color.White,
+        shape = RoundedCornerShape(20.dp),
         title = { Text("Registrar vacuna", fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -345,15 +351,18 @@ private fun DialogoRegistrarVacuna(
             }
         },
         confirmButton = {
-            Button(
+            com.rocha.huellitasvet.ui.components.VetButton(
+                texto = "Guardar",
+                onClick = { onConfirmar(nombre, fecha, proximaDosis) },
                 enabled = nombre.isNotBlank(),
-                onClick = { onConfirmar(nombre, fecha, proximaDosis) }
-            ) {
-                Text("Guardar")
-            }
+                modifier = androidx.compose.ui.Modifier.fillMaxWidth().height(48.dp)
+            )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
+            TextButton(
+                onClick = onDismiss,
+                modifier = androidx.compose.ui.Modifier.fillMaxWidth().height(44.dp)
+            ) { Text("Cancelar", fontWeight = FontWeight.Bold, color = Color(0xFF64748B)) }
         }
     )
 }

@@ -1,4 +1,5 @@
 package com.rocha.huellitasvet.ui.components
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,13 +15,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rocha.huellitasvet.R
 import com.rocha.huellitasvet.data.local.relation.CitaConDetalle
 import com.rocha.huellitasvet.model.fechaLegible
 
@@ -32,6 +37,12 @@ fun CitaCard(
     onReprogramar: (() -> Unit)? = null
 ) {
     val colores = MaterialTheme.colorScheme
+    val resId = when {
+        cita.servicio.nombre.contains("consulta", ignoreCase = true) -> R.drawable.ic_servicio_consulta
+        cita.servicio.nombre.contains("vacun", ignoreCase = true) -> R.drawable.ic_servicio_vacunas
+        cita.servicio.nombre.contains("baño", ignoreCase = true) || cita.servicio.nombre.contains("bano", ignoreCase = true) || cita.servicio.nombre.contains("corte", ignoreCase = true) -> R.drawable.ic_servicio_bano
+        else -> R.drawable.ic_servicio_consulta
+    }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -53,9 +64,10 @@ fun CitaCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    iconoDeServicio(cita.servicio.icono),
-                    contentDescription = null,
-                    tint = colores.primary
+                    painter = painterResource(id = resId),
+                    contentDescription = cita.servicio.nombre,
+                    tint = colores.primary,
+                    modifier = Modifier.size(24.dp)
                 )
             }
 
@@ -82,15 +94,40 @@ fun CitaCard(
             }
 
             if (onReprogramar != null || onCancelar != null) {
-                Column(horizontalAlignment = Alignment.End) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     if (onReprogramar != null) {
-                        TextButton(onClick = onReprogramar) {
-                            Text("Reprogramar", style = MaterialTheme.typography.labelMedium)
+                        Surface(
+                            onClick = onReprogramar,
+                            shape = RoundedCornerShape(10.dp),
+                            color = colores.primaryContainer,
+                            border = BorderStroke(1.dp, colores.primary.copy(alpha = 0.3f))
+                        ) {
+                            Text(
+                                text = "Reprogramar",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = colores.primary,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
                         }
                     }
                     if (onCancelar != null) {
-                        TextButton(onClick = onCancelar) {
-                            Text("Cancelar", color = colores.error, style = MaterialTheme.typography.labelMedium)
+                        Surface(
+                            onClick = onCancelar,
+                            shape = RoundedCornerShape(10.dp),
+                            color = Color(0xFFFEE2E2),
+                            border = BorderStroke(1.dp, Color(0xFFEF4444).copy(alpha = 0.3f))
+                        ) {
+                            Text(
+                                text = "Cancelar",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFDC2626),
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
                         }
                     }
                 }

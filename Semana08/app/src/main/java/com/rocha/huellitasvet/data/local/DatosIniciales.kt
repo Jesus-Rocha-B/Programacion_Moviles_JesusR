@@ -88,5 +88,42 @@ object DatosIniciales {
                 com.rocha.huellitasvet.data.local.entity.Vacuna(3, 2, "Triple Felina / Rabia", dia(-90), dia(275))
             )
         )
+
+        // Notificaciones iniciales de prueba
+        val notifs = listOf(
+            com.rocha.huellitasvet.data.local.entity.Notificacion(
+                usuarioId = 1,
+                titulo = "Cita Confirmada",
+                mensaje = "Tu cita para Luna (Vacunación) ha sido confirmada por la clínica.",
+                fechaHora = "Hoy 10:30 AM",
+                tipo = "CONFIRMADA",
+                leida = false
+            ),
+            com.rocha.huellitasvet.data.local.entity.Notificacion(
+                usuarioId = 1,
+                titulo = "Cita en 30 minutos",
+                mensaje = "Recordatorio: Tu cita para Max (Consulta general) es en 30 minutos.",
+                fechaHora = "Hoy 04:30 PM",
+                tipo = "RECORDATORIO_30MIN",
+                leida = false
+            ),
+            com.rocha.huellitasvet.data.local.entity.Notificacion(
+                usuarioId = 1,
+                titulo = "Reprogramación Aprobada",
+                mensaje = "Tu solicitud de reprogramación para Luna fue aprobada para mañana a las 10:00 AM.",
+                fechaHora = "Ayer 05:15 PM",
+                tipo = "REPROGRAMADA",
+                leida = true
+            ),
+            com.rocha.huellitasvet.data.local.entity.Notificacion(
+                usuarioId = 1,
+                titulo = "Próximo Control Médico",
+                mensaje = "Luna tiene su control médico agendado para esta semana. Recuerda asistir a tiempo.",
+                fechaHora = "Ayer 09:00 AM",
+                tipo = "CONTROL",
+                leida = true
+            )
+        )
+        notifs.forEach { db.notificacionDao().insertar(it) }
     }
 }

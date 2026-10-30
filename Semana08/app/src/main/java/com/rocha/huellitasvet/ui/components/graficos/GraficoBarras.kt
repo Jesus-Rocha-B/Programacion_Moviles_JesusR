@@ -1,4 +1,5 @@
 package com.rocha.huellitasvet.ui.components.graficos
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,8 @@ fun GraficoBarras(
     alturaMax: Dp = 110.dp
 ) {
     val maximo = (datos.maxOfOrNull { it.valor } ?: 0f).coerceAtLeast(1f)
+    val colorDestacado = MaterialTheme.colorScheme.primary
+    val colorBase = MaterialTheme.colorScheme.primaryContainer
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -34,29 +37,35 @@ fun GraficoBarras(
         verticalAlignment = Alignment.Bottom
     ) {
         datos.forEach { d ->
+            val esMaximo = d.valor == maximo && maximo > 0f
+            val colorBarra = if (esMaximo) colorDestacado else colorBase
+            val alturaCalculada = (alturaMax * (d.valor / maximo)).coerceAtLeast(12.dp)
+
             Column(
-                modifier = Modifier.width(76.dp),
+                modifier = Modifier.width(72.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = d.valor.toInt().toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold
+                    text = "${d.valor.toInt()}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (esMaximo) colorDestacado else MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(Modifier.height(4.dp))
                 Box(
                     modifier = Modifier
-                        .width(44.dp)
-                        .height(alturaMax * (d.valor / maximo))
+                        .width(40.dp)
+                        .height(alturaCalculada)
                         .background(
-                            d.color,
-                            RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+                            color = colorBarra,
+                            shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
                         )
                 )
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(6.dp))
                 Text(
                     text = d.etiqueta,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = if (esMaximo) FontWeight.Bold else FontWeight.Medium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center

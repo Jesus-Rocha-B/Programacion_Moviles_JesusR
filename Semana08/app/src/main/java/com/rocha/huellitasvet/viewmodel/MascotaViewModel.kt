@@ -86,7 +86,10 @@ class MascotaViewModel(
         sexo: String?
     ) {
         val anioActual = LocalDate.now().year
-        val anioNum = anio.trim().toIntOrNull()
+        val trimmed = anio.trim()
+        val anioNum = trimmed.toIntOrNull()
+            ?: try { LocalDate.parse(trimmed).year } catch (e: Exception) { null }
+            ?: try { trimmed.split("-", "/", ".").firstOrNull { it.length == 4 }?.toIntOrNull() } catch (e: Exception) { null }
         val pesoNum = peso.trim().replace(',', '.').toDoubleOrNull()
 
         val errores = ErroresMascota(

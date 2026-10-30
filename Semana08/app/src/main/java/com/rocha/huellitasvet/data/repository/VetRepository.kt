@@ -14,6 +14,8 @@ interface VetRepository {
     suspend fun login(correo: String, clave: String): Usuario?
     suspend fun obtenerUsuario(id: Int): Usuario?
     suspend fun obtenerUsuarioPorRol(rol: String): Usuario?
+    suspend fun buscarUsuarioPorCorreo(correo: String): Usuario?
+    suspend fun registrarUsuario(u: Usuario): Long
 
     // Servicios
     fun observarServicios(): Flow<List<Servicio>>
@@ -57,4 +59,9 @@ interface VetRepository {
     // Vacunas
     fun observarVacunasMascota(mascotaId: Int): Flow<List<com.rocha.huellitasvet.data.local.entity.Vacuna>>
     suspend fun registrarVacuna(v: com.rocha.huellitasvet.data.local.entity.Vacuna): Long
+    // Notificaciones
+    fun observarNotificaciones(usuarioId: Int): Flow<List<com.rocha.huellitasvet.data.local.entity.Notificacion>>
+    suspend fun marcarNotificacionesLeidas(usuarioId: Int)
+    suspend fun borrarNotificaciones(usuarioId: Int)
+    suspend fun crearNotificacion(n: com.rocha.huellitasvet.data.local.entity.Notificacion)
 }

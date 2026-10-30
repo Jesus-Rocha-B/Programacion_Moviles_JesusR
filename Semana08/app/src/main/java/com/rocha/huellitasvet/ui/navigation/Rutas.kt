@@ -2,6 +2,7 @@ package com.rocha.huellitasvet.ui.navigation
 object Rutas {
     const val SPLASH = "splash"
     const val LOGIN = "login"
+    const val REGISTRO = "registro"
     // Dueño (con barra inferior)
     const val INICIO = "inicio"
     const val MASCOTAS = "mascotas"
@@ -10,12 +11,13 @@ object Rutas {
     // Dueño (pantallas secundarias)
     const val FICHA = "ficha/{mascotaId}"
     const val FORMULARIO = "formulario?mascotaId={mascotaId}"
-    const val PEDIR_CITA = "pedir_cita?mascotaId={mascotaId}"
+    const val PEDIR_CITA = "pedir_cita?mascotaId={mascotaId}&servicioId={servicioId}"
+    const val NOTIFICACIONES = "notificaciones"
     fun ficha(id: Int) = "ficha/$id"
     /** Sin argumento = mascota nueva (-1). Con id = editar. */
     fun formulario(id: Int = -1) = "formulario?mascotaId=$id"
-    /** Sin argumento = sin mascota preseleccionada (-1). */
-    fun pedirCita(mascotaId: Int = -1) = "pedir_cita?mascotaId=$mascotaId"
+    /** Sin argumento = sin mascota (-1) y sin servicio (-1). */
+    fun pedirCita(mascotaId: Int = -1, servicioId: Int = -1) = "pedir_cita?mascotaId=$mascotaId&servicioId=$servicioId"
     // Veterinario (con barra inferior)
     const val PANEL = "panel"
     const val AGENDA = "agenda"

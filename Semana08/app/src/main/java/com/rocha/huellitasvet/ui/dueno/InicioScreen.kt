@@ -16,13 +16,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ContentCut
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -34,10 +33,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rocha.huellitasvet.R
 import com.rocha.huellitasvet.data.local.relation.CitaConDetalle
 import com.rocha.huellitasvet.model.fechaLegible
 import com.rocha.huellitasvet.ui.components.EstadoCitaChip
@@ -52,11 +53,14 @@ fun InicioScreen(
     onMascota: (Int) -> Unit,
     onAgregar: () -> Unit,
     onVerTodas: () -> Unit,
-    onPedirCita: () -> Unit
+    onPedirCita: () -> Unit,
+    onPedirCitaServicio: (Int) -> Unit = {},
+    onNotificaciones: () -> Unit = {}
 ) {
     val mascotas by vm.mascotas.collectAsState()
     val proxima by vm.proximaCita.collectAsState()
     val controles by vm.proximosControles.collectAsState()
+    val sinLeer by vm.sinLeerCount.collectAsState()
 
     Column(
         modifier = Modifier
@@ -64,16 +68,49 @@ fun InicioScreen(
             .verticalScroll(rememberScrollState())
             .padding(20.dp)
     ) {
-        // Saludo
-        Text(
-            text = "Hola, $nombre",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "¿Cómo están tus mascotas hoy?",
-            style = MaterialTheme.typography.bodyMedium
-        )
+        // Saludo + Campana de Notificaciones estilo iOS
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Hola, $nombre",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "¿Cómo están tus mascotas hoy?",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFF1F5F9))
+                    .clickable { onNotificaciones() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Notifications,
+                    contentDescription = "Notificaciones",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(22.dp)
+                )
+                if (sinLeer > 0) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFEF4444))
+                            .align(Alignment.TopEnd)
+                    )
+                }
+            }
+        }
 
         Spacer(Modifier.height(16.dp))
 
@@ -106,6 +143,7 @@ fun InicioScreen(
                 Card(
                     modifier = Modifier
                         .width(110.dp)
+                        .height(138.dp)
                         .clickable { onMascota(m.id) },
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.cardElevation(2.dp),
@@ -113,30 +151,33 @@ fun InicioScreen(
                 ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxSize()
                             .padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        MascotaAvatar(especie = m.especie, tamano = 64.dp)
-                        Spacer(Modifier.height(6.dp))
-                        Text(m.nombre, fontWeight = FontWeight.Bold)
+                        MascotaAvatar(especie = m.especie, tamano = 58.dp)
+                        Spacer(Modifier.height(4.dp))
+                        Text(m.nombre, fontWeight = FontWeight.Bold, maxLines = 1)
                         Text("Ver ficha", style = MaterialTheme.typography.labelSmall)
                     }
                 }
             }
-            // Botón "Agregar"
+            // Botón "Agregar" de las mismas dimensiones exactas (110dp x 138dp)
             item {
                 Card(
                     modifier = Modifier
                         .width(110.dp)
-                        .height(125.dp)
+                        .height(138.dp)
                         .clickable { onAgregar() },
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -146,6 +187,7 @@ fun InicioScreen(
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp)
                         )
+                        Spacer(Modifier.height(4.dp))
                         Text(
                             "Agregar",
                             color = MaterialTheme.colorScheme.primary,
@@ -165,10 +207,31 @@ fun InicioScreen(
             fontWeight = FontWeight.Bold
         )
         Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            AccesoServicio("Consulta", Icons.Filled.Favorite, onPedirCita, Modifier.weight(1f))
-            AccesoServicio("Vacunas", Icons.Filled.MedicalServices, onPedirCita, Modifier.weight(1f))
-            AccesoServicio("Baño", Icons.Filled.ContentCut, onPedirCita, Modifier.weight(1f))
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            AccesoServicio(
+                texto = "Consulta",
+                resId = R.drawable.ic_servicio_consulta,
+                colorIcono = Color(0xFF059669),
+                colorFondo = Color(0xFFECFDF5),
+                onClick = { onPedirCitaServicio(1) },
+                modifier = Modifier.weight(1f)
+            )
+            AccesoServicio(
+                texto = "Vacunas",
+                resId = R.drawable.ic_servicio_vacunas,
+                colorIcono = Color(0xFF059669),
+                colorFondo = Color(0xFFECFDF5),
+                onClick = { onPedirCitaServicio(2) },
+                modifier = Modifier.weight(1f)
+            )
+            AccesoServicio(
+                texto = "Baño y Corte",
+                resId = R.drawable.ic_servicio_bano,
+                colorIcono = Color(0xFF059669),
+                colorFondo = Color(0xFFECFDF5),
+                onClick = { onPedirCitaServicio(3) },
+                modifier = Modifier.weight(1f)
+            )
         }
 
         Spacer(Modifier.height(24.dp))
@@ -277,24 +340,45 @@ private fun TarjetaProximoControl(cita: CitaConDetalle) {
 @Composable
 private fun AccesoServicio(
     texto: String,
-    icono: ImageVector,
+    resId: Int,
+    colorIcono: Color,
+    colorFondo: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        shape = RoundedCornerShape(16.dp)
+        colors = CardDefaults.cardColors(containerColor = colorFondo),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, colorIcono.copy(alpha = 0.2f))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                .padding(vertical = 12.dp, horizontal = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(icono, contentDescription = texto, tint = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.height(4.dp))
-            Text(texto, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(colorIcono.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = resId),
+                    contentDescription = texto,
+                    tint = colorIcono,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = texto,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }

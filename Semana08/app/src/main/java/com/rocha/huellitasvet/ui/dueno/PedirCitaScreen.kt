@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -36,8 +37,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rocha.huellitasvet.R
 import com.rocha.huellitasvet.data.local.entity.Servicio
 import com.rocha.huellitasvet.model.Horarios
 import com.rocha.huellitasvet.ui.components.AppTopBar
@@ -51,11 +55,12 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import androidx.compose.ui.graphics.Color
+
 @Composable
 fun PedirCitaScreen(
     vm: PedirCitaViewModel,
     mascotaInicial: Int?,
+    servicioInicial: Int? = null,
     onVolver: () -> Unit,
     onCreada: () -> Unit
 ) {
@@ -71,11 +76,23 @@ fun PedirCitaScreen(
     val aceptaCitas by vm.aceptaCitas.collectAsState()
     val snackbar = remember { SnackbarHostState() }
 
-    // Mascota elegida por defecto: la que viene de la ficha, o la primera
+    // Preseleccionar mascota solo si viene de la ficha de mascota (id != -1)
     LaunchedEffect(mascotas) {
-        if (mascotaId == null && mascotas.isNotEmpty()) {
-            val inicial = mascotas.firstOrNull { it.id == mascotaInicial } ?: mascotas.first()
-            vm.elegirMascota(inicial.id)
+        if (mascotaId == null && mascotas.isNotEmpty() && mascotaInicial != null && mascotaInicial != -1) {
+            val inicial = mascotas.firstOrNull { it.id == mascotaInicial }
+            if (inicial != null) {
+                vm.elegirMascota(inicial.id)
+            }
+        }
+    }
+
+    // Preseleccionar servicio solo si viene de un acceso rápido ("Consulta", "Vacunas", "Baño")
+    LaunchedEffect(servicios) {
+        if (servicioId == null && servicios.isNotEmpty() && servicioInicial != null && servicioInicial != -1) {
+            val inicial = servicios.firstOrNull { it.id == servicioInicial }
+            if (inicial != null) {
+                vm.elegirServicio(inicial.id)
+            }
         }
     }
     LaunchedEffect(mensaje) {
@@ -143,11 +160,24 @@ fun PedirCitaScreen(
 
             Spacer(Modifier.height(20.dp))
 
+            // Orden estricto: 1. Consulta, 2. Vacunas, 3. Baño
+            val serviciosOrdenados = remember(servicios) {
+                servicios.sortedBy { s ->
+                    val n = s.nombre.lowercase()
+                    when {
+                        n.contains("consulta") -> 1
+                        n.contains("vacun") -> 2
+                        n.contains("baño") || n.contains("bano") || n.contains("corte") -> 3
+                        else -> 4
+                    }
+                }
+            }
+
             // ---------- Servicio ----------
             Text("Servicio", fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                servicios.forEach { s ->
+                serviciosOrdenados.forEach { s ->
                     ServicioOpcion(
                         servicio = s,
                         seleccionado = servicioId == s.id,
@@ -242,18 +272,26 @@ fun PedirCitaScreen(
 @Composable
 private fun ServicioOpcion(servicio: Servicio, seleccionado: Boolean, onClick: () -> Unit) {
     val colores = MaterialTheme.colorScheme
+    val resId = when {
+        servicio.nombre.contains("consulta", ignoreCase = true) -> R.drawable.ic_servicio_consulta
+        servicio.nombre.contains("vacun", ignoreCase = true) -> R.drawable.ic_servicio_vacunas
+        servicio.nombre.contains("baño", ignoreCase = true) || servicio.nombre.contains("bano", ignoreCase = true) || servicio.nombre.contains("corte", ignoreCase = true) -> R.drawable.ic_servicio_bano
+        else -> R.drawable.ic_servicio_consulta
+    }
+    val colorIcono = Color(0xFF059669)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = if (seleccionado) colores.primaryContainer else colores.surface
+            containerColor = if (seleccionado) colorIcono.copy(alpha = 0.12f) else colores.surface
         ),
         border = BorderStroke(
             if (seleccionado) 2.dp else 1.dp,
-            if (seleccionado) colores.primary else colores.outlineVariant
+            if (seleccionado) colorIcono else colores.outlineVariant
         ),
-        shape = RoundedCornerShape(14.dp)
+        shape = RoundedCornerShape(16.dp)
     ) {
         Row(
             modifier = Modifier
@@ -261,21 +299,38 @@ private fun ServicioOpcion(servicio: Servicio, seleccionado: Boolean, onClick: (
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                iconoDeServicio(servicio.icono),
-                contentDescription = null,
-                tint = colores.primary,
-                modifier = Modifier.size(22.dp)
-            )
-            Spacer(Modifier.width(12.dp))
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .background(colorIcono.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = resId),
+                    contentDescription = servicio.nombre,
+                    tint = colorIcono,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            Spacer(Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(servicio.nombre, fontWeight = FontWeight.SemiBold)
-                Text("${servicio.duracionMin} min", style = MaterialTheme.typography.labelSmall)
+                Text(
+                    text = servicio.nombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${servicio.duracionMin} min · ${servicio.descripcion}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
             Text(
-                "S/ ${servicio.precio.toInt()}",
+                text = "S/ ${servicio.precio.toInt()}",
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = colores.primary
+                color = colorIcono
             )
         }
     }

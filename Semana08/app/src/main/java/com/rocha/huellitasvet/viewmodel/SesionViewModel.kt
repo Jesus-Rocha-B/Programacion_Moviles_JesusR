@@ -106,6 +106,61 @@ class SesionViewModel(
         _error.value = null
     }
 
+    private val _registroExitoso = MutableStateFlow(false)
+    val registroExitoso: StateFlow<Boolean> = _registroExitoso.asStateFlow()
+
+    fun registrar(
+        nombre: String,
+        correo: String,
+        clave: String,
+        claveConf: String,
+        rolSeleccionado: Rol
+    ) {
+        val n = nombre.trim()
+        val c = correo.trim()
+
+        if (n.length < 2) {
+            _error.value = "Ingresa tu nombre completo (mínimo 2 caracteres)"
+            return
+        }
+        if (c.isBlank() || !c.contains("@")) {
+            _error.value = "Ingresa un correo electrónico válido"
+            return
+        }
+        if (clave.length < 4) {
+            _error.value = "La contraseña debe tener al menos 4 caracteres"
+            return
+        }
+        if (clave != claveConf) {
+            _error.value = "Las contraseñas no coinciden"
+            return
+        }
+
+        viewModelScope.launch {
+            val existente = repo.buscarUsuarioPorCorreo(c)
+            if (existente != null) {
+                _error.value = "Ya existe un usuario registrado con este correo"
+                return@launch
+            }
+
+            repo.registrarUsuario(
+                Usuario(
+                    nombre = n,
+                    correo = c,
+                    clave = clave,
+                    rol = rolSeleccionado.name
+                )
+            )
+            _error.value = null
+            _registroExitoso.value = true
+        }
+    }
+
+    fun limpiarRegistro() {
+        _registroExitoso.value = false
+        _error.value = null
+    }
+
     fun cerrarSesion() {
         viewModelScope.launch {
             prefs.cerrarSesion()

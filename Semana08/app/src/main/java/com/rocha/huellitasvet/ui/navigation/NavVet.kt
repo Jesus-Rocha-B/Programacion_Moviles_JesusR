@@ -1,31 +1,54 @@
 package com.rocha.huellitasvet.ui.navigation
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocalOffer
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Pets
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.MedicalInformation
+import androidx.compose.material.icons.outlined.MedicalServices
+import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.MedicalInformation
+import androidx.compose.material.icons.rounded.MedicalServices
+import androidx.compose.material.icons.rounded.Pets
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -43,7 +66,9 @@ import com.rocha.huellitasvet.ui.dueno.InicioScreen
 import com.rocha.huellitasvet.ui.dueno.LoginScreen
 import com.rocha.huellitasvet.ui.dueno.MascotasScreen
 import com.rocha.huellitasvet.ui.dueno.MisCitasScreen
+import com.rocha.huellitasvet.ui.dueno.NotificacionesScreen
 import com.rocha.huellitasvet.ui.dueno.PedirCitaScreen
+import com.rocha.huellitasvet.ui.dueno.RegistroScreen
 import com.rocha.huellitasvet.ui.dueno.PerfilScreen
 import com.rocha.huellitasvet.ui.dueno.SplashScreen
 import com.rocha.huellitasvet.ui.veterinario.AgendaScreen
@@ -77,6 +102,15 @@ fun NavVet(sesionVm: SesionViewModel) {
     val entrada by nav.currentBackStackEntryAsState()
     val rutaActual = entrada?.destination?.route
 
+    // Redirección global inmediata al cerrar sesión
+    androidx.compose.runtime.LaunchedEffect(usuario) {
+        if (usuario == null && rutaActual != null && rutaActual != Rutas.SPLASH && rutaActual != Rutas.LOGIN && rutaActual != Rutas.REGISTRO) {
+            nav.navigate(Rutas.LOGIN) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
     fun irAlInicio(rol: Rol?, desde: String) {
         val destino = when (rol) {
             Rol.CLIENTE -> Rutas.INICIO
@@ -86,9 +120,12 @@ fun NavVet(sesionVm: SesionViewModel) {
         nav.navigate(destino) { popUpTo(desde) { inclusive = true } }
     }
 
-    /** Navega a un destino y limpia toda la pila (cambio de perfil y cierre de sesión). */
+    /** Navega a un destino y limpia toda la pila de navegación. */
     fun irLimpiandoPila(destino: String) {
-        nav.navigate(destino) { popUpTo(nav.graph.id) { inclusive = true } }
+        nav.navigate(destino) {
+            popUpTo(Rutas.SPLASH) { inclusive = true }
+            launchSingleTop = true
+        }
     }
 
     fun irAPestanaDueno(ruta: String) {
@@ -119,7 +156,11 @@ fun NavVet(sesionVm: SesionViewModel) {
         NavHost(
             navController = nav,
             startDestination = Rutas.SPLASH,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(padding),
+            enterTransition = { androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(300)) + androidx.compose.animation.slideInHorizontally { it / 4 } },
+            exitTransition = { androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(300)) + androidx.compose.animation.slideOutHorizontally { -it / 4 } },
+            popEnterTransition = { androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(300)) + androidx.compose.animation.slideInHorizontally { -it / 4 } },
+            popExitTransition = { androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(300)) + androidx.compose.animation.slideOutHorizontally { it / 4 } }
         ) {
 
             composable(Rutas.SPLASH) {
@@ -127,7 +168,19 @@ fun NavVet(sesionVm: SesionViewModel) {
             }
 
             composable(Rutas.LOGIN) {
-                LoginScreen(sesionVm) { rol -> irAlInicio(rol, Rutas.LOGIN) }
+                LoginScreen(
+                    vm = sesionVm,
+                    onRegistrarse = { nav.navigate(Rutas.REGISTRO) },
+                    onLoginExitoso = { rol -> irAlInicio(rol, Rutas.LOGIN) }
+                )
+            }
+
+            composable(Rutas.REGISTRO) {
+                RegistroScreen(
+                    vm = sesionVm,
+                    onVolver = { nav.popBackStack() },
+                    onRegistroExitoso = { nav.popBackStack() }
+                )
             }
 
             // ================= DUEÑO =================
@@ -143,7 +196,22 @@ fun NavVet(sesionVm: SesionViewModel) {
                         onMascota = { nav.navigate(Rutas.ficha(it)) },
                         onAgregar = { nav.navigate(Rutas.formulario()) },
                         onVerTodas = { irAPestanaDueno(Rutas.MASCOTAS) },
-                        onPedirCita = { nav.navigate(Rutas.pedirCita()) }
+                        onPedirCita = { nav.navigate(Rutas.pedirCita()) },
+                        onPedirCitaServicio = { sId -> nav.navigate(Rutas.pedirCita(servicioId = sId)) },
+                        onNotificaciones = { nav.navigate(Rutas.NOTIFICACIONES) }
+                    )
+                }
+            }
+
+            composable(Rutas.NOTIFICACIONES) {
+                usuario?.let { u ->
+                    val vm: InicioViewModel = viewModel(
+                        key = "inicio_${u.id}",
+                        factory = VetViewModelFactory(app.repository, app.prefs, u.id)
+                    )
+                    NotificacionesScreen(
+                        vm = vm,
+                        onVolver = { nav.popBackStack() }
                     )
                 }
             }
@@ -177,7 +245,12 @@ fun NavVet(sesionVm: SesionViewModel) {
 
             // Perfil del dueño: datos, contadores, preferencias, cambiar de perfil y cerrar sesión
             composable(Rutas.PERFIL) {
-                usuario?.let { u ->
+                val u = usuario
+                if (u == null) {
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        irLimpiandoPila(Rutas.LOGIN)
+                    }
+                } else {
                     val inicioVm: InicioViewModel = viewModel(
                         key = "inicio_${u.id}",
                         factory = VetViewModelFactory(app.repository, app.prefs, u.id)
@@ -208,7 +281,6 @@ fun NavVet(sesionVm: SesionViewModel) {
                         },
                         onCerrarSesion = {
                             sesionVm.cerrarSesion()
-                            irLimpiandoPila(Rutas.LOGIN)
                         }
                     )
                 }
@@ -261,17 +333,23 @@ fun NavVet(sesionVm: SesionViewModel) {
                     navArgument("mascotaId") {
                         type = NavType.IntType
                         defaultValue = -1
+                    },
+                    navArgument("servicioId") {
+                        type = NavType.IntType
+                        defaultValue = -1
                     }
                 )
             ) { backStackEntry ->
-                val id = backStackEntry.arguments?.getInt("mascotaId") ?: -1
+                val idMascota = backStackEntry.arguments?.getInt("mascotaId") ?: -1
+                val idServicio = backStackEntry.arguments?.getInt("servicioId") ?: -1
                 usuario?.let { u ->
                     val vm: PedirCitaViewModel = viewModel(
                         factory = VetViewModelFactory(app.repository, app.prefs, u.id)
                     )
                     PedirCitaScreen(
                         vm = vm,
-                        mascotaInicial = if (id == -1) null else id,
+                        mascotaInicial = if (idMascota == -1) null else idMascota,
+                        servicioInicial = if (idServicio == -1) null else idServicio,
                         onVolver = { nav.popBackStack() },
                         onCreada = { irAPestanaDueno(Rutas.CITAS) }
                     )
@@ -383,7 +461,12 @@ fun NavVet(sesionVm: SesionViewModel) {
 
             // Ajustes del veterinario
             composable(Rutas.AJUSTES) {
-                usuario?.let { u ->
+                val u = usuario
+                if (u == null) {
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        irLimpiandoPila(Rutas.LOGIN)
+                    }
+                } else {
                     val oscuro by sesionVm.modoOscuro.collectAsState()
                     val notificaciones by sesionVm.notificaciones.collectAsState()
                     val aceptarCitas by sesionVm.aceptarCitas.collectAsState()
@@ -403,7 +486,6 @@ fun NavVet(sesionVm: SesionViewModel) {
                         },
                         onCerrarSesion = {
                             sesionVm.cerrarSesion()
-                            irLimpiandoPila(Rutas.LOGIN)
                         }
                     )
                 }
@@ -412,13 +494,20 @@ fun NavVet(sesionVm: SesionViewModel) {
     }
 }
 
+private data class ItemBarraNav(
+    val ruta: String,
+    val etiqueta: String,
+    val resNorm: Int,
+    val resSel: Int
+)
+
 @Composable
 private fun BarraDueno(rutaActual: String?, onPestana: (String) -> Unit) {
     val items = listOf(
-        Triple(Rutas.INICIO, "Inicio", Icons.Filled.Home),
-        Triple(Rutas.MASCOTAS, "Mascotas", Icons.Filled.Pets),
-        Triple(Rutas.CITAS, "Citas", Icons.Filled.CalendarMonth),
-        Triple(Rutas.PERFIL, "Perfil", Icons.Filled.Person)
+        ItemBarraNav(Rutas.INICIO, "Inicio", com.rocha.huellitasvet.R.drawable.ic_nav_home, com.rocha.huellitasvet.R.drawable.ic_nav_home_sel),
+        ItemBarraNav(Rutas.MASCOTAS, "Mascotas", com.rocha.huellitasvet.R.drawable.ic_nav_pets, com.rocha.huellitasvet.R.drawable.ic_nav_pets_sel),
+        ItemBarraNav(Rutas.CITAS, "Citas", com.rocha.huellitasvet.R.drawable.ic_nav_calendar, com.rocha.huellitasvet.R.drawable.ic_nav_calendar_sel),
+        ItemBarraNav(Rutas.PERFIL, "Perfil", com.rocha.huellitasvet.R.drawable.ic_nav_profile, com.rocha.huellitasvet.R.drawable.ic_nav_profile_sel)
     )
     BarraInferior(items, rutaActual, onPestana)
 }
@@ -426,29 +515,59 @@ private fun BarraDueno(rutaActual: String?, onPestana: (String) -> Unit) {
 @Composable
 private fun BarraVet(rutaActual: String?, onPestana: (String) -> Unit) {
     val items = listOf(
-        Triple(Rutas.PANEL, "Panel", Icons.Filled.BarChart),
-        Triple(Rutas.AGENDA, "Agenda", Icons.Filled.CalendarMonth),
-        Triple(Rutas.PACIENTES, "Pacientes", Icons.Filled.Pets),
-        Triple(Rutas.SERVICIOS, "Servicios", Icons.Filled.LocalOffer),
-        Triple(Rutas.AJUSTES, "Ajustes", Icons.Filled.Settings)
+        ItemBarraNav(Rutas.PANEL, "Panel", com.rocha.huellitasvet.R.drawable.ic_nav_dashboard, com.rocha.huellitasvet.R.drawable.ic_nav_dashboard_sel),
+        ItemBarraNav(Rutas.AGENDA, "Agenda", com.rocha.huellitasvet.R.drawable.ic_nav_calendar, com.rocha.huellitasvet.R.drawable.ic_nav_calendar_sel),
+        ItemBarraNav(Rutas.PACIENTES, "Pacientes", com.rocha.huellitasvet.R.drawable.ic_nav_medical, com.rocha.huellitasvet.R.drawable.ic_nav_medical_sel),
+        ItemBarraNav(Rutas.SERVICIOS, "Servicios", com.rocha.huellitasvet.R.drawable.ic_nav_pets, com.rocha.huellitasvet.R.drawable.ic_nav_pets_sel),
+        ItemBarraNav(Rutas.AJUSTES, "Ajustes", com.rocha.huellitasvet.R.drawable.ic_nav_settings, com.rocha.huellitasvet.R.drawable.ic_nav_settings_sel)
     )
     BarraInferior(items, rutaActual, onPestana)
 }
 
 @Composable
 private fun BarraInferior(
-    items: List<Triple<String, String, ImageVector>>,
+    items: List<ItemBarraNav>,
     rutaActual: String?,
     onPestana: (String) -> Unit
 ) {
-    NavigationBar {
-        items.forEach { (ruta, etiqueta, icono) ->
-            NavigationBarItem(
-                selected = rutaActual == ruta,
-                onClick = { onPestana(ruta) },
-                icon = { Icon(icono, contentDescription = etiqueta) },
-                label = { Text(etiqueta) }
-            )
+    val colores = MaterialTheme.colorScheme
+    Surface(
+        color = colores.surface,
+        border = BorderStroke(0.5.dp, colores.outlineVariant.copy(alpha = 0.3f))
+    ) {
+        NavigationBar(
+            containerColor = Color.Transparent,
+            tonalElevation = 0.dp
+        ) {
+            items.forEach { item ->
+                val seleccionada = rutaActual == item.ruta
+
+                NavigationBarItem(
+                    selected = seleccionada,
+                    onClick = { onPestana(item.ruta) },
+                    icon = {
+                        Icon(
+                            painter = androidx.compose.ui.res.painterResource(id = if (seleccionada) item.resSel else item.resNorm),
+                            contentDescription = item.etiqueta,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = item.etiqueta,
+                            fontWeight = if (seleccionada) FontWeight.Bold else FontWeight.Medium
+                        )
+                    },
+                    alwaysShowLabel = true,
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = colores.primary,
+                        selectedTextColor = colores.primary,
+                        indicatorColor = colores.primaryContainer,
+                        unselectedIconColor = colores.onSurfaceVariant.copy(alpha = 0.7f),
+                        unselectedTextColor = colores.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
+                )
+            }
         }
     }
 }

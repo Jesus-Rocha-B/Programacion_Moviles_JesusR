@@ -1,4 +1,5 @@
 package com.rocha.huellitasvet.viewmodel
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rocha.huellitasvet.data.local.relation.MascotaConDueno
@@ -15,23 +16,29 @@ class PacientesViewModel(repo: VetRepository) : ViewModel() {
     private val _busqueda = MutableStateFlow("")
     val busqueda: StateFlow<String> = _busqueda.asStateFlow()
 
-    /** null = Todos; si no, "PERRO", "GATO" u "OTRO" */
-    private val _filtro = MutableStateFlow<String?>(null)
-    val filtro: StateFlow<String?> = _filtro.asStateFlow()
+    /** Conjunto de especies activas ("TODOS", "PERRO", "GATO", "OTRO") */
+    private val _filtros = MutableStateFlow(setOf("TODOS"))
+    val filtros: StateFlow<Set<String>> = _filtros.asStateFlow()
 
-    /** Mascotas con su dueño, filtradas por texto (mascota, dueño o raza) y por especie simultáneamente */
+    /** Mascotas con su dueño, filtradas por texto y combinación de especies seleccionadas */
     val pacientes: StateFlow<List<MascotaConDueno>> = combine(
         repo.observarTodasLasMascotas(),
         _busqueda,
-        _filtro
-    ) { lista, texto, especie ->
+        _filtros
+    ) { lista, texto, conjuntoEspecies ->
         val q = texto.trim().lowercase()
         lista.filter { p ->
-            val coincideEspecie = especie == null || p.mascota.especie.equals(especie, ignoreCase = true)
+            val eUpper = p.mascota.especie.uppercase()
+            val coincideEspecie = conjuntoEspecies.contains("TODOS") ||
+                    (eUpper == "PERRO" && conjuntoEspecies.contains("PERRO")) ||
+                    (eUpper == "GATO" && conjuntoEspecies.contains("GATO")) ||
+                    (eUpper != "PERRO" && eUpper != "GATO" && conjuntoEspecies.contains("OTRO"))
+
             val coincideTexto = q.isEmpty() ||
                     p.mascota.nombre.lowercase().contains(q) ||
                     p.dueno.nombre.lowercase().contains(q) ||
                     p.mascota.raza.lowercase().contains(q)
+
             coincideEspecie && coincideTexto
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -45,7 +52,25 @@ class PacientesViewModel(repo: VetRepository) : ViewModel() {
         _busqueda.value = texto
     }
 
-    fun filtrar(especie: String?) {
-        _filtro.value = especie
+    fun toggleFiltro(clave: String) {
+        if (clave == "TODOS") {
+            _filtros.value = setOf("TODOS")
+            return
+        }
+
+        val nuevos = _filtros.value.toMutableSet()
+        nuevos.remove("TODOS")
+
+        if (nuevos.contains(clave)) {
+            nuevos.remove(clave)
+        } else {
+            nuevos.add(clave)
+        }
+
+        if (nuevos.isEmpty() || nuevos.containsAll(setOf("PERRO", "GATO", "OTRO"))) {
+            _filtros.value = setOf("TODOS")
+        } else {
+            _filtros.value = nuevos
+        }
     }
 }

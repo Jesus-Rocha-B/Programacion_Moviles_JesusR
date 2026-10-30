@@ -39,7 +39,7 @@ fun PerfilScreen(
     recordatorios: Boolean,
     onModoOscuro: (Boolean) -> Unit,
     onRecordatorios: (Boolean) -> Unit,
-    onCambiarPerfil: () -> Unit,
+    onCambiarPerfil: () -> Unit = {},
     onCerrarSesion: () -> Unit
 ) {
     val colores = MaterialTheme.colorScheme
@@ -94,21 +94,7 @@ fun PerfilScreen(
             }
         }
 
-        Spacer(Modifier.height(20.dp))
-
-        OutlinedButton(
-            onClick = onCambiarPerfil,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(14.dp)
-        ) {
-            Icon(Icons.Filled.SwapHoriz, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text("Cambiar de perfil (ir a Veterinario)")
-        }
-
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(24.dp))
 
         OutlinedButton(
             onClick = onCerrarSesion,

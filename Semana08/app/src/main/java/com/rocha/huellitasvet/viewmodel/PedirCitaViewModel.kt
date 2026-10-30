@@ -103,8 +103,16 @@ class PedirCitaViewModel(
         val hora = _hora.value
         val fecha = _fecha.value
 
-        if (mId == null || sId == null || hora == null) {
-            _mensaje.value = "Elige mascota, servicio, fecha y hora"
+        if (mId == null) {
+            _mensaje.value = "Por favor, selecciona una mascota para la cita"
+            return
+        }
+        if (sId == null) {
+            _mensaje.value = "Por favor, selecciona un servicio"
+            return
+        }
+        if (hora == null) {
+            _mensaje.value = "Por favor, selecciona un horario disponible"
             return
         }
         val hoy = LocalDate.now()

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -38,14 +39,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.rocha.huellitasvet.R
 import com.rocha.huellitasvet.ui.components.AppTopBar
 import com.rocha.huellitasvet.ui.components.FilaSwitch
 import com.rocha.huellitasvet.ui.components.VetButton
 import com.rocha.huellitasvet.ui.components.VetTextField
-import com.rocha.huellitasvet.ui.components.iconoDeServicio
 import com.rocha.huellitasvet.viewmodel.ServiciosViewModel
 
 @Composable
@@ -124,17 +128,42 @@ fun FormularioServicioScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // Duración
+            // Duración (Chips de igual tamaño 25% / 25% / 25% / 25%)
             Text("Duración", fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 listOf(15, 30, 45, 60).forEach { min ->
-                    FilterChip(
-                        selected = duracion == min,
-                        onClick = { duracion = min },
-                        label = { Text("$min min") },
+                    val seleccionado = duracion == min
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(42.dp)
+                            .clip(RoundedCornerShape(50))
+                            .clickable { duracion = min },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (seleccionado) colores.primary else Color.White
+                        ),
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = if (seleccionado) colores.primary else Color(0xFFCBD5E1)
+                        ),
                         shape = RoundedCornerShape(50)
-                    )
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "$min min",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = if (seleccionado) FontWeight.Bold else FontWeight.Medium,
+                                color = if (seleccionado) Color.White else Color(0xFF334155)
+                            )
+                        }
+                    }
                 }
             }
 
@@ -148,7 +177,7 @@ fun FormularioServicioScreen(
                 error = errores.precio
             )
 
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = descripcion,
@@ -164,28 +193,42 @@ fun FormularioServicioScreen(
             // Ícono
             Text("Ícono", fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                listOf("heart", "syringe", "scissors").forEach { nombreIcono ->
-                    val elegido = icono == nombreIcono
+            val opcionesIconos = listOf(
+                Triple("heart", "Consulta", R.drawable.ic_servicio_consulta),
+                Triple("syringe", "Vacunas", R.drawable.ic_servicio_vacunas),
+                Triple("scissors", "Baño", R.drawable.ic_servicio_bano),
+                Triple("pill", "Desparasit.", R.drawable.ic_servicio_desparasitacion)
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                opcionesIconos.forEach { (clave, etiqueta, resId) ->
+                    val elegido = icono == clave
                     Card(
                         modifier = Modifier
                             .weight(1f)
-                            .height(56.dp)
-                            .clickable { icono = nombreIcono },
+                            .height(54.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .clickable { icono = clave },
                         colors = CardDefaults.cardColors(
-                            containerColor = if (elegido) colores.primaryContainer else colores.surface
+                            containerColor = if (elegido) colores.primaryContainer else Color.White
                         ),
                         border = BorderStroke(
-                            if (elegido) 2.dp else 1.dp,
-                            if (elegido) colores.primary else colores.outlineVariant
+                            width = if (elegido) 2.dp else 1.dp,
+                            color = if (elegido) colores.primary else Color(0xFFCBD5E1)
                         ),
                         shape = RoundedCornerShape(14.dp)
                     ) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Icon(
-                                iconoDeServicio(nombreIcono),
-                                contentDescription = nombreIcono,
-                                tint = colores.primary
+                                painter = painterResource(id = resId),
+                                contentDescription = etiqueta,
+                                tint = colores.primary,
+                                modifier = Modifier.size(24.dp)
                             )
                         }
                     }
