@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "328314889829",
+    "project_id": "authfirebaseapprocha",
+    "storage_bucket": "authfirebaseapprocha.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328314889829:android:9618a27f30d4bea8f9c88c",
+        "android_client_info": {
+          "package_name": "com.tecsup.authfirebaseapprocha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuKk5_jXvgMS0paWnVYWBqaz2TOy11YjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
