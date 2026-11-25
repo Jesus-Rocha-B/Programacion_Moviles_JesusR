@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Punto central de emisión GPS -->
+    <path
+        android:fillColor="#FF00A8CC"
+        android:pathData="M12,12m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <!-- Ondas concéntricas intermedias -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF00A8CC"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M7.05,7.05 A7,7 0 0,0 7.05,16.95 M16.95,7.05 A7,7 0 0,1 16.95,16.95" />
+    <!-- Ondas concéntricas exteriores -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF00A8CC"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M4.22,4.22 A11,11 0 0,0 4.22,19.78 M19.78,4.22 A11,11 0 0,1 19.78,19.78" />
+</vector>

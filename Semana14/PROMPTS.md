@@ -1,0 +1,18 @@
+# Bitácora de Asistencia con Inteligencia Artificial (Fase 2)
+
+**Proyecto:** CentroTareas  
+**Estudiante:** Jesús Rocha  
+**Docente:** Juan León S.  
+**Curso:** Programación en Móviles  
+**Institución:** Tecsup, Departamento de Tecnología Digital  
+**Rama:** `mejora-ia`  
+
+---
+
+## Registro de Prompts y Decisiones de Ingeniería
+
+| Prompt | Resumen de la respuesta | Lo que adaptaste | Tu criterio técnico |
+|---|---|---|---|
+| «¿Cómo mover la tarea simulada con progreso al Repository exponiéndola como un Flow con flowOn(Dispatchers.Default)?» | Mover el bucle de iteración y retardo de 4 segundos fuera del ViewModel hacia el Repository, retornando un `Flow<Float>` frío creado con el constructor `flow { ... }` y acoplado a `flowOn(Dispatchers.Default)`. En el ViewModel, recolectar los valores emitidos con `.collect { ... }`. | Se actualizó la interfaz `TareasRepository` con el método `fun ejecutarTareaLarga(): Flow<Float>`, se implementó en `TareasRepositoryLocal` emitiendo `i / 100f` con `delay(40)` bajo `flowOn(Dispatchers.Default)`, y en `TareasViewModel` se sustituyó el bucle imperativo local por la recolección reactiva `repo.ejecutarTareaLarga().collect { _progreso.value = it }`. | Respeta el principio de responsabilidad única (SRP) y Clean Architecture: el ViewModel solo debe orquestar estados hacia la vista y no generar o simular bucles de datos en memoria. Al utilizar un `Flow` frío con `flowOn(Dispatchers.Default)`, la emisión ocurre en el pool de fondo de CPU sin saturar el hilo principal, garantizando cancelación cooperativa al detener el `Job`. |
+| «¿Cómo implementar reintento automático con espera creciente (backoff exponencial) para llamadas que fallan en corrutinas?» | Crear una función genérica suspendible que capture fallos de red/I-O, respete la cancelación cooperativa (`CancellationException`), emita estados intermedios a la UI y aumente progresivamente el tiempo de espera con `delay(espera)` antes de relanzar el intento. | Se agregó el estado `CargaUi.Reintentando(intento, maxIntentos)` en `Estados.kt`, se implementó `ejecutarConReintento` en `TareasViewModel` con 3 intentos máximos y pausas crecientes (1000ms, 2000ms), y se actualizó `PantallaTareas.kt` para mostrar el spinner y el indicador `"Reintentando (intento X de 3)..."`. | Aplica resiliencia de red profesional mediante backoff exponencial, evitando bombardear el servidor con reintentos instantáneos ante microcortes temporales. La interfaz informa transparentemente al usuario sobre cada intento a través del `StateFlow`, y si la corrutina es cancelada por el usuario, `CancellationException` se propaga de inmediato sin demoras. |
+| «¿Cómo reportar el porcentaje de avance en el cálculo de números primos sin saturar el hilo principal ni degradar el rendimiento?» | Modular la emisión de progreso a través de un callback suspendible `onProgreso` en el Repository que notifique únicamente cada 1% de avance en lugar de cada número individual. En el ViewModel, emitir el valor hacia `PrimosUi.Calculando(progreso)`, y en Compose enlazarlo a un `LinearProgressIndicator` reactivo. | Se sobrecargó `contarPrimos` en `TareasRepository` y `TareasRepositoryLocal` calculando `pasoReporte = (hasta / 100).coerceAtLeast(1)`, se transformó `PrimosUi.Calculando` en `Estados.kt` para portar el `progreso: Float`, y en `PantallaTareas.kt` se implementó la barra de avance y el texto `"Calculando: X %"`. | Previene el problema de sobrecarga por recomposiciones desmedidas (*frame drops*) al acotar las emisiones a 100 eventos en lugar de 500,000 llamadas al hilo principal. Mantiene la computación intensiva en `Dispatchers.Default` con `ensureActive()`, logrando un feedback visual fluido, responsivo y cooperativamente cancelable. |
