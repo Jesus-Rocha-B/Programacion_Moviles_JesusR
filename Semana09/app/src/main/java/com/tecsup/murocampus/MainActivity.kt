@@ -87,7 +87,12 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     } else {
-                        PantallaDetalle(vm = vm, id = id, modifier = modifierPantalla)
+                        PantallaDetalle(
+                            vm = vm,
+                            id = id,
+                            onVolver = { idSeleccionado = null },
+                            modifier = modifierPantalla
+                        )
                     }
                 }
             }

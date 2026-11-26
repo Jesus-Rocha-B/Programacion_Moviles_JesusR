@@ -37,6 +37,8 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     val detalle = _detalle.asStateFlow()
     private val _publicacion = MutableStateFlow<UiState<Post>?>(null)
     val publicacion = _publicacion.asStateFlow()
+    private val _eliminacion = MutableStateFlow<UiState<Unit>?>(null)
+    val eliminacion = _eliminacion.asStateFlow()
     private var cargaJob: Job? = null
 
     init {
@@ -64,6 +66,7 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     }
 
     fun abrir(id: Int) {
+        _eliminacion.value = null
         viewModelScope.launch {
             _detalle.value = UiState.Cargando
             val (postResultado, comentariosResultado) = coroutineScope {
@@ -80,6 +83,21 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
                 return@launch
             }
             _detalle.value = UiState.Exito(DetalleUi(post, comentarios))
+        }
+    }
+
+    fun eliminar(id: Int) {
+        viewModelScope.launch {
+            _eliminacion.value = UiState.Cargando
+            repo.eliminar(id)
+                .onSuccess {
+                    val actual = _lista.value
+                    if (actual is UiState.Exito) {
+                        _lista.value = UiState.Exito(actual.datos.filterNot { it.id == id })
+                    }
+                    _eliminacion.value = UiState.Exito(Unit)
+                }
+                .onFailure { _eliminacion.value = UiState.Error(mensajeDe(it)) }
         }
     }
 

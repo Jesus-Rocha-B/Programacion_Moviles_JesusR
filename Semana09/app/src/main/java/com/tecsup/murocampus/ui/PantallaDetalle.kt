@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,12 +22,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tecsup.murocampus.ui.theme.AzulTecsup
+import com.tecsup.murocampus.ui.theme.ErrorRojo
 import com.tecsup.murocampus.viewmodel.PostsViewModel
 import com.tecsup.murocampus.viewmodel.UiState
 
 @Composable
-fun PantallaDetalle(vm: PostsViewModel, id: Int, modifier: Modifier = Modifier) {
+fun PantallaDetalle(
+    vm: PostsViewModel,
+    id: Int,
+    onVolver: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val estado by vm.detalle.collectAsStateWithLifecycle()
+    val eliminacion by vm.eliminacion.collectAsStateWithLifecycle()
 
     when (val actual = estado) {
         UiState.Cargando -> Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -55,6 +64,25 @@ fun PantallaDetalle(vm: PostsViewModel, id: Int, modifier: Modifier = Modifier) 
                         text = actual.datos.post.body,
                         style = MaterialTheme.typography.bodyLarge
                     )
+                }
+            }
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    when (val resultado = eliminacion) {
+                        UiState.Cargando -> CircularProgressIndicator()
+                        is UiState.Error -> Text(resultado.mensaje, color = ErrorRojo)
+                        is UiState.Exito -> {
+                            Text("Eliminación aceptada (simulada por JSONPlaceholder)")
+                            Button(onClick = onVolver) { Text("Volver a la lista") }
+                        }
+                        null -> Unit
+                    }
+                    if (eliminacion !is UiState.Exito) {
+                        Button(
+                            onClick = { vm.eliminar(id) },
+                            enabled = eliminacion !is UiState.Cargando
+                        ) { Text("Eliminar") }
+                    }
                 }
             }
             item {
