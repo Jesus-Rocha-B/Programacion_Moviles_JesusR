@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,8 +32,9 @@ fun PantallaLista(
     modifier: Modifier = Modifier,
     onPostClick: (Int) -> Unit
 ) {
-    val estado by vm.lista.collectAsStateWithLifecycle()
+    val estado by vm.listaVisible.collectAsStateWithLifecycle()
     val usuarioFiltro by vm.usuarioFiltro.collectAsStateWithLifecycle()
+    val busqueda by vm.busqueda.collectAsStateWithLifecycle()
     val coloresChip = FilterChipDefaults.filterChipColors(
         containerColor = Color.White,
         labelColor = TextoOscuro,
@@ -63,6 +66,14 @@ fun PantallaLista(
             }
         }
 
+        OutlinedTextField(
+            value = busqueda,
+            onValueChange = vm::buscar,
+            label = { Text("Buscar por título") },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            singleLine = true
+        )
+
         when (val actual = estado) {
             UiState.Cargando -> Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Cargando()
@@ -74,7 +85,7 @@ fun PantallaLista(
 
             is UiState.Exito -> if (actual.datos.isEmpty()) {
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Text("Sin publicaciones")
+                    Text(if (busqueda.isBlank()) "Sin publicaciones" else "Sin resultados")
                 }
             } else {
                 LazyColumn(
