@@ -1,0 +1,7 @@
+# Prompts de la fase 2
+
+La mejora 1 se trabajó con Codex. El siguiente prompt detallado queda preparado para usarlo en Gemini de Android Studio; cuando lo uses, registra su respuesta real en esta tabla.
+
+| Prompt preparado para Gemini | Respuesta observada hasta ahora | Qué cambié o descarté | Por qué |
+| --- | --- | --- | --- |
+| Actúa como desarrollador Android especializado en Kotlin, Retrofit y OkHttp. Estoy trabajando en MuroCampus, una app con arquitectura MVVM + Repository que consume JSONPlaceholder. Revisa `RetrofitClient.kt` y agrega un interceptor de aplicación que incluya `Accept: application/json` en todas las peticiones. Colócalo antes del `HttpLoggingInterceptor` para poder comprobar el encabezado en Logcat. Conserva la URL HTTPS, el conversor de `kotlinx.serialization` y las demás funciones. No llames a la API desde un Composable ni añadas Retrofit o `HttpException` al ViewModel. Muéstrame el cambio propuesto, explica por qué usas `header` y dime cómo verificar en Logcat que la petición lleva el encabezado y recibe HTTP 200. | Codex propuso agregar el interceptor antes del registro HTTP. **Respuesta de Gemini: pendiente de registrar tras enviarle este prompt.** | Se agregó `header("Accept", "application/json")` en `RetrofitClient.kt`; se conservaron la URL, el conversor JSON y el manejo de errores. | `header` deja un único valor `Accept` por petición. Logcat mostró `Accept: application/json` y la respuesta HTTP 200 sin modificar las otras capas. |
