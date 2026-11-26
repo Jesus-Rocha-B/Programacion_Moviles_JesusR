@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,14 +13,22 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import com.tecsup.murocampus.data.PostRepositoryRemote
+import com.tecsup.murocampus.data.remote.RetrofitClient
+import com.tecsup.murocampus.ui.PantallaLista
 import com.tecsup.murocampus.ui.theme.AzulTecsup
 import com.tecsup.murocampus.ui.theme.MuroCampusTheme
+import com.tecsup.murocampus.viewmodel.PostsViewModel
+import com.tecsup.murocampus.viewmodel.PostsViewModelFactory
 
 class MainActivity : ComponentActivity() {
+    private val vm: PostsViewModel by viewModels {
+        PostsViewModelFactory(PostRepositoryRemote(RetrofitClient.api))
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,17 +51,12 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ) { innerPadding ->
-                    Box(
+                    PantallaLista(
+                        vm = vm,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Proyecto base MuroCampus listo.",
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
+                            .padding(innerPadding)
+                    )
                 }
             }
         }
