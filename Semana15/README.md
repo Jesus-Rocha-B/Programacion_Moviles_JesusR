@@ -1,6 +1,6 @@
 # AvisosCampus
 
-Aplicación Android hecha con Kotlin y Jetpack Compose para mostrar avisos locales, programar un recordatorio de 10 segundos y escuchar los cambios del modo avión. Los avisos quedan registrados en un historial en memoria, con el más reciente primero. Sigue una arquitectura MVVM con una interfaz de repositorio.
+Aplicación Android hecha con Kotlin y Jetpack Compose para mostrar avisos locales, programar un recordatorio de 10 segundos y escuchar los cambios del modo avión y del cargador. Los avisos quedan registrados en un historial en memoria, con el más reciente primero. Sigue una arquitectura MVVM con una interfaz de repositorio.
 
 ## Cómo ejecutar
 
@@ -17,9 +17,10 @@ com.tecsup.avisoscampus/
 ├── data/
 │   └── AvisosRepository.kt      Interfaz y repositorio en memoria
 ├── notificacion/
-│   └── Notificador.kt           Permiso, canal y notificación
+│   └── Notificador.kt           Permiso, canales y notificación
 ├── receiver/
-│   └── ModoAvionReceiver.kt     Escucha cambios del modo avión
+│   ├── ModoAvionReceiver.kt     Escucha cambios del modo avión
+│   └── CargadorReceiver.kt      Escucha conexión y desconexión
 ├── viewmodel/
 │   ├── AvisosViewModel.kt        Estado y eventos de la pantalla
 │   └── AvisosViewModelFactory.kt
@@ -42,9 +43,13 @@ flowchart TD
     N --> S[Sistema Android]
     S -->|cambio de modo avión| B[ModoAvionReceiver]
     B -->|estado activado o desactivado| VM
+    S -->|conexión de carga| C[CargadorReceiver]
+    C -->|conectado o desconectado| VM
 ```
 
-El ViewModel decide qué aviso generar y lo registra mediante la interfaz `AvisosRepository`. La pantalla recibe el evento y llama a `Notificador`, porque esa capa sí tiene acceso a `Context`. El receptor se registra únicamente mientras el switch está activo y se quita en `onDispose`.
+El ViewModel decide qué aviso generar y lo registra mediante la interfaz `AvisosRepository`. La pantalla recibe el evento y llama a `Notificador`, porque esa capa sí tiene acceso a `Context`. Cada receptor se registra únicamente mientras su switch está activo y se quita en `onDispose`. Los recordatorios usan el canal «Urgentes»; los demás avisos usan «Avisos».
+
+Para probar la mejora del cargador, activa **Escuchar el cargador** y conecta o desconecta el cable: aparecerá un aviso y una entrada en el historial. Con el switch apagado, esos cambios no generan avisos.
 
 ## Capturas
 
