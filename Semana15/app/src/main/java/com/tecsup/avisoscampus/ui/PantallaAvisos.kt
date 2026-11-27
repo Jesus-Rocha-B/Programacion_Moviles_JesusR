@@ -1,5 +1,9 @@
 ﻿package com.tecsup.avisoscampus.ui
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,7 +64,13 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         }
     }
 
-    // TODO Paso 2: rememberLauncherForActivityResult y LaunchedEffect para tienePermiso
+    val lanzadorPermiso = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido -> vm.permisoRespondido(concedido) }
+
+    LaunchedEffect(Unit) {
+        if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
+    }
     // TODO Paso 6: DisposableEffect para ModoAvionReceiver
 
     Scaffold(
@@ -110,7 +120,13 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     )
                 }
                 Button(
-                    onClick = { /* TODO Paso 2: pedir permiso POST_NOTIFICATIONS */ },
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            lanzadorPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            vm.permisoRespondido(true)
+                        }
+                    },
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = AzulTecsup)
                 ) {
