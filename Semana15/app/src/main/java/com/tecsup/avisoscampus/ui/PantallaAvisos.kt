@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -26,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -47,6 +49,7 @@ import com.tecsup.avisoscampus.notificacion.Notificador
 import com.tecsup.avisoscampus.receiver.ModoAvionReceiver
 import com.tecsup.avisoscampus.ui.theme.AzulTecsup
 import com.tecsup.avisoscampus.ui.theme.FondoGrisClaro
+import com.tecsup.avisoscampus.ui.theme.FondoError
 import com.tecsup.avisoscampus.ui.theme.GrisBorde
 import com.tecsup.avisoscampus.ui.theme.RojoDenegado
 import com.tecsup.avisoscampus.ui.theme.TextoOscuro
@@ -63,11 +66,12 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val avisos by vm.avisos.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
+    val mensaje by vm.mensaje.collectAsState()
 
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
             val mostrado = Notificador.mostrar(contexto, aviso)
-            // TODO Paso 8: si no se mostró, avisar al ViewModel (vm.noSePudoMostrar())
+            if (!mostrado) vm.noSePudoMostrar()
         }
     }
 
@@ -152,7 +156,33 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 ) {
                     Text(text = "Permitir notificaciones", fontWeight = FontWeight.Bold)
                 }
-                // TODO Paso 8: mostrar mensaje de error y botón "Abrir ajustes" si permiso denegado
+                mensaje?.let { texto ->
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = FondoError,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = texto,
+                            modifier = Modifier.padding(12.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = RojoDenegado
+                        )
+                    }
+                }
+                if (permiso == PermisoUi.Denegado || mensaje != null) {
+                    OutlinedButton(
+                        onClick = {
+                            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                            contexto.startActivity(intent)
+                        },
+                        shape = RoundedCornerShape(50),
+                        border = BorderStroke(1.dp, GrisBorde)
+                    ) {
+                        Text(text = "Abrir ajustes", fontWeight = FontWeight.Bold)
+                    }
+                }
             }
 
             // Tarjeta 2: Avisos
