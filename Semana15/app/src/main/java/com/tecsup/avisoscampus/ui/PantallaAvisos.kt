@@ -138,7 +138,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             // Tarjeta 2: Avisos
             TarjetaSeccion(titulo = "Avisos") {
                 Button(
-                    onClick = { /* TODO Paso 3: vm.avisarAhora() */ },
+                    onClick = { vm.avisarAhora() },
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = AzulTecsup)
                 ) {
