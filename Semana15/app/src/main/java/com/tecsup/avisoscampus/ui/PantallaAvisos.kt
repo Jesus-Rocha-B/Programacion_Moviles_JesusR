@@ -225,22 +225,13 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }
             }
 
-            // Tarjeta 5: Historial (Paso 7: reemplazar por HistorialAvisos(avisos))
-            TarjetaSeccion(titulo = "Historial") {
-                if (avisos.isEmpty()) {
-                    Text(
-                        text = "Sin avisos todavía",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextoSecundario
-                    )
-                }
-            }
+            HistorialAvisos(avisos)
         }
     }
 }
 
 @Composable
-private fun TarjetaSeccion(
+internal fun TarjetaSeccion(
     titulo: String,
     contenido: @Composable () -> Unit
 ) {
