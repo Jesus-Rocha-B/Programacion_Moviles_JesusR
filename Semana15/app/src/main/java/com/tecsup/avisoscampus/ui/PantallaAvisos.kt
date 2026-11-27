@@ -56,6 +56,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
     val avisos by vm.avisos.collectAsState()
+    val faltan by vm.faltan.collectAsState()
 
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
@@ -153,20 +154,28 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
-                        onClick = { /* TODO Paso 5: vm.recordarEn(10) */ },
+                        onClick = { vm.recordarEn(10) },
+                        enabled = faltan == null,
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = AzulTecsup)
                     ) {
                         Text(text = "Recordar en 10 s", fontWeight = FontWeight.Bold)
                     }
                     OutlinedButton(
-                        onClick = { /* TODO Paso 5: vm.cancelarRecordatorio() */ },
-                        enabled = false,
+                        onClick = { vm.cancelarRecordatorio() },
+                        enabled = faltan != null,
                         shape = RoundedCornerShape(50),
                         border = BorderStroke(1.dp, GrisBorde)
                     ) {
                         Text(text = "Cancelar", fontWeight = FontWeight.Bold)
                     }
+                }
+                faltan?.let { segundos ->
+                    Text(
+                        text = "Faltan $segundos s",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextoOscuro
+                    )
                 }
             }
 
