@@ -1,6 +1,9 @@
 ﻿package com.tecsup.avisoscampus.notificacion
 
 import android.content.Context
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import com.tecsup.avisoscampus.model.Aviso
 
 // [G] GUIADO: completar en los pasos 1, 2, 3 y 4
@@ -8,7 +11,11 @@ object Notificador {
     const val CANAL = "avisos"
 
     fun crearCanal(context: Context) {
-        // TODO Paso 1: si SDK_INT >= O, crear NotificationChannel y registrarlo
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val canal = NotificationChannel(CANAL, "Avisos", NotificationManager.IMPORTANCE_DEFAULT)
+            val gestor = context.getSystemService(NotificationManager::class.java)
+            gestor.createNotificationChannel(canal)
+        }
     }
 
     fun tienePermiso(context: Context): Boolean {
